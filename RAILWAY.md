@@ -50,11 +50,13 @@ Im Service → **Variables** → diese Werte eintragen:
 
 | Variable | Wert |
 |----------|------|
-| `DATABASE_URL` | `file:/data/production.db` |
+| `DATABASE_URL` | `file:/data/production.db` (mit Volume) **oder** `file:./prisma/production.db` |
 | `JWT_SECRET` | Langer Zufallsstring (mind. 32 Zeichen) |
 | `NEXT_PUBLIC_APP_URL` | `https://travala.travel` |
 | `APP_URL` | `https://travala.travel` |
 | `NODE_ENV` | `production` |
+
+**Nicht setzen:** `PORT` — Railway vergibt den Port automatisch. Wenn du `PORT=3000` manuell setzt, kann die Seite mit „Application failed to respond“ abbrechen.
 
 **JWT_SECRET generieren** (lokal in PowerShell):
 ```powershell
@@ -176,7 +178,9 @@ Railway baut und deployt automatisch neu.
 | Problem | Lösung |
 |---------|--------|
 | Build schlägt fehl | Railway → Deployments → Logs lesen |
+| **Application failed to respond** | `PORT` aus Variables **löschen**. Domain neu generieren. In Deploy-Logs nach `PORT=...` schauen — dieser Port muss in Networking eingetragen sein |
+| `*.railway.internal` im Browser | **Falsch** — nur intern. Nutze `*.up.railway.app` oder `travala.travel` |
 | Seite lädt nicht | DNS noch nicht propagiert — Railway-URL direkt testen |
 | 500 Error | Variables prüfen, besonders `DATABASE_URL` und Volume `/data` |
-| Keine Hotels | `npx prisma db seed` oder Import ausführen |
+| Keine Hotels | Console: `npx prisma db seed` (oder `SEED_DATABASE=true` setzen) |
 | Admin geht nicht | `/admin/login` — neues Passwort setzen |

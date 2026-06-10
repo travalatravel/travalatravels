@@ -1,4 +1,4 @@
-import { execSync } from "child_process";
+import { execSync, spawn } from "child_process";
 import crypto from "crypto";
 import fs from "fs";
 import path from "path";
@@ -6,12 +6,36 @@ import path from "path";
 const root = process.cwd();
 const standaloneDir = path.join(root, ".next", "standalone");
 const serverEntry = path.join(standaloneDir, "server.js");
+const isRailway = Boolean(process.env.RAILWAY_ENVIRONMENT);
+
+function resolveDatabaseUrl() {
+  const raw = process.env.DATABASE_URL?.trim();
+  if (!raw) {
+    const fallback = isRailway ? "file:/app/prisma/production.db" : "file:./prisma/production.db";
+    console.warn(`⚠ DATABASE_URL not set → using ${fallback}`);
+    return fallback;
+  }
+
+  if (!isRailway || !raw.startsWith("file:")) {
+    return raw;
+  }
+
+  const filePath = raw.slice("file:".length);
+  if (path.isAbsolute(filePath)) {
+    return raw;
+  }
+
+  const absolute = path.join(root, filePath).replace(/\\/g, "/");
+  const normalized = `file:${absolute}`;
+  if (normalized !== raw) {
+    console.warn(`⚠ DATABASE_URL normalized for Railway → ${normalized}`);
+  }
+  return normalized;
+}
 
 function ensureEnv() {
-  if (!process.env.DATABASE_URL?.trim()) {
-    process.env.DATABASE_URL = "file:./prisma/production.db";
-    console.warn("⚠ DATABASE_URL not set → using file:./prisma/production.db");
-  }
+  process.env.DATABASE_URL = resolveDatabaseUrl();
+  process.env.HOSTNAME = "0.0.0.0";
 
   if (!process.env.JWT_SECRET?.trim()) {
     process.env.JWT_SECRET = crypto.randomBytes(32).toString("hex");
@@ -47,6 +71,22 @@ async function getOfferCount() {
   }
 }
 
+function runSeedInBackground() {
+  console.log("Importing offers in background (site stays online)…");
+  const child = spawn("npx", ["prisma", "db", "seed"], {
+    stdio: "inherit",
+    cwd: root,
+    env: process.env,
+  });
+  child.on("exit", (code) => {
+    if (code === 0) {
+      console.log("Background seed complete.");
+    } else {
+      console.error(`Background seed failed with exit code ${code ?? "unknown"}`);
+    }
+  });
+}
+
 async function main() {
   ensureEnv();
 
@@ -55,25 +95,57 @@ async function main() {
     process.exit(1);
   }
 
+  const listenPort = process.env.PORT || "3000";
+
   console.log("Environment OK");
   console.log(`  DATABASE_URL=${process.env.DATABASE_URL}`);
   console.log(`  APP_URL=${process.env.APP_URL}`);
-  console.log(`  PORT=${process.env.PORT || "3000"}`);
+  console.log(`  HOSTNAME=${process.env.HOSTNAME}`);
+  console.log(`  PORT=${listenPort}`);
 
   console.log("Running database migrations…");
   execSync("npx prisma migrate deploy", { stdio: "inherit", cwd: root, env: process.env });
 
-  const shouldSeed =
-    process.env.SEED_DATABASE === "true" || (await getOfferCount()) === 0;
+  const offerCount = await getOfferCount();
+  const forceSeed = process.env.SEED_DATABASE === "true";
+  const shouldSeed = forceSeed || offerCount === 0;
 
-  if (shouldSeed) {
-    console.log("Importing offers into database (3–8 minutes, please wait)…");
-    execSync("npx prisma db seed", { stdio: "inherit", cwd: root, env: process.env });
-    console.log("Database seed complete.");
+  if (shouldSeed && isRailway && !forceSeed) {
+    console.warn(
+      "Database is empty on Railway. Starting the app first; seed runs in background.",
+    );
+    console.warn("For a blocking first import, set SEED_DATABASE=true in Variables.");
   }
 
   console.log("Starting Travala app…");
-  execSync("node server.js", { stdio: "inherit", cwd: standaloneDir, env: process.env });
+  const server = spawn("node", ["server.js"], {
+    stdio: "inherit",
+    cwd: standaloneDir,
+    env: process.env,
+  });
+
+  server.on("error", (err) => {
+    console.error("Failed to start server:", err);
+    process.exit(1);
+  });
+
+  server.on("exit", (code, signal) => {
+    if (signal) {
+      console.error(`Server stopped by signal: ${signal}`);
+      process.exit(1);
+    }
+    process.exit(code ?? 0);
+  });
+
+  if (shouldSeed) {
+    if (isRailway && !forceSeed) {
+      runSeedInBackground();
+    } else {
+      console.log("Importing offers into database (3–8 minutes, please wait)…");
+      execSync("npx prisma db seed", { stdio: "inherit", cwd: root, env: process.env });
+      console.log("Database seed complete.");
+    }
+  }
 }
 
 main().catch((err) => {
