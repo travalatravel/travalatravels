@@ -133,8 +133,8 @@ export default function SearchForm({
   };
 
   const selectSuggestion = (item: SearchSuggestion) => {
-    setQuery(item.query);
-    navigateToSearch(item.query);
+    setQuery(item.label);
+    navigateToSearch(item.searchQuery || item.query);
   };
 
   const handleSearch = (e?: React.FormEvent) => {

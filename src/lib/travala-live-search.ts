@@ -1,6 +1,7 @@
 import { travalaApiHeaders, travalaHtmlHeaders } from "./travala-headers";
 import { prisma } from "./prisma";
 import { estimateHotelNightlyPrice } from "./hotel-pricing";
+import { normalizeSearchQuery } from "./search-query";
 
 const TRAVALA_BASE = "https://www.travala.com";
 
@@ -131,7 +132,7 @@ async function getWorldwideCityUrls(): Promise<Array<{ label: string; url: strin
 }
 
 async function findCityPageUrl(query: string): Promise<string | null> {
-  const q = query.trim().toLowerCase();
+  const q = (normalizeSearchQuery(query) || query).trim().toLowerCase();
   if (!q) return null;
 
   const cities = await getWorldwideCityUrls();
@@ -226,10 +227,11 @@ async function upsertLiveHotels(hotels: LiveHotel[]) {
 }
 
 export async function supplementHotelSearch(query: string, localCount: number): Promise<number> {
-  if (!query.trim() || localCount >= 30) return localCount;
+  const primary = normalizeSearchQuery(query) || query.trim();
+  if (!primary || localCount >= 30) return localCount;
 
   try {
-    const cityUrl = await findCityPageUrl(query);
+    const cityUrl = await findCityPageUrl(primary);
     if (!cityUrl) return localCount;
 
     const hotels = await fetchHotelsFromCityPage(cityUrl);

@@ -1,4 +1,5 @@
 import { travalaApiHeaders } from "./travala-headers";
+import { normalizeSearchQuery } from "./search-query";
 
 export type SuggestionKind =
   | "airport"
@@ -15,7 +16,10 @@ export type SearchSuggestion = {
   label: string;
   subtitle?: string;
   kind: SuggestionKind;
+  /** Full Travala label — shown in the input after selection */
   query: string;
+  /** Short term passed to /search (city name, hotel name, etc.) */
+  searchQuery: string;
   slug?: string;
   iata?: string;
 };
@@ -68,42 +72,69 @@ function kindFromType(type: string): SuggestionKind {
   return "city";
 }
 
+function searchQueryForLocation(name: string, kind: SuggestionKind): string {
+  const clean = stripHtml(name);
+  const parts = clean.split(",").map((p) => p.trim()).filter(Boolean);
+
+  if (kind === "neighborhood" && parts.length >= 2) {
+    return normalizeSearchQuery(parts[1]);
+  }
+
+  if (kind === "airport") {
+    return normalizeSearchQuery(parts[0] || clean);
+  }
+
+  return normalizeSearchQuery(clean);
+}
+
 function cityToSuggestion(item: TravalaCityItem): SearchSuggestion | null {
   if (!item.name || !item.id) return null;
   const type = primaryType(item);
+  const kind = kindFromType(type);
   const label = stripHtml(item.accent_name || item.name);
+  const query = stripHtml(item.name);
+  const searchQuery = searchQueryForLocation(query, kind);
   const iata = item.iata_airport_metro_code || undefined;
 
   let subtitle: string | undefined;
   if (AIRPORT_TYPES.has(type) && iata) {
     subtitle = iata;
-  } else if (type === "neighborhood" && item.name.includes(",")) {
-    const parts = item.name.split(",").map((p) => p.trim());
-    subtitle = parts.slice(1).join(", ") || undefined;
+  } else if (partsAfterCity(query)) {
+    subtitle = partsAfterCity(query);
   }
 
   return {
     id: `loc-${item.id}`,
     label,
     subtitle,
-    kind: kindFromType(type),
-    query: stripHtml(item.name),
+    kind,
+    query,
+    searchQuery,
     slug: item.city_slug || item.slug || undefined,
     iata,
   };
 }
 
+function partsAfterCity(name: string): string | undefined {
+  const parts = name.split(",").map((p) => p.trim()).filter(Boolean);
+  if (parts.length <= 1) return undefined;
+  return parts.slice(1).join(", ");
+}
+
 function propertyToSuggestion(item: TravalaPropertyItem): SearchSuggestion | null {
   if (!item.name || !item.code) return null;
   const label = stripHtml(item.accent_name || item.name);
-  const subtitle = [item.city_name, item.country_name].filter(Boolean).join(", ") || undefined;
+  const query = stripHtml(item.name);
+  const city = item.city_name?.trim();
+  const subtitle = [city, item.country_name].filter(Boolean).join(", ") || undefined;
 
   return {
     id: `hotel-${item.code}`,
     label,
     subtitle,
     kind: "hotel",
-    query: stripHtml(item.name),
+    query,
+    searchQuery: city || query,
     slug: item.slug || undefined,
   };
 }
@@ -121,10 +152,10 @@ const FLIGHT_PRIORITY: Record<SuggestionKind, number> = {
 
 const STAYS_PRIORITY: Record<SuggestionKind, number> = {
   city: 0,
-  neighborhood: 1,
-  hotel: 2,
-  landmark: 3,
-  airport: 4,
+  hotel: 1,
+  airport: 2,
+  neighborhood: 3,
+  landmark: 4,
   region: 5,
   country: 6,
   station: 7,
@@ -151,10 +182,45 @@ function allowedKinds(searchType: string): Set<SuggestionKind> | null {
   if (searchType === "flights") {
     return new Set<SuggestionKind>(["airport", "city", "station"]);
   }
+  if (searchType === "stays") {
+    return new Set<SuggestionKind>(["city", "hotel", "airport"]);
+  }
   if (searchType === "car-rental" || searchType === "activities") {
-    return new Set<SuggestionKind>(["city", "neighborhood", "airport", "landmark", "region", "country"]);
+    return new Set<SuggestionKind>(["city", "airport", "landmark", "country"]);
   }
   return null;
+}
+
+function exactMatchBoost(item: SearchSuggestion, q: string): number {
+  const needle = q.trim().toLowerCase();
+  if (!needle) return 0;
+  if (item.searchQuery.toLowerCase() === needle) return -10;
+  if (item.searchQuery.toLowerCase().startsWith(needle)) return -5;
+  if (item.label.toLowerCase().includes(needle)) return -2;
+  return 0;
+}
+
+function dedupeSuggestions(items: SearchSuggestion[], searchType: string): SearchSuggestion[] {
+  const seen = new Map<string, SearchSuggestion>();
+  const priority = priorityForType(searchType);
+
+  for (const item of items) {
+    const key = item.searchQuery.toLowerCase();
+    const existing = seen.get(key);
+
+    if (!existing || priority[item.kind] < priority[existing.kind]) {
+      seen.set(key, item);
+      continue;
+    }
+
+    if (priority[item.kind] === priority[existing.kind] && item.kind === "airport") {
+      const preferAll = /all airports/i.test(item.label);
+      const existingAll = /all airports/i.test(existing.label);
+      if (preferAll && !existingAll) seen.set(key, item);
+    }
+  }
+
+  return [...seen.values()];
 }
 
 export async function fetchTravalaSuggestions(
@@ -167,7 +233,7 @@ export async function fetchTravalaSuggestions(
 
   const params = new URLSearchParams({
     q: trimmed,
-    limit: String(Math.min(limit * 2, 20)),
+    limit: String(Math.min(limit * 3, 24)),
     enable_rth_search: "true",
     enable_typeahead: "true",
     typeahead_version: "V2",
@@ -193,6 +259,7 @@ export async function fetchTravalaSuggestions(
   const allowed = allowedKinds(searchType);
   const priority = priorityForType(searchType);
   const includeHotels = searchType === "stays";
+  const maxResults = searchType === "stays" ? Math.min(limit, 8) : limit;
 
   const locations = (json.data.cities || [])
     .map(cityToSuggestion)
@@ -205,10 +272,14 @@ export async function fetchTravalaSuggestions(
         .filter((item): item is SearchSuggestion => Boolean(item))
     : [];
 
-  const merged = [...locations, ...hotels]
-    .sort((a, b) => priority[a.kind] - priority[b.kind])
-    .filter((item, index, arr) => arr.findIndex((x) => x.label === item.label) === index)
-    .slice(0, limit);
+  const merged = dedupeSuggestions([...locations, ...hotels], searchType)
+    .sort(
+      (a, b) =>
+        exactMatchBoost(a, trimmed) - exactMatchBoost(b, trimmed) ||
+        priority[a.kind] - priority[b.kind] ||
+        a.label.localeCompare(b.label),
+    )
+    .slice(0, maxResults);
 
   return merged;
 }

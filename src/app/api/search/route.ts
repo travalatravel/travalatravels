@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { supplementHotelSearch } from "@/lib/travala-live-search";
+import { normalizeSearchQuery, searchTermsForQuery } from "@/lib/search-query";
 
 const TYPE_MAP: Record<string, string> = {
   stays: "HOTEL",
@@ -44,12 +45,13 @@ export async function GET(request: Request) {
   } = { type };
 
   if (q) {
-    where.OR = [
-      { title: { contains: q } },
-      { city: { contains: q } },
-      { country: { contains: q } },
-      { location: { contains: q } },
-    ];
+    const terms = searchTermsForQuery(q);
+    where.OR = terms.flatMap((term) => [
+      { title: { contains: term } },
+      { city: { contains: term } },
+      { country: { contains: term } },
+      { location: { contains: term } },
+    ]);
   }
 
   if (city) where.city = { contains: city };
@@ -58,7 +60,7 @@ export async function GET(request: Request) {
   let total = await prisma.offer.count({ where });
 
   if (type === "HOTEL" && q.trim() && total < 30) {
-    await supplementHotelSearch(q, total);
+    await supplementHotelSearch(normalizeSearchQuery(q) || q.trim(), total);
     total = await prisma.offer.count({ where });
   }
 
