@@ -2,12 +2,18 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import FlashSaleBanner from "@/components/FlashSaleBanner";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import SiteChrome from "@/components/SiteChrome";
 import SearchForm from "@/components/SearchForm";
 import OfferCard from "@/components/OfferCard";
 import type { Offer } from "@/lib/types";
+import { TYPE_LABELS } from "@/lib/types";
+
+const TYPE_MAP: Record<string, string> = {
+  stays: "HOTEL",
+  flights: "FLIGHT",
+  "car-rental": "CAR_RENTAL",
+  activities: "ACTIVITY",
+};
 
 function SearchResults() {
   const searchParams = useSearchParams();
@@ -20,6 +26,7 @@ function SearchResults() {
 
   const q = searchParams.get("q") || "";
   const type = searchParams.get("type") || "stays";
+  const typeLabel = TYPE_LABELS[TYPE_MAP[type] as keyof typeof TYPE_LABELS] || "Stays";
 
   useEffect(() => {
     setLoading(true);
@@ -49,10 +56,8 @@ function SearchResults() {
   };
 
   return (
-    <>
-      <FlashSaleBanner />
-      <Header />
-      <div className="bg-gradient-to-r from-[#0f172a] to-[#1e2e5e] py-5 sm:py-8">
+    <SiteChrome>
+      <div className="bg-[#1e2e5e] py-5 sm:py-8">
         <div className="mx-auto max-w-5xl px-3 sm:px-4">
           <SearchForm defaultType={type} defaultQuery={q} compact />
         </div>
@@ -61,15 +66,15 @@ function SearchResults() {
       <main className="mx-auto max-w-6xl px-3 py-8 sm:px-4 sm:py-10 lg:px-6">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="text-sm font-semibold text-amber-600">Luxury deals · Flash pricing active</p>
+            <p className="text-sm font-semibold text-[#2577be]">{typeLabel}</p>
             <h1 className="text-2xl font-bold text-[#1e2e5e]">
-              {loading ? "Searching..." : `${total} exclusive offers`}
-              {q && <span className="font-normal text-gray-500"> in &ldquo;{q}&rdquo;</span>}
+              {loading ? "Searching..." : `${total.toLocaleString()} results`}
+              {q && <span className="font-normal text-gray-500"> for &ldquo;{q}&rdquo;</span>}
             </h1>
           </div>
           {!loading && total > 0 && (
-            <span className="rounded-full bg-red-600 px-3 py-1 text-xs font-bold text-white">
-              Up to 62% off today
+            <span className="rounded-full bg-[#2dd4bf]/20 px-3 py-1 text-xs font-semibold text-[#1e2e5e]">
+              Best price guarantee
             </span>
           )}
         </div>
@@ -100,7 +105,7 @@ function SearchResults() {
                   type="button"
                   onClick={loadMore}
                   disabled={loadingMore}
-                  className="rounded-full bg-[#1e2e5e] px-8 py-3 text-sm font-semibold text-white hover:bg-[#2a3f7a] disabled:opacity-60"
+                  className="rounded-lg bg-[#2577be] px-8 py-3 text-sm font-semibold text-white hover:bg-[#1e2e5e] disabled:opacity-60"
                 >
                   {loadingMore ? "Loading…" : `Load more (${offers.length} of ${total})`}
                 </button>
@@ -109,8 +114,7 @@ function SearchResults() {
           </>
         )}
       </main>
-      <Footer />
-    </>
+    </SiteChrome>
   );
 }
 

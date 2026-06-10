@@ -7,10 +7,8 @@ import Link from "next/link";
 import OfferGallery from "@/components/OfferGallery";
 import OfferDetails from "@/components/OfferDetails";
 import { Star, MapPin, ArrowLeft } from "lucide-react";
-import FlashSaleBanner from "@/components/FlashSaleBanner";
+import SiteChrome from "@/components/SiteChrome";
 import PriceDisplay from "@/components/PriceDisplay";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
 import type { Offer } from "@/lib/types";
 import { TYPE_LABELS } from "@/lib/types";
@@ -19,7 +17,7 @@ import { defaultStayDates } from "@/lib/travala-price";
 import { CRYPTO_PAYMENT_METHODS, GATEWAY_NAME } from "@/lib/payments";
 import CryptoMethodPicker from "@/components/CryptoMethodPicker";
 import { applySalePrice, getOfferPricing, formatUsd } from "@/lib/pricing";
-import { Flame, Clock } from "lucide-react";
+import { Tag } from "lucide-react";
 
 export default function OfferDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -149,8 +147,7 @@ export default function OfferDetailPage() {
 
   return (
     <>
-      <FlashSaleBanner />
-      <Header />
+      <SiteChrome>
       <div className="w-full min-w-0 overflow-x-hidden">
       <main className="mx-auto w-full min-w-0 max-w-6xl px-3 py-6 pb-28 sm:px-4 sm:py-8 lg:px-6 lg:pb-8">
         <Link href="/search" className="mb-4 inline-flex items-center gap-1 text-sm text-[#2577be] hover:underline sm:mb-6">
@@ -159,7 +156,14 @@ export default function OfferDetailPage() {
 
         <div className="grid w-full min-w-0 grid-cols-1 gap-5 lg:grid-cols-3 lg:gap-8">
           <div className="order-2 min-w-0 lg:order-1 lg:col-span-2">
-            <OfferGallery title={offer.title} fallbackImage={offer.image} metadata={offer.metadata} />
+            <OfferGallery
+              title={offer.title}
+              fallbackImage={offer.image}
+              metadata={offer.metadata}
+              offerType={offer.type}
+              city={offer.city}
+              country={offer.country}
+            />
             <div className="mt-4 min-w-0 sm:mt-6">
               <span className="rounded-full bg-[#2577be]/10 px-3 py-1 text-xs font-semibold text-[#2577be]">
                 {TYPE_LABELS[offer.type]}
@@ -192,15 +196,11 @@ export default function OfferDetailPage() {
 
           <div className="order-1 min-w-0 lg:order-2 lg:col-span-1">
             <div className="w-full min-w-0 max-w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl sm:rounded-2xl lg:sticky lg:top-20">
-              {pricing && (
-                <div className="flex flex-col gap-1 bg-red-600 px-3 py-2 text-white sm:flex-row sm:items-center sm:justify-between sm:gap-2 sm:px-4 sm:py-2.5">
-                  <span className="flex items-center gap-1.5 text-[11px] font-bold sm:text-xs">
-                    <Flame size={14} className="flex-shrink-0" />
-                    FLASH DEAL — {pricing.discountPct}% OFF
-                  </span>
-                  <span className="flex items-center gap-1 text-[10px] text-red-100">
-                    <Clock size={11} />
-                    {pricing.urgencyRooms} left
+              {pricing && pricing.discountPct > 0 && (
+                <div className="flex items-center gap-2 bg-[#2577be] px-3 py-2.5 text-white sm:px-4">
+                  <Tag size={14} className="flex-shrink-0" />
+                  <span className="text-xs font-semibold sm:text-sm">
+                    Save up to {pricing.discountPct}% — Best price guarantee
                   </span>
                 </div>
               )}
@@ -341,7 +341,7 @@ export default function OfferDetailPage() {
         </div>
       </div>
 
-      <Footer />
+      </SiteChrome>
     </>
   );
 }

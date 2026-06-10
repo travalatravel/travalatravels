@@ -17,10 +17,10 @@ export default function Footer() {
       <div className="mx-auto max-w-6xl px-3 py-10 sm:px-4 sm:py-12 lg:px-6">
         <div className="mb-10">
           <h3 className="font-[family-name:var(--font-display)] text-xl font-bold">
-            Explore Luxury Hotels Worldwide
+            Explore the Best Hotels in the World
           </h3>
           <p className="mt-1 text-sm text-white/70">
-            5-star destinations at insider prices — book with crypto and save more
+            Discover the best countries, regions and cities to visit
           </p>
 
           <div className="mt-6 grid gap-6 sm:grid-cols-3">

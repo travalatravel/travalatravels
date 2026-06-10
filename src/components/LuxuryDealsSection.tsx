@@ -71,6 +71,9 @@ export default function LuxuryDealsSection() {
                       src={offer.image}
                       alt={offer.title}
                       metadata={offer.metadata}
+                      offerType={offer.type}
+                      city={offer.city}
+                      country={offer.country}
                       fill
                       className="object-cover transition duration-500 group-hover:scale-110"
                     />

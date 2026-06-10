@@ -1,49 +1,33 @@
 import Link from "next/link";
 import { CRYPTO_COINS } from "@/data/site-data";
 import CoinIcon from "./CoinIcon";
-import { Bitcoin } from "lucide-react";
 
 export default function CryptoSection() {
   return (
-    <section className="bg-[#0f172a] py-10 sm:py-16">
-      <div className="mx-auto max-w-6xl px-3 sm:px-4 lg:px-6">
-        <div className="grid items-center gap-10 lg:grid-cols-2">
-          <div>
-            <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-amber-400">
-              <Bitcoin size={16} />
-              Pay less with crypto
-            </p>
-            <h2 className="mt-3 font-[family-name:var(--font-display)] text-2xl font-bold text-white sm:text-3xl md:text-4xl">
-              An extra 20% off
-              <br />
-              <span className="text-amber-400">every single booking</span>
-            </h2>
-            <p className="mt-4 max-w-lg text-white/70">
-              Luxury shouldn&apos;t cost more at checkout. Pay with Bitcoin, Ethereum or
-              USDC and your total drops by an extra 20% — on top of flash-sale
-              discounts up to 62%.
-            </p>
-            <Link
-              href="/search?type=stays"
-              className="mt-6 inline-block rounded-xl bg-amber-500 px-8 py-3.5 text-sm font-bold text-slate-900 transition hover:bg-amber-400"
+    <section className="border-t border-gray-200 bg-[#f8fafc] py-10 sm:py-14">
+      <div className="mx-auto max-w-6xl px-3 text-center sm:px-4 lg:px-6">
+        <h2 className="font-[family-name:var(--font-display)] text-xl font-bold text-[#1e2e5e] sm:text-2xl">
+          Book with Crypto &amp; Save
+        </h2>
+        <p className="mx-auto mt-2 max-w-2xl text-sm text-gray-600 sm:text-base">
+          Pay for hotels, flights, car rentals and activities with Bitcoin, Ethereum, AVA and 100+ cryptocurrencies
+        </p>
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+          {CRYPTO_COINS.map((coin) => (
+            <div
+              key={coin}
+              className="flex h-14 w-14 items-center justify-center rounded-xl border border-gray-200 bg-white p-2 shadow-sm"
             >
-              Browse luxury deals →
-            </Link>
-          </div>
-          <div className="flex flex-wrap justify-center gap-4 lg:justify-end">
-            {CRYPTO_COINS.map((coin) => (
-              <div
-                key={coin}
-                className="flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-3 backdrop-blur"
-              >
-                <CoinIcon coin={coin} size={40} />
-              </div>
-            ))}
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-amber-500/30 bg-amber-500/10 text-sm font-bold text-amber-400">
-              +20%
+              <CoinIcon coin={coin} size={36} />
             </div>
-          </div>
+          ))}
         </div>
+        <Link
+          href="/search?type=stays"
+          className="mt-8 inline-block rounded-lg bg-[#2577be] px-8 py-3 text-sm font-semibold text-white hover:bg-[#1e2e5e]"
+        >
+          Start booking
+        </Link>
       </div>
     </section>
   );

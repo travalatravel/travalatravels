@@ -18,25 +18,42 @@ export const SEARCH_TABS = ["Stays", "Flights", "Car Rental", "Activities"] as c
 
 export const FEATURES = [
   {
-    title: "Luxury at insider prices",
-    description: "5-star resorts & suites up to 62% below public rates — negotiated directly with hotels",
-    icon: "rewards",
-  },
-  {
-    title: "Extra 20% with crypto",
-    description: "Pay in BTC, ETH or USDC and unlock an additional 20% discount at checkout",
-    icon: "payment",
-  },
-  {
-    title: "24/7 concierge support",
-    description: "White-glove assistance before, during and after your luxury escape",
+    title: "24/7 Customer Support",
+    description: "Contact our support team anytime via live chat or email",
     icon: "support",
+    image: "https://static.travala.com/resources/images-pc/icon/icon-support-white.svg",
   },
   {
-    title: "Lowest price guarantee",
-    description: "Found it cheaper elsewhere? We refund the difference within 24 hours",
-    icon: "guarantee",
+    title: "Multi-payment Options",
+    description: "Book with credit/debit cards and other popular methods",
+    icon: "payment",
+    image: "https://static.travala.com/resources/images-pc/icon/icon-wallet-white.svg",
   },
+  {
+    title: "Rewards & Discounts",
+    description: "Get rewards and discounts with the AVA Smart Program",
+    icon: "rewards",
+    image: "https://static.travala.com/resources/images-pc/icon/icon-gift-white.svg",
+  },
+  {
+    title: "Best Price Guarantee",
+    description: "If you find a cheaper hotel deal, we'll refund the difference!",
+    icon: "guarantee",
+    image: "https://static.travala.com/resources/images-pc/icon/icon-best-price-white.svg",
+  },
+];
+
+export const TOP_UNIQUE_PROPERTIES = [
+  { name: "Hotel", slug: "hotels", properties: 337103 },
+  { name: "Apartment", slug: "apartments", properties: 203241 },
+  { name: "Private vacation home", slug: "private-vacation-homes", properties: 83520 },
+  { name: "Villa", slug: "villas", properties: 41519 },
+  { name: "Cottage", slug: "cottages", properties: 58571 },
+  { name: "Motel", slug: "motels", properties: 20218 },
+  { name: "Hostel", slug: "hostel-backpacker-accommodations", properties: 15743 },
+  { name: "Chalet", slug: "chalets", properties: 3434 },
+  { name: "Lodge", slug: "lodges", properties: 5937 },
+  { name: "Houseboat", slug: "houseboats", properties: 481 },
 ];
 
 export const REGIONS = [
@@ -200,20 +217,28 @@ export const FOOTER_COINS = CRYPTO_COINS;
 
 export const FAQ_ITEMS = [
   {
-    q: "How are the luxury prices so low?",
-    a: "We secure bulk allocation rates and unsold inventory from 5-star hotels worldwide. Flash sales and crypto payments pass those savings directly to you — often 40–62% below public rates.",
+    q: "Why isn't there any hotel availability showing?",
+    a: "If no availability is displayed, we have no available rooms at your chosen property for your preferred dates. Try updating your search with new dates or filters, or contact our support team for assistance.",
   },
   {
-    q: "Are these really 5-star properties?",
-    a: "Yes. Every listing in our luxury collection is a verified 4★ or 5★ hotel, resort, palace or private villa. What changes is the price — not the quality.",
+    q: "What is the difference between non-refundable and free cancellation?",
+    a: "Non-refundable rates are typically lower but cannot be cancelled for a refund. Free cancellation options let you cancel within the policy window for a full or partial refund — check the room details before booking.",
   },
   {
-    q: "How do I get the extra 20% crypto discount?",
-    a: "Select BTC, ETH or USDC at checkout. Your total is automatically reduced by an additional 20% when you pay with cryptocurrency.",
+    q: "How do I pay with cryptocurrency?",
+    a: "Select cryptocurrency at checkout and choose your preferred coin (BTC, ETH, USDC and more). You'll receive payment instructions and booking confirmation once the transaction is complete.",
   },
   {
-    q: "What if I find a cheaper price elsewhere?",
-    a: "Send us proof within 24 hours of booking and we'll refund the difference. No forms, no hassle — that's our lowest price guarantee.",
+    q: "What is the Best Price Guarantee?",
+    a: "If you find a cheaper hotel deal elsewhere after booking with Travala, we'll refund the difference when you submit valid proof within the guarantee period.",
+  },
+  {
+    q: "How do I add additional baggage to a flight booking?",
+    a: "Use your airline reference from your booking confirmation to add baggage on the airline's website, or contact us at least 72 hours before departure and we can help add it to your itinerary.",
+  },
+  {
+    q: "Are there additional charges for mileage on car rental?",
+    a: "If your rental includes limited mileage and you exceed the allowance, the provider may charge per km/mile. Review the mileage policy before travel or choose unlimited mileage for flexibility.",
   },
 ];
 

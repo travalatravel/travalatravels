@@ -31,7 +31,7 @@ function Logo() {
   );
 }
 
-export default function Header() {
+export default function Header({ overHero = false }: { overHero?: boolean }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { user, loading, logout } = useAuth();
@@ -52,10 +52,12 @@ export default function Header() {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full transition-all duration-200 ${
-        scrolled
-          ? "bg-[#1e2e5e] shadow-lg"
-          : "bg-[#1e2e5e]/95 backdrop-blur-sm"
+      className={`z-50 w-full transition-all duration-200 ${
+        overHero
+          ? scrolled || menuOpen
+            ? "sticky top-0 bg-[#1e2e5e] shadow-lg"
+            : "absolute inset-x-0 top-0 bg-transparent"
+          : "sticky top-0 bg-[#1e2e5e] shadow-lg"
       }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-2.5 sm:px-4 sm:py-3 lg:px-6">
@@ -135,7 +137,7 @@ export default function Header() {
       </div>
 
       {menuOpen && (
-        <div className="max-h-[calc(100dvh-3.5rem)] overflow-y-auto border-t border-white/10 bg-[#1e2e5e] px-4 py-4 lg:hidden">
+        <div className="max-h-[calc(100dvh-3.5rem)] overflow-y-auto border-t border-white/10 bg-[#1e2e5e] px-4 py-4 lg:hidden shadow-lg">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}

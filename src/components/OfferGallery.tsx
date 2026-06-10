@@ -3,43 +3,84 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, Images } from "lucide-react";
-import { isGenericTravalaImage, travalaSlugFromOffer } from "@/lib/travala-image";
+import {
+  shouldResolveOfferImage,
+  travalaRouteUrlFromOffer,
+  travalaSlugFromOffer,
+} from "@/lib/travala-image";
+import type { OfferType } from "@/lib/types";
 
 type Props = {
   title: string;
   fallbackImage: string;
   metadata?: string | null;
+  offerType?: OfferType;
+  city?: string | null;
+  country?: string | null;
 };
 
-export default function OfferGallery({ title, fallbackImage, metadata }: Props) {
+function buildGalleryRequest(
+  offerType: OfferType,
+  metadata: string | null,
+  city?: string | null,
+  country?: string | null,
+): string | null {
+  const params = new URLSearchParams({ type: offerType });
+
+  if (offerType === "HOTEL") {
+    const slug = travalaSlugFromOffer(metadata);
+    if (!slug) return null;
+    params.set("slug", slug);
+  } else if (offerType === "FLIGHT") {
+    const url = travalaRouteUrlFromOffer(metadata);
+    if (!url) return null;
+    params.set("url", url);
+  } else {
+    if (!city?.trim()) return null;
+    params.set("city", city.trim());
+    if (country?.trim()) params.set("country", country.trim());
+  }
+
+  return `/api/offer-images?${params.toString()}`;
+}
+
+export default function OfferGallery({
+  title,
+  fallbackImage,
+  metadata,
+  offerType = "HOTEL",
+  city,
+  country,
+}: Props) {
   const [photos, setPhotos] = useState<string[]>([fallbackImage]);
   const [active, setActive] = useState(0);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const slug = travalaSlugFromOffer(metadata ?? null);
-    if (!slug) return;
+    setPhotos([fallbackImage]);
+    setActive(0);
+
+    if (!shouldResolveOfferImage(fallbackImage, offerType, metadata ?? null, city)) return;
+
+    const endpoint = buildGalleryRequest(offerType, metadata ?? null, city, country);
+    if (!endpoint) return;
 
     setLoading(true);
-    fetch(`/api/hotel-images?slug=${encodeURIComponent(slug)}`)
+    fetch(endpoint)
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (data?.photos?.length) {
           setPhotos(data.photos);
           setActive(0);
-        } else if (isGenericTravalaImage(fallbackImage)) {
-          fetch(`/api/hotel-image?slug=${encodeURIComponent(slug)}`)
-            .then((r) => (r.ok ? r.json() : null))
-            .then((img) => {
-              if (img?.url) setPhotos([img.url]);
-            });
         }
       })
       .finally(() => setLoading(false));
-  }, [metadata, fallbackImage]);
+  }, [metadata, fallbackImage, offerType, city, country]);
 
   const current = photos[active] || fallbackImage;
   const hasMany = photos.length > 1;
+  const unoptimized = (url: string) =>
+    url.includes("travelapi.com") || url.includes("static.travala.com");
 
   const prev = () => setActive((i) => (i === 0 ? photos.length - 1 : i - 1));
   const next = () => setActive((i) => (i === photos.length - 1 ? 0 : i + 1));
@@ -54,7 +95,7 @@ export default function OfferGallery({ title, fallbackImage, metadata }: Props) 
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 66vw"
           className="object-cover"
           priority
-          unoptimized={current.includes("travelapi.com")}
+          unoptimized={unoptimized(current)}
         />
 
         {hasMany && (
@@ -106,7 +147,7 @@ export default function OfferGallery({ title, fallbackImage, metadata }: Props) 
                 fill
                 sizes="80px"
                 className="object-cover"
-                unoptimized={src.includes("travelapi.com")}
+                unoptimized={unoptimized(src)}
               />
             </button>
           ))}

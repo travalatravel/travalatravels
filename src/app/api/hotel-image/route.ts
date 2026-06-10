@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { fetchTravalaHotelPhotos } from "@/lib/travala-image";
+import { fetchOfferPhotos } from "@/lib/travala-image";
 
 const cache = new Map<string, { photos: string[]; at: number }>();
 const CACHE_TTL = 1000 * 60 * 60 * 24;
@@ -16,7 +16,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const photos = await fetchTravalaHotelPhotos(slug);
+    const photos = await fetchOfferPhotos("HOTEL", { slug });
     if (!photos.length) {
       return NextResponse.json({ error: "Image not found" }, { status: 404 });
     }

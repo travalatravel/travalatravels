@@ -25,12 +25,12 @@ export default function Destinations() {
   return (
     <section className="bg-gray-50 py-10 sm:py-16">
       <div className="mx-auto max-w-6xl px-3 sm:px-4 lg:px-6">
-        <p className="text-sm font-semibold uppercase tracking-wider text-amber-600">Luxury destinations</p>
+        <p className="text-sm font-semibold uppercase tracking-wider text-[#2577be]">Explore</p>
         <h2 className="mt-1 font-[family-name:var(--font-display)] text-xl font-bold text-[#1e2e5e] sm:text-2xl md:text-3xl">
-          Where will you escape next?
+          Worldwide Destinations
         </h2>
         <p className="mt-2 text-gray-500">
-          Iconic cities &amp; hidden gems — 5-star properties at insider rates
+          Where do you want to go? Find the best hotels in top destinations
         </p>
 
         <div className="mt-8 flex gap-3 overflow-x-auto scrollbar-hide pb-2">

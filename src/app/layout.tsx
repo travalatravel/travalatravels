@@ -1,23 +1,29 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { Inter, Poppins } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
 import ViewTracker from "@/components/ViewTracker";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const poppins = Poppins({
+const montserrat = Montserrat({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-display",
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-montserrat",
 });
 
 export const metadata: Metadata = {
-  title: "Luxury Travel Deals — Up to 62% Off 5★ Hotels | Travala",
+  title: "Book Hotels, Flights, Tours & Car Rental with Crypto | Travala",
   description:
-    "Book palace hotels, private villas and first-class flights at insider prices. Limited flash sales on Dubai, Maldives, Paris & more. Pay with crypto and save extra 20%.",
+    "Book over 3 million travel products around the world with popular cryptocurrencies. Find and book Hotels, Flights, Car Rental, Tours and Activities online.",
   icons: {
     icon: "https://static.travala.com/frontend/logos-v2/favicon.png",
+  },
+  openGraph: {
+    title: "Book Hotels, Flights, Tours & Car Rental with Crypto | Travala",
+    description:
+      "Book over 3 million travel products around the world with popular cryptocurrencies.",
+    images: ["https://static.travala.com/photo/social-share-v2/social-travala.jpg"],
+    siteName: "Travala",
   },
 };
 
@@ -28,7 +34,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${poppins.variable} min-w-0 overflow-x-hidden antialiased`}>
+      <body className={`${montserrat.variable} min-w-0 overflow-x-hidden antialiased`}>
         <AuthProvider>
           <Suspense fallback={null}>
             <ViewTracker />

@@ -4,11 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import OfferImage from "@/components/OfferImage";
-import FlashSaleBanner from "@/components/FlashSaleBanner";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import SiteChrome from "@/components/SiteChrome";
 import { useAuth } from "@/context/AuthContext";
-import type { Booking } from "@/lib/types";
+import type { Booking, OfferType } from "@/lib/types";
 import { TYPE_LABELS, PAYMENT_STATUS_COLORS, PAYMENT_STATUS_LABELS } from "@/lib/types";
 import CryptoGatewayPanel from "@/components/CryptoGatewayPanel";
 import { CRYPTO_PAYMENT_LABELS } from "@/lib/payments";
@@ -46,9 +44,7 @@ export default function MyTripsPage() {
   }
 
   return (
-    <>
-      <FlashSaleBanner />
-      <Header />
+    <SiteChrome>
       <main className="mx-auto max-w-4xl px-3 py-8 sm:px-4 sm:py-10 lg:px-6">
         <h1 className="text-2xl font-bold text-[#1e2e5e]">My Trips</h1>
         <p className="mt-1 text-gray-500">Welcome back, {user.name}</p>
@@ -72,7 +68,16 @@ export default function MyTripsPage() {
               <div key={booking.id} className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
                 <div className="flex flex-col gap-4 sm:flex-row">
                   <div className="relative h-40 w-full flex-shrink-0 overflow-hidden rounded-xl sm:h-24 sm:w-32">
-                    <OfferImage src={booking.offer.image} alt={booking.offer.title} metadata={booking.offer.metadata} fill className="object-cover" />
+                    <OfferImage
+                      src={booking.offer.image}
+                      alt={booking.offer.title}
+                      metadata={booking.offer.metadata}
+                      offerType={booking.offer.type as OfferType}
+                      city={booking.offer.city}
+                      country={booking.offer.country}
+                      fill
+                      className="object-cover"
+                    />
                   </div>
                   <div className="flex-1">
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -138,7 +143,6 @@ export default function MyTripsPage() {
           </div>
         )}
       </main>
-      <Footer />
-    </>
+    </SiteChrome>
   );
 }

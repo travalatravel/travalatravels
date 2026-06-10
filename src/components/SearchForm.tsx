@@ -1,8 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Search, Users } from "lucide-react";
+import SearchSuggestions from "./SearchSuggestions";
+import type { SearchSuggestion } from "@/lib/travala-suggest";
 
 const TABS = [
   { key: "stays", label: "Stays" },
@@ -10,6 +12,13 @@ const TABS = [
   { key: "car-rental", label: "Car Rental", badge: "NEW!" },
   { key: "activities", label: "Activities" },
 ] as const;
+
+const PLACEHOLDERS: Record<string, string> = {
+  stays: "Search for Places or Properties",
+  flights: "From airport or city",
+  "car-rental": "Pick-up city or airport",
+  activities: "City or destination",
+};
 
 export default function SearchForm({
   defaultType = "stays",
@@ -26,15 +35,115 @@ export default function SearchForm({
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [guests, setGuests] = useState(2);
+  const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
+  const [suggestLoading, setSuggestLoading] = useState(false);
+  const [suggestOpen, setSuggestOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
+
+  const fetchSuggestions = useCallback(
+    async (value: string, searchType: string) => {
+      const trimmed = value.trim();
+      if (trimmed.length < 1) {
+        setSuggestions([]);
+        setSuggestLoading(false);
+        return;
+      }
+
+      abortRef.current?.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
+      setSuggestLoading(true);
+
+      try {
+        const params = new URLSearchParams({ q: trimmed, type: searchType, limit: "12" });
+        const res = await fetch(`/api/search/suggest?${params}`, { signal: controller.signal });
+        if (!res.ok) throw new Error("suggest failed");
+        const data = (await res.json()) as { suggestions?: SearchSuggestion[] };
+        setSuggestions(data.suggestions || []);
+        setActiveIndex(-1);
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") return;
+        setSuggestions([]);
+      } finally {
+        if (!controller.signal.aborted) setSuggestLoading(false);
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    if (!suggestOpen) return;
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      void fetchSuggestions(query, type);
+    }, 200);
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [query, type, suggestOpen, fetchSuggestions]);
+
+  useEffect(() => {
+    setSuggestions([]);
+    setActiveIndex(-1);
+  }, [type]);
+
+  useEffect(() => {
+    const onPointerDown = (event: MouseEvent | TouchEvent) => {
+      if (!containerRef.current?.contains(event.target as Node)) {
+        setSuggestOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("touchstart", onPointerDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("touchstart", onPointerDown);
+    };
+  }, []);
+
+  const navigateToSearch = (searchQuery: string) => {
     const params = new URLSearchParams({ type });
-    if (query) params.set("q", query);
+    if (searchQuery.trim()) params.set("q", searchQuery.trim());
     if (checkIn) params.set("checkIn", checkIn);
     if (checkOut) params.set("checkOut", checkOut);
     params.set("guests", String(guests));
+    setSuggestOpen(false);
     router.push(`/search?${params.toString()}`);
+  };
+
+  const selectSuggestion = (item: SearchSuggestion) => {
+    setQuery(item.query);
+    navigateToSearch(item.query);
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    navigateToSearch(query);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!suggestOpen || suggestions.length === 0) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActiveIndex((prev) => (prev + 1) % suggestions.length);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveIndex((prev) => (prev <= 0 ? suggestions.length - 1 : prev - 1));
+    } else if (e.key === "Enter" && activeIndex >= 0) {
+      e.preventDefault();
+      selectSuggestion(suggestions[activeIndex]);
+    } else if (e.key === "Escape") {
+      setSuggestOpen(false);
+      setActiveIndex(-1);
+    }
   };
 
   const showDates = type === "stays" || type === "car-rental";
@@ -71,15 +180,37 @@ export default function SearchForm({
           compact ? "md:flex-row md:flex-wrap md:items-center lg:flex-nowrap" : "md:flex-row md:items-center"
         }`}
       >
-        <div className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-gray-200 px-3 py-2.5 sm:px-4 sm:py-3">
-          <Search size={18} className="flex-shrink-0 text-gray-400" />
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Where to?"
-            className="min-w-0 w-full text-sm outline-none placeholder:text-gray-400 sm:placeholder:text-gray-500"
-          />
+        <div ref={containerRef} className="relative min-w-0 flex-1">
+          <div className="flex min-w-0 items-center gap-2 rounded-xl border border-gray-200 px-3 py-2.5 sm:px-4 sm:py-3">
+            <Search size={18} className="flex-shrink-0 text-gray-400" />
+            <input
+              ref={inputRef}
+              type="text"
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setSuggestOpen(true);
+              }}
+              onFocus={() => setSuggestOpen(true)}
+              onKeyDown={handleKeyDown}
+              placeholder={PLACEHOLDERS[type] || "Where to?"}
+              autoComplete="off"
+              aria-autocomplete="list"
+              aria-expanded={suggestOpen && (suggestions.length > 0 || suggestLoading)}
+              className="min-w-0 w-full text-sm outline-none placeholder:text-gray-400 sm:placeholder:text-gray-500"
+            />
+          </div>
+
+          {suggestOpen && (
+            <SearchSuggestions
+              suggestions={suggestions}
+              loading={suggestLoading}
+              query={query}
+              activeIndex={activeIndex}
+              onSelect={selectSuggestion}
+              onHover={setActiveIndex}
+            />
+          )}
         </div>
 
         {showDates && (

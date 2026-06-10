@@ -3,9 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import FlashSaleBanner from "@/components/FlashSaleBanner";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import SiteChrome from "@/components/SiteChrome";
 import BookingCheckoutForm from "@/components/BookingCheckoutForm";
 import BookingOrderSummary from "@/components/BookingOrderSummary";
 import { useAuth } from "@/context/AuthContext";
@@ -130,9 +128,7 @@ function CheckoutContent() {
 
 export default function CheckoutPage() {
   return (
-    <>
-      <FlashSaleBanner />
-      <Header />
+    <SiteChrome>
       <Suspense
         fallback={
           <div className="flex min-h-[50vh] items-center justify-center">
@@ -142,7 +138,6 @@ export default function CheckoutPage() {
       >
         <CheckoutContent />
       </Suspense>
-      <Footer />
-    </>
+    </SiteChrome>
   );
 }

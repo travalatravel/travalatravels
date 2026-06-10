@@ -2,12 +2,20 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { isGenericTravalaImage, travalaSlugFromOffer } from "@/lib/travala-image";
+import {
+  shouldResolveOfferImage,
+  travalaRouteUrlFromOffer,
+  travalaSlugFromOffer,
+} from "@/lib/travala-image";
+import type { OfferType } from "@/lib/types";
 
 type Props = {
   src: string;
   alt: string;
   metadata?: string | null;
+  offerType?: OfferType;
+  city?: string | null;
+  country?: string | null;
   fill?: boolean;
   width?: number;
   height?: number;
@@ -15,10 +23,38 @@ type Props = {
   priority?: boolean;
 };
 
+function buildImageRequest(
+  offerType: OfferType,
+  metadata: string | null,
+  city?: string | null,
+  country?: string | null,
+): string | null {
+  const params = new URLSearchParams({ type: offerType });
+
+  if (offerType === "HOTEL") {
+    const slug = travalaSlugFromOffer(metadata);
+    if (!slug) return null;
+    params.set("slug", slug);
+  } else if (offerType === "FLIGHT") {
+    const url = travalaRouteUrlFromOffer(metadata);
+    if (!url) return null;
+    params.set("url", url);
+  } else {
+    if (!city?.trim()) return null;
+    params.set("city", city.trim());
+    if (country?.trim()) params.set("country", country.trim());
+  }
+
+  return `/api/offer-image?${params.toString()}`;
+}
+
 export default function OfferImage({
   src,
   alt,
   metadata,
+  offerType = "HOTEL",
+  city,
+  country,
   fill,
   width,
   height,
@@ -29,13 +65,14 @@ export default function OfferImage({
 
   useEffect(() => {
     setResolved(src);
-    if (!isGenericTravalaImage(src)) return;
 
-    const slug = travalaSlugFromOffer(metadata ?? null);
-    if (!slug) return;
+    if (!shouldResolveOfferImage(src, offerType, metadata ?? null, city)) return;
+
+    const endpoint = buildImageRequest(offerType, metadata ?? null, city, country);
+    if (!endpoint) return;
 
     let cancelled = false;
-    fetch(`/api/hotel-image?slug=${encodeURIComponent(slug)}`)
+    fetch(endpoint)
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (!cancelled && data?.url) setResolved(data.url);
@@ -45,7 +82,7 @@ export default function OfferImage({
     return () => {
       cancelled = true;
     };
-  }, [src, metadata]);
+  }, [src, metadata, offerType, city, country]);
 
   const imgProps = {
     src: resolved,
@@ -55,8 +92,11 @@ export default function OfferImage({
     sizes: fill ? "(max-width: 768px) 100vw, 33vw" : undefined,
   };
 
+  const unoptimized =
+    resolved.includes("travelapi.com") || resolved.includes("static.travala.com");
+
   if (fill) {
-    return <Image {...imgProps} fill unoptimized={resolved.includes("travelapi.com")} />;
+    return <Image {...imgProps} fill unoptimized={unoptimized} />;
   }
 
   return (
@@ -64,7 +104,7 @@ export default function OfferImage({
       {...imgProps}
       width={width ?? 400}
       height={height ?? 300}
-      unoptimized={resolved.includes("travelapi.com")}
+      unoptimized={unoptimized}
     />
   );
 }

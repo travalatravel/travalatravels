@@ -3,9 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import FlashSaleBanner from "@/components/FlashSaleBanner";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import SiteChrome from "@/components/SiteChrome";
 import CryptoGatewayPanel from "@/components/CryptoGatewayPanel";
 import BookingOrderSummary from "@/components/BookingOrderSummary";
 import BookingGuestSummary from "@/components/BookingGuestSummary";
@@ -110,9 +108,7 @@ function PaymentContent() {
 
 export default function PaymentPage() {
   return (
-    <>
-      <FlashSaleBanner />
-      <Header />
+    <SiteChrome>
       <Suspense
         fallback={
           <div className="flex min-h-[50vh] items-center justify-center">
@@ -122,7 +118,6 @@ export default function PaymentPage() {
       >
         <PaymentContent />
       </Suspense>
-      <Footer />
-    </>
+    </SiteChrome>
   );
 }
