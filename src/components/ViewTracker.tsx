@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
+import { isAutomatedClient } from "@/lib/bot-detection";
 
 function trackView(path: string, query: string, referrer: string | null) {
   if (path.startsWith("/admin")) return;
@@ -37,6 +38,7 @@ export default function ViewTracker() {
 
   useEffect(() => {
     if (!pathname || pathname.startsWith("/admin")) return;
+    if (typeof navigator !== "undefined" && isAutomatedClient(navigator.userAgent)) return;
 
     const key = `${pathname}${fullQuery}`;
     if (isFirst.current) {

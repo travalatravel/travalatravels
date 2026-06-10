@@ -27,6 +27,11 @@ export const metadata: Metadata = {
   title: "Book Hotels, Flights, Tours & Car Rental with Crypto | Travala",
   description:
     "Book over 3 million travel products around the world with popular cryptocurrencies. Find and book Hotels, Flights, Car Rental, Tours and Activities online.",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
   icons: {
     icon: "https://static.travala.com/frontend/logos-v2/favicon.png",
   },
