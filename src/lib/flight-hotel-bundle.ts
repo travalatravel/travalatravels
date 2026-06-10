@@ -15,11 +15,15 @@ export function calcBundleHotelPrice(
   checkIn: string,
   checkOut: string,
   rooms: number,
+  liveTotal?: number | null,
 ): number {
+  const extra = 1 - BUNDLE_HOTEL_EXTRA_DISCOUNT_PCT / 100;
+  if (liveTotal != null && liveTotal > 0) {
+    return Math.round(liveTotal * extra * 100) / 100;
+  }
   const nights = bundleStayNights(checkIn, checkOut);
   const base = offer.price * nights * rooms;
   const pricing = getOfferPricing(base, offer.id, offer.stars);
-  const extra = 1 - BUNDLE_HOTEL_EXTRA_DISCOUNT_PCT / 100;
   return Math.round(pricing.salePrice * extra * 100) / 100;
 }
 
@@ -40,6 +44,7 @@ export function bundleHotelFromOffer(
   checkOut: string,
   guests: number,
   rooms = 1,
+  liveTotal?: number | null,
 ): BundleHotelSelection {
   return {
     offerId: offer.id,
@@ -48,7 +53,7 @@ export function bundleHotelFromOffer(
     checkOut,
     rooms,
     guests,
-    hotelTotal: calcBundleHotelPrice(offer, checkIn, checkOut, rooms),
+    hotelTotal: calcBundleHotelPrice(offer, checkIn, checkOut, rooms, liveTotal),
     nights: bundleStayNights(checkIn, checkOut),
   };
 }

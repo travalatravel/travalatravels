@@ -231,18 +231,10 @@ export const PARTNERS = [
   { name: "World2meet", icon: "https://statics.travala.com/partner-icon/world2meet.png", width: 120 },
 ];
 
-export const PAYMENT_ACCEPT_LOGOS = [
-  { src: "https://static.travala.com/frontend/images/paymentaccept/binance.png", alt: "Binance Pay" },
-  { src: "https://static.travala.com/frontend/images/paymentaccept/crypto-com.png", alt: "Crypto.com" },
-  { src: "https://static.travala.com/frontend/images/paymentaccept/utrust.png", alt: "Utrust" },
-  { src: "https://static.travala.com/frontend/images/paymentaccept/ava.png", alt: "AVA" },
-];
+export const PAYMENT_ACCEPT_LOGOS: { src: string; alt: string }[] = [];
 
 /** Crypto payment options from travala.com homepage (no credit cards). */
 export const CRYPTO_PAYMENT_OPTIONS = [
-  { key: "AVA", symbol: "https://statics.travala.com/coin-logo/ava20.png", name: "AVA" },
-  { key: "BINANCE", symbol: "https://statics.travala.com/coin-logo/binance-pay.svg", name: "Binance Pay" },
-  { key: "CRYPTO_COM", symbol: "https://statics.travala.com/coin-logo/Crypto.comPay.png", name: "Crypto.com" },
   { key: "BTC", symbol: "https://static.travala.com/coin-logo/btc.png", name: "Bitcoin" },
   { key: "ETH", symbol: "https://static.travala.com/coin-logo/eth.png", name: "Ethereum" },
   { key: "USDT", symbol: "https://statics.travala.com/coin-logo/USDT3.png", name: "USDT" },

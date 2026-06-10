@@ -10,6 +10,7 @@ import { normalizeFlightPayload, flightRouteLabel } from "@/lib/flight-route";
 import type { CabinClass, TripType } from "@/lib/flight-types";
 import { fetchLiveHotelPrice } from "@/lib/travala-price";
 import { travalaSlugFromOffer } from "@/lib/travala-image";
+import { BUNDLE_HOTEL_EXTRA_DISCOUNT_PCT } from "@/lib/flight-hotel-bundle";
 import { guestDetailsSchema } from "@/lib/booking-guest";
 
 const bookingSchema = z
@@ -163,7 +164,21 @@ export async function POST(request: Request) {
       }
 
       const bundleGroupId = `bundle-${Date.now()}`;
-      const hotelTotal = data.bundleHotelTotal!;
+      let hotelTotal = data.bundleHotelTotal!;
+      const slug = travalaSlugFromOffer(hotelOffer.metadata);
+      if (slug) {
+        const live = await fetchLiveHotelPrice({
+          slug,
+          checkIn: data.bundleHotelCheckIn!,
+          checkOut: data.bundleHotelCheckOut!,
+          guests: data.guests,
+          rooms: data.bundleHotelRooms ?? data.rooms,
+        });
+        if (live?.available && live.totalPrice > 0) {
+          const extra = 1 - BUNDLE_HOTEL_EXTRA_DISCOUNT_PCT / 100;
+          hotelTotal = Math.round(live.totalPrice * extra * 100) / 100;
+        }
+      }
       const flightTotal = data.liveFlightTotal ?? liveFlight!.salePrice;
 
       const [flightBooking, hotelBooking] = await prisma.$transaction([

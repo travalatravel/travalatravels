@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import SafeImage from "./SafeImage";
-import PaymentAcceptLogos from "./PaymentAcceptLogos";
 import { ASSETS, FOOTER_COINS } from "@/data/site-data";
 import {
   FOOTER_CITY_LINKS,
@@ -91,9 +90,7 @@ export default function Footer() {
             ))}
           </div>
 
-          <PaymentAcceptLogos className="mb-8 opacity-90" />
-
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mb-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-[#2dd4bf]">
                 {m.footer.sections.travala}

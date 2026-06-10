@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Building2, Check, Star } from "lucide-react";
 import OfferImage from "./OfferImage";
@@ -12,6 +12,8 @@ import {
   type BundleHotelSelection,
 } from "@/lib/flight-hotel-bundle";
 import { formatUsd } from "@/lib/pricing";
+import type { LivePriceResult } from "@/lib/travala-price";
+import { fetchLivePricesStream } from "@/lib/fetch-live-prices-stream";
 import { useTranslations } from "@/i18n/useTranslations";
 
 export default function FlightHotelBundle({
@@ -35,6 +37,9 @@ export default function FlightHotelBundle({
   const b = m.bundle;
   const [hotels, setHotels] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [livePrices, setLivePrices] = useState<Record<string, LivePriceResult>>({});
+  const [livePricesLoading, setLivePricesLoading] = useState(false);
+  const lastPushedTotal = useRef<number | null>(null);
 
   const checkIn = depart || "";
   const checkOut = returnDate || depart || "";
@@ -58,6 +63,46 @@ export default function FlightHotelBundle({
       .finally(() => setLoading(false));
   }, [destination, compact]);
 
+  useEffect(() => {
+    if (!checkIn || !checkOut || hotels.length === 0) {
+      setLivePrices({});
+      setLivePricesLoading(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    setLivePrices({});
+    setLivePricesLoading(true);
+
+    void fetchLivePricesStream(
+      {
+        offerIds: hotels.map((h) => h.id),
+        checkIn,
+        checkOut,
+        guests,
+        rooms: 1,
+      },
+      (id, price) => setLivePrices((prev) => ({ ...prev, [id]: price })),
+      controller.signal,
+    )
+      .catch(() => {})
+      .finally(() => setLivePricesLoading(false));
+
+    return () => controller.abort();
+  }, [hotels, checkIn, checkOut, guests]);
+
+  useEffect(() => {
+    if (!selectedHotelId || !onSelectHotel || !checkIn || !checkOut) return;
+    const hotel = hotels.find((h) => h.id === selectedHotelId);
+    const live = livePrices[selectedHotelId];
+    if (!hotel || !live?.totalPrice) return;
+
+    const bundle = bundleHotelFromOffer(hotel, checkIn, checkOut, guests, 1, live.totalPrice);
+    if (lastPushedTotal.current === bundle.hotelTotal) return;
+    lastPushedTotal.current = bundle.hotelTotal;
+    onSelectHotel(bundle);
+  }, [livePrices, selectedHotelId, hotels, checkIn, checkOut, guests, onSelectHotel]);
+
   if (loading) {
     return (
       <div className="mt-6 animate-pulse rounded-xl border border-gray-200 bg-gray-50 p-6">
@@ -80,10 +125,14 @@ export default function FlightHotelBundle({
   const handleSelect = (hotel: Offer) => {
     if (!onSelectHotel || !checkIn || !checkOut) return;
     if (selectedHotelId === hotel.id) {
+      lastPushedTotal.current = null;
       onSelectHotel(null);
       return;
     }
-    onSelectHotel(bundleHotelFromOffer(hotel, checkIn, checkOut, guests, 1));
+    const live = livePrices[hotel.id];
+    const bundle = bundleHotelFromOffer(hotel, checkIn, checkOut, guests, 1, live?.totalPrice);
+    lastPushedTotal.current = bundle.hotelTotal;
+    onSelectHotel(bundle);
   };
 
   return (
@@ -105,6 +154,9 @@ export default function FlightHotelBundle({
           <p className="mt-1 text-sm text-gray-500">
             {fmt(b.savingsHint, { pct: BUNDLE_HOTEL_EXTRA_DISCOUNT_PCT })}
           </p>
+          {checkIn && checkOut && livePricesLoading && (
+            <p className="mt-1 text-xs font-medium text-emerald-700">{m.searchPage.loadingLiveRates}</p>
+          )}
         </div>
         <Link href={`/search?${qs.toString()}`} className="text-sm font-semibold text-[#2D83C2] hover:underline">
           {b.viewAllHotels} →
@@ -113,7 +165,12 @@ export default function FlightHotelBundle({
 
       <div className={`grid gap-3 ${compact ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-3"}`}>
         {hotels.map((hotel) => {
-          const total = checkIn && checkOut ? calcBundleHotelPrice(hotel, checkIn, checkOut, 1) : null;
+          const live = livePrices[hotel.id];
+          const total =
+            checkIn && checkOut
+              ? calcBundleHotelPrice(hotel, checkIn, checkOut, 1, live?.totalPrice)
+              : null;
+          const isLive = live?.source === "travala";
           const selected = selectedHotelId === hotel.id;
 
           return (
@@ -145,10 +202,17 @@ export default function FlightHotelBundle({
                   </div>
                 ) : null}
                 {total != null && (
-                  <p className="mt-auto pt-2 text-sm font-bold text-[#1e2e5e]">
-                    {formatUsd(total)}
-                    <span className="ml-1 text-[10px] font-normal text-gray-500">{b.forStay}</span>
-                  </p>
+                  <div className="mt-auto pt-2">
+                    <p className="text-sm font-bold text-[#1e2e5e]">
+                      {formatUsd(total)}
+                      <span className="ml-1 text-[10px] font-normal text-gray-500">{b.forStay}</span>
+                    </p>
+                    {isLive ? (
+                      <p className="text-[10px] font-medium text-emerald-700">{m.common.liveRatesOff}</p>
+                    ) : livePricesLoading ? (
+                      <p className="text-[10px] text-gray-400">{m.searchPage.loadingLiveRates}</p>
+                    ) : null}
+                  </div>
                 )}
                 {onSelectHotel && checkIn && checkOut ? (
                   <button
