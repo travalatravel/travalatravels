@@ -24,21 +24,21 @@ export default function FlightOfferDetails({
   return (
     <div className="mt-6 space-y-6">
       <section className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6">
-        <h2 className="text-lg font-bold text-[#1e2e5e]">Flight itinerary</h2>
+        <h2 className="text-lg font-bold text-[#1a1a1a]">Flight itinerary</h2>
         <div className="mt-4 flex flex-wrap items-center gap-6">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#eef5fc]">
               <Plane size={18} className="text-[#2D83C2]" />
             </div>
             <div>
-              <p className="font-semibold text-[#1e2e5e]">{meta.airline}</p>
+              <p className="font-semibold text-[#1a1a1a]">{meta.airline}</p>
               <p className="text-sm text-gray-500">{meta.from} → {meta.to}</p>
             </div>
           </div>
           <div className="text-sm">
-            <span className="text-2xl font-bold text-[#1e2e5e]">{times.depart}</span>
+            <span className="text-2xl font-bold text-[#1a1a1a]">{times.depart}</span>
             <span className="mx-2 text-gray-300">→</span>
-            <span className="text-2xl font-bold text-[#1e2e5e]">{times.arrive}</span>
+            <span className="text-2xl font-bold text-[#1a1a1a]">{times.arrive}</span>
             <p className="mt-1 text-xs text-gray-500">{meta.duration} · {stops === 0 ? "Direct" : `${stops} stop(s)`}</p>
           </div>
         </div>
@@ -67,7 +67,7 @@ export default function FlightOfferDetails({
         ].map((item) => (
           <div key={item.title} className="rounded-xl border border-gray-100 bg-gray-50/80 p-4">
             <item.icon size={18} className="text-[#2D83C2]" />
-            <p className="mt-2 text-sm font-semibold text-[#1e2e5e]">{item.title}</p>
+            <p className="mt-2 text-sm font-semibold text-[#1a1a1a]">{item.title}</p>
             <p className="mt-1 text-xs text-gray-500">{item.text}</p>
           </div>
         ))}

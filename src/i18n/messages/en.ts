@@ -269,6 +269,7 @@ const en = {
       careers: "Careers",
     },
     copyright: "© {year} Travala. All rights reserved.",
+    copyrightLine: "© 2017–2026 Travala.com. All rights reserved.",
   },
   offerTypes: {
     HOTEL: "Hotel",

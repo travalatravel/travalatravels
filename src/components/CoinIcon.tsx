@@ -12,9 +12,9 @@ export type CoinId =
   | "ava";
 
 const COINS: Record<CoinId, { label: string; src: string }> = {
-  btc: { label: "Bitcoin", src: "/coins/btc.svg" },
-  eth: { label: "Ethereum", src: "/coins/eth.svg" },
-  usdc: { label: "USD Coin", src: "/coins/usdc.svg" },
+  btc: { label: "Bitcoin", src: "https://static.travala.com/coin-logo/btc.png" },
+  eth: { label: "Ethereum", src: "https://static.travala.com/coin-logo/eth.png" },
+  usdc: { label: "USD Coin", src: "https://static.travala.com/coin-logo/USDC.png" },
   usdt: { label: "Tether", src: "https://statics.travala.com/coin-logo/USDT3.png" },
   ltc: { label: "Litecoin", src: "https://statics.travala.com/coin-logo/ltc.png" },
   sol: { label: "Solana", src: "https://statics.travala.com/coin-logo/SOL.png" },

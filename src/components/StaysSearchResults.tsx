@@ -167,7 +167,7 @@ export default function StaysSearchResults({ context }: { context?: StaysSearchC
 
   return (
     <SiteChrome>
-      <div className="bg-[#1e2e5e] py-5 sm:py-8">
+      <div className="bg-[#1a5f94] py-5 sm:py-8">
         <div className="mx-auto max-w-5xl px-3 sm:px-4">
           <SearchForm
             compact
@@ -182,7 +182,7 @@ export default function StaysSearchResults({ context }: { context?: StaysSearchC
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <p className="text-sm font-semibold text-[#2D83C2]">{m.offerTypes.HOTEL}</p>
-            <h1 className="text-2xl font-bold text-[#1e2e5e]">
+            <h1 className="text-2xl font-bold text-[#1a1a1a]">
               {!canSearch
                 ? m.searchPage.enterDestination
                 : loading
@@ -214,7 +214,7 @@ export default function StaysSearchResults({ context }: { context?: StaysSearchC
             )}
           </div>
           {!loading && hasResults && (
-            <span className="rounded-full bg-[#2dd4bf]/20 px-3 py-1 text-xs font-semibold text-[#1e2e5e]">
+            <span className="rounded-full bg-[#2D83C2]/20 px-3 py-1 text-xs font-semibold text-[#1a1a1a]">
               {m.common.bestPriceGuarantee}
             </span>
           )}
@@ -238,7 +238,7 @@ export default function StaysSearchResults({ context }: { context?: StaysSearchC
 
         {!canSearch ? (
           <div className="mt-12 text-center">
-            <p className="text-lg font-medium text-[#1e2e5e]">{m.searchPage.enterDestination}</p>
+            <p className="text-lg font-medium text-[#1a1a1a]">{m.searchPage.enterDestination}</p>
             <p className="mt-2 text-sm text-gray-500">{m.common.whereTo}</p>
           </div>
         ) : loading ? (
@@ -276,7 +276,7 @@ export default function StaysSearchResults({ context }: { context?: StaysSearchC
                   type="button"
                   onClick={loadMore}
                   disabled={loadingMore}
-                  className="rounded-lg bg-[#2D83C2] px-8 py-3 text-sm font-semibold text-white hover:bg-[#1e2e5e] disabled:opacity-60"
+                  className="rounded-lg bg-[#2D83C2] px-8 py-3 text-sm font-semibold text-white hover:bg-[#1a5f94] disabled:opacity-60"
                 >
                   {loadingMore ? m.common.loading : fmt(m.searchPage.loadMore, { shown: offers.length, total })}
                 </button>

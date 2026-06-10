@@ -67,7 +67,7 @@ export default function BookingGuestSummary({ booking }: { booking: GuestBooking
 
   return (
     <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-5">
-      <h3 className="text-sm font-semibold text-[#1e2e5e]">{g.title}</h3>
+      <h3 className="text-sm font-semibold text-[#1a1a1a]">{g.title}</h3>
       <div className="mt-4 space-y-4">
         <Row
           icon={type === "BUSINESS" ? Building2 : User}

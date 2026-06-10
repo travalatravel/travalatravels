@@ -1,19 +1,14 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { Inter, Montserrat, Satisfy } from "next/font/google";
+import { Inter, Satisfy } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
 import ViewTracker from "@/components/ViewTracker";
 import SiteAnalytics from "@/components/SiteAnalytics";
+import AppBanner from "@/components/AppBanner";
 import { LocaleProvider } from "@/i18n/LocaleProvider";
 import { LOCALE_META } from "@/i18n/config";
 import { resolveLocale } from "@/i18n/detect";
 import "./globals.css";
-
-const montserrat = Montserrat({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800", "900"],
-  variable: "--font-montserrat",
-});
 
 const inter = Inter({
   subsets: ["latin"],
@@ -61,13 +56,14 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} dir={dir}>
-      <body className={`${montserrat.variable} ${inter.variable} ${satisfy.variable} min-w-0 overflow-x-hidden antialiased`}>
+      <body className={`${inter.variable} ${satisfy.variable} min-w-0 overflow-x-hidden antialiased`}>
         <SiteAnalytics />
         <LocaleProvider locale={locale}>
           <AuthProvider>
             <Suspense fallback={null}>
               <ViewTracker />
             </Suspense>
+            <AppBanner />
             {children}
           </AuthProvider>
         </LocaleProvider>

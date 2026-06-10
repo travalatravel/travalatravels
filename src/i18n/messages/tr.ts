@@ -91,6 +91,7 @@ const tr: Partial<Messages> = {
       contact: "İletişim", concierge: "Concierge", bugReport: "Hata bildir", reviews: "Yorumları oku", careers: "Kariyer",
     },
     copyright: "© {year} Travala. Tüm hakları saklıdır.",
+    copyrightLine: "© 2017–2026 Travala.com. All rights reserved.",
   },
   offerTypes: { HOTEL: "Otel", FLIGHT: "Uçuş", CAR_RENTAL: "Araç kiralama", ACTIVITY: "Aktivite" },
   paymentStatus: { PENDING: "Ödeme bekleniyor", AWAITING_CONFIRMATION: "TX doğrulanıyor", PAID: "Ödendi", FAILED: "Başarısız", REFUNDED: "İade edildi" },

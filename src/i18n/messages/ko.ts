@@ -91,6 +91,7 @@ const ko: Partial<Messages> = {
       contact: "문의", concierge: "컨시어지", bugReport: "버그 신고", reviews: "리뷰 읽기", careers: "채용",
     },
     copyright: "© {year} Travala. All rights reserved.",
+    copyrightLine: "© 2017–2026 Travala.com. All rights reserved.",
   },
   offerTypes: { HOTEL: "호텔", FLIGHT: "항공", CAR_RENTAL: "렌터카", ACTIVITY: "액티비티" },
   paymentStatus: { PENDING: "결제 대기", AWAITING_CONFIRMATION: "TX 확인 중", PAID: "결제 완료", FAILED: "실패", REFUNDED: "환불됨" },

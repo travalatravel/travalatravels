@@ -60,15 +60,15 @@ export default function FlightResultCard({
             <Plane size={22} />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-bold text-[#1e2e5e]">{meta.airline || "Airline"}</p>
+            <p className="text-sm font-bold text-[#1a1a1a]">{meta.airline || "Airline"}</p>
             <p className="mt-0.5 text-xs text-gray-500">
               {meta.from || offer.city} → {meta.to || "Destination"}
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-4 text-sm">
               <div>
-                <span className="text-lg font-bold text-[#1e2e5e]">{times.depart}</span>
+                <span className="text-lg font-bold text-[#1a1a1a]">{times.depart}</span>
                 <span className="mx-2 text-gray-300">→</span>
-                <span className="text-lg font-bold text-[#1e2e5e]">{times.arrive}</span>
+                <span className="text-lg font-bold text-[#1a1a1a]">{times.arrive}</span>
               </div>
               <span className="flex items-center gap-1 text-xs text-gray-500">
                 <Clock size={12} />
@@ -89,13 +89,13 @@ export default function FlightResultCard({
 
         <div className="flex shrink-0 flex-row items-center justify-between gap-4 border-t border-gray-100 pt-3 sm:flex-col sm:items-end sm:border-t-0 sm:pt-0">
           <div className="text-right">
-            <p className="text-2xl font-bold text-[#1e2e5e]">{formatUsd(pricing.salePrice)}</p>
+            <p className="text-2xl font-bold text-[#1a1a1a]">{formatUsd(pricing.salePrice)}</p>
             {pricing.originalPrice > pricing.salePrice && (
               <p className="text-xs text-gray-400 line-through">{formatUsd(pricing.originalPrice)}</p>
             )}
             <p className="text-[10px] text-gray-500">total for {pax} passenger{pax !== 1 ? "s" : ""}</p>
           </div>
-          <span className="rounded-lg bg-[#2D83C2] px-5 py-2.5 text-sm font-semibold text-white transition group-hover:bg-[#1e2e5e]">
+          <span className="rounded-lg bg-[#2D83C2] px-5 py-2.5 text-sm font-semibold text-white transition group-hover:bg-[#1a5f94]">
             Select
           </span>
         </div>

@@ -46,7 +46,7 @@ export default function MyTripsPage() {
   return (
     <SiteChrome>
       <main className="mx-auto max-w-4xl px-3 py-8 sm:px-4 sm:py-10 lg:px-6">
-        <h1 className="text-2xl font-bold text-[#1e2e5e]">My Trips</h1>
+        <h1 className="text-2xl font-bold text-[#1a1a1a]">My Trips</h1>
         <p className="mt-1 text-gray-500">Welcome back, {user.name}</p>
 
         {loading ? (
@@ -90,7 +90,7 @@ export default function MyTripsPage() {
                             {booking.status}
                           </span>
                         </div>
-                        <h3 className="mt-1 font-semibold text-[#1e2e5e]">{booking.offer.title}</h3>
+                        <h3 className="mt-1 font-semibold text-[#1a1a1a]">{booking.offer.title}</h3>
                         {booking.guestFirstName && (
                           <p className="text-xs text-gray-500">
                             Guest: {guestDisplayName(booking)}

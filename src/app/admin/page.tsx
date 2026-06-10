@@ -47,12 +47,12 @@ export default function AdminDashboard() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-[#1e2e5e]">Dashboard</h1>
+          <h1 className="text-2xl font-bold text-[#1a1a1a]">Dashboard</h1>
           <p className="mt-1 text-gray-500">Overview of your Travala platform</p>
         </div>
         <Link
           href="/admin/views"
-          className="rounded-xl bg-[#2D83C2] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1e2e5e]"
+          className="rounded-xl bg-[#2D83C2] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5f94]"
         >
           View all traffic
         </Link>
@@ -65,7 +65,7 @@ export default function AdminDashboard() {
               <c.icon size={22} />
             </div>
             <div>
-              <p className="text-2xl font-bold text-[#1e2e5e]">{c.value}</p>
+              <p className="text-2xl font-bold text-[#1a1a1a]">{c.value}</p>
               <p className="text-sm text-gray-500">{c.label}</p>
             </div>
           </div>
@@ -73,7 +73,7 @@ export default function AdminDashboard() {
       </div>
 
       <div className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
-        <h2 className="font-semibold text-[#1e2e5e]">Recent Bookings</h2>
+        <h2 className="font-semibold text-[#1a1a1a]">Recent Bookings</h2>
         <div className="mt-4 overflow-x-auto">
           <table className="w-full text-sm">
             <thead>

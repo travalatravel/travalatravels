@@ -438,7 +438,7 @@ export default function SearchForm({
         disabled={!canSearchStays}
         className={`shrink-0 rounded-xl font-semibold uppercase tracking-wide text-white transition ${
           canSearchStays
-            ? "bg-[#2D83C2] hover:bg-[#1e2e5e]"
+            ? "bg-[#2D83C2] hover:bg-[#1a5f94]"
             : "cursor-not-allowed bg-[#2D83C2]/40"
         } ${
           isHero ? "min-h-12 min-w-[140px] px-6 py-3 lg:min-w-[168px] lg:self-center" : "min-h-12 w-full px-6 py-3.5 sm:w-auto"

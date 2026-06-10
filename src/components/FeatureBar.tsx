@@ -23,7 +23,7 @@ export default function FeatureBar() {
               />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-[#1e2e5e]">{m.features[i]?.title ?? feature.title}</h3>
+              <h3 className="text-sm font-semibold text-[#1a1a1a]">{m.features[i]?.title ?? feature.title}</h3>
               <p className="mt-1 text-xs leading-relaxed text-gray-500">{m.features[i]?.description ?? feature.description}</p>
             </div>
           </div>

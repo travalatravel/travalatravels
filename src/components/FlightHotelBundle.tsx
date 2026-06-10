@@ -147,7 +147,7 @@ export default function FlightHotelBundle({
         <div>
           <div className="flex items-center gap-2">
             <Building2 className="text-[#2D83C2]" size={20} />
-            <h2 className="text-lg font-bold text-[#1e2e5e]">
+            <h2 className="text-lg font-bold text-[#1a1a1a]">
               {fmt(b.addHotelIn, { destination })}
             </h2>
           </div>
@@ -193,7 +193,7 @@ export default function FlightHotelBundle({
                 />
               </div>
               <div className="flex min-w-0 flex-1 flex-col p-3">
-                <h3 className="line-clamp-2 text-sm font-semibold text-[#1e2e5e]">{hotel.title}</h3>
+                <h3 className="line-clamp-2 text-sm font-semibold text-[#1a1a1a]">{hotel.title}</h3>
                 {hotel.stars ? (
                   <div className="mt-1 flex gap-0.5">
                     {Array.from({ length: hotel.stars }).map((_, i) => (
@@ -203,7 +203,7 @@ export default function FlightHotelBundle({
                 ) : null}
                 {total != null && (
                   <div className="mt-auto pt-2">
-                    <p className="text-sm font-bold text-[#1e2e5e]">
+                    <p className="text-sm font-bold text-[#1a1a1a]">
                       {formatUsd(total)}
                       <span className="ml-1 text-[10px] font-normal text-gray-500">{b.forStay}</span>
                     </p>

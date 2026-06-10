@@ -91,6 +91,7 @@ const pt: Partial<Messages> = {
       contact: "Fale conosco", concierge: "Concierge", bugReport: "Reportar bug", reviews: "Ler avaliações", careers: "Carreiras",
     },
     copyright: "© {year} Travala. Todos os direitos reservados.",
+    copyrightLine: "© 2017–2026 Travala.com. All rights reserved.",
   },
   offerTypes: { HOTEL: "Hotel", FLIGHT: "Voo", CAR_RENTAL: "Aluguel de carro", ACTIVITY: "Atividade" },
   paymentStatus: { PENDING: "Aguardando pagamento", AWAITING_CONFIRMATION: "Verificando TX", PAID: "Pago", FAILED: "Falhou", REFUNDED: "Reembolsado" },

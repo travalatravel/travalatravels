@@ -38,7 +38,7 @@ export default function HotelsMapPanel({
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
       <div className="border-b border-gray-100 px-4 py-3">
-        <p className="text-sm font-semibold text-[#1e2e5e]">Map</p>
+        <p className="text-sm font-semibold text-[#1a1a1a]">Map</p>
         {centerLabel && <p className="text-xs text-gray-500">{centerLabel}</p>}
       </div>
       <iframe
@@ -53,7 +53,7 @@ export default function HotelsMapPanel({
           const href = slug ? `/hotel/${slug}` : `/offers/${offer.id}`;
           return (
             <li key={offer.id} className="border-b border-gray-50 py-2 last:border-0">
-              <a href={href} className="flex items-start gap-2 text-[#1e2e5e] hover:text-[#2D83C2]">
+              <a href={href} className="flex items-start gap-2 text-[#1a1a1a] hover:text-[#2D83C2]">
                 <MapPin size={12} className="mt-0.5 shrink-0 text-[#2D83C2]" />
                 <span className="line-clamp-2">{offer.title}</span>
               </a>

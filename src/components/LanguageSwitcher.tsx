@@ -68,7 +68,7 @@ export default function LanguageSwitcher({
         <div
           role="listbox"
           className={`absolute right-0 top-[calc(100%+0.35rem)] z-[60] max-h-[min(20rem,70vh)] min-w-[11rem] overflow-y-auto rounded-xl border py-1 shadow-2xl ${
-            isHome ? "border-gray-200 bg-white" : "border-white/10 bg-[#1e2e5e]"
+            isHome ? "border-gray-200 bg-white" : "border-white/10 bg-[#1a5f94]"
           }`}
         >
           {LOCALES.map((code) => {

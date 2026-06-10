@@ -37,7 +37,7 @@ function SidebarContent({
   return (
     <>
       <div className="border-b border-white/10 p-4 sm:p-5">
-        <p className="text-xs font-semibold uppercase tracking-wider text-[#2dd4bf]">Travala Admin</p>
+        <p className="text-xs font-semibold uppercase tracking-wider text-[#2D83C2]">Travala Admin</p>
         <p className="mt-1 text-sm text-white/70">Password protected</p>
       </div>
       <nav className="flex-1 overflow-y-auto p-3">
@@ -133,7 +133,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 bg-[#1e2e5e] text-white lg:flex lg:flex-col">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 bg-[#1a5f94] text-white lg:flex lg:flex-col">
         <SidebarContent pathname={pathname} onLogout={logout} />
       </aside>
 
@@ -145,7 +145,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             onClick={() => setMenuOpen(false)}
             aria-label="Close menu"
           />
-          <aside className="relative flex h-full w-[min(280px,85vw)] flex-col bg-[#1e2e5e] text-white shadow-xl">
+          <aside className="relative flex h-full w-[min(280px,85vw)] flex-col bg-[#1a5f94] text-white shadow-xl">
             <button
               type="button"
               onClick={() => setMenuOpen(false)}
@@ -168,12 +168,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <button
             type="button"
             onClick={() => setMenuOpen(true)}
-            className="rounded-lg p-2 text-[#1e2e5e] hover:bg-gray-100"
+            className="rounded-lg p-2 text-[#1a1a1a] hover:bg-gray-100"
             aria-label="Open menu"
           >
             <Menu size={22} />
           </button>
-          <p className="text-sm font-semibold text-[#1e2e5e]">Travala Admin</p>
+          <p className="text-sm font-semibold text-[#1a1a1a]">Travala Admin</p>
         </header>
         <main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
       </div>

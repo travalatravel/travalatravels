@@ -1,3 +1,5 @@
+import { slugForHotelName } from "@/data/featured-hotel-slugs";
+
 export function slugify(value: string): string {
   return value
     .trim()
@@ -54,8 +56,16 @@ const COUNTRY_SLUGS = new Set([
   "singapore",
 ]);
 
+export function featuredHotelPath(name: string): string {
+  const slug = slugForHotelName(name);
+  if (slug) return hotelDetailPath(slug);
+  return searchStaysPath(name);
+}
+
 export function searchStaysPath(query?: string): string {
   if (!query) return "/search?type=stays";
+  const hotelSlug = slugForHotelName(query);
+  if (hotelSlug) return hotelDetailPath(hotelSlug);
   const slug = slugify(query);
   if (COUNTRY_SLUGS.has(slug)) return hotelsCountryPath(query);
   return `/search?type=stays&q=${encodeURIComponent(query)}`;

@@ -31,7 +31,7 @@ function Section({
 }) {
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
-      <h2 className="text-lg font-semibold text-[#1e2e5e]">{title}</h2>
+      <h2 className="text-lg font-semibold text-[#1a1a1a]">{title}</h2>
       {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}
       <div className="mt-5">{children}</div>
     </section>
@@ -234,13 +234,13 @@ export default function BookingCheckoutForm({
               onClick={() => setBookingType(id)}
               className={`flex items-start gap-3 rounded-xl border p-4 text-left transition ${
                 bookingType === id
-                  ? "border-[#1e2e5e] bg-slate-50 ring-2 ring-[#1e2e5e]/20"
+                  ? "border-[#1a1a1a] bg-slate-50 ring-2 ring-[#1e2e5e]/20"
                   : "border-slate-200 hover:border-slate-300"
               }`}
             >
               <Icon size={20} className={bookingType === id ? "text-[#2D83C2]" : "text-slate-400"} />
               <div>
-                <p className="font-semibold text-[#1e2e5e]">{label}</p>
+                <p className="font-semibold text-[#1a1a1a]">{label}</p>
                 <p className="text-xs text-slate-500">{desc}</p>
               </div>
             </button>
@@ -469,7 +469,7 @@ export default function BookingCheckoutForm({
         <button
           type="submit"
           disabled={submitting}
-          className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#1e2e5e] py-4 text-sm font-bold text-white transition hover:bg-[#2D83C2] disabled:opacity-50"
+          className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#1a5f94] py-4 text-sm font-bold text-white transition hover:bg-[#2D83C2] disabled:opacity-50"
         >
           {submitting ? c.creatingBooking : c.continueToPayment}
           {!submitting && <ChevronRight size={18} />}

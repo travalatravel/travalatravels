@@ -210,7 +210,7 @@ function OfferDetailContent() {
               <span className="rounded-full bg-[#2D83C2]/10 px-3 py-1 text-xs font-semibold text-[#2D83C2]">
                 {TYPE_LABELS[offer.type]}
               </span>
-              <h1 className="mt-3 break-words text-lg font-bold text-[#1e2e5e] sm:text-2xl md:text-3xl">
+              <h1 className="mt-3 break-words text-lg font-bold text-[#1a1a1a] sm:text-2xl md:text-3xl">
                 {isFlight && flightMeta?.airline ? `${flightMeta.airline} · ${flightMeta.from} → ${flightMeta.to}` : offer.title}
               </h1>
               <div className="mt-2 flex min-w-0 items-start gap-1 text-sm text-gray-500">
@@ -280,7 +280,7 @@ function OfferDetailContent() {
               {selectedRoom ? (
                 <div className="mt-3 min-w-0 rounded-xl border border-[#2D83C2]/20 bg-blue-50/50 p-3">
                   <p className="text-[11px] font-semibold uppercase tracking-wide text-[#2D83C2]">Selected room</p>
-                  <p className="mt-1 break-words text-sm font-semibold text-[#1e2e5e]">{selectedRoom.packageName}</p>
+                  <p className="mt-1 break-words text-sm font-semibold text-[#1a1a1a]">{selectedRoom.packageName}</p>
                   {selectedRoom.bedDescription && (
                     <p className="text-xs text-gray-500">{selectedRoom.bedDescription}</p>
                   )}
@@ -303,7 +303,7 @@ function OfferDetailContent() {
               <div className="mt-4 min-w-0 space-y-3 sm:mt-5">
                 {isFlight && (
                   <div className="rounded-xl border border-[#2D83C2]/15 bg-blue-50/40 p-3 text-sm">
-                    <p className="font-semibold text-[#1e2e5e]">{CABIN_LABELS[cabin]}</p>
+                    <p className="font-semibold text-[#1a1a1a]">{CABIN_LABELS[cabin]}</p>
                     <p className="text-xs text-gray-500">
                       {flightPax} passenger{flightPax !== 1 ? "s" : ""} · {trip === "roundtrip" ? "Round trip" : trip === "oneway" ? "One way" : "Multi-city"}
                     </p>
@@ -363,10 +363,10 @@ function OfferDetailContent() {
 
               <div className="mt-4 min-w-0 rounded-xl border border-[#2D83C2]/15 bg-[#2D83C2]/5 p-3 sm:mt-5">
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                  <span className="text-sm font-semibold text-[#1e2e5e] sm:text-base">
+                  <span className="text-sm font-semibold text-[#1a1a1a] sm:text-base">
                     Your price{livePrice?.nights ? ` · ${livePrice.nights} nights` : isFlight ? ` · ${flightPax} pax` : ""}
                   </span>
-                  <span className={`text-xl font-bold text-[#1e2e5e] sm:text-2xl ${priceLoading ? "opacity-50" : ""}`}>
+                  <span className={`text-xl font-bold text-[#1a1a1a] sm:text-2xl ${priceLoading ? "opacity-50" : ""}`}>
                     {priceLoading ? "…" : formatUsd(calcTotal())}
                   </span>
                 </div>
@@ -381,7 +381,7 @@ function OfferDetailContent() {
 
               <button
                 onClick={handleContinue}
-                className="mt-4 hidden w-full rounded-xl bg-[#2D83C2] py-3.5 text-sm font-bold text-white shadow-lg transition hover:bg-[#1e2e5e] sm:block sm:py-4"
+                className="mt-4 hidden w-full rounded-xl bg-[#2D83C2] py-3.5 text-sm font-bold text-white shadow-lg transition hover:bg-[#1a5f94] sm:block sm:py-4"
               >
                 {user ? (isFlight ? "Continue — passenger details →" : "Continue — enter guest details →") : "Log in to book"}
               </button>
@@ -408,13 +408,13 @@ function OfferDetailContent() {
         <div className="mx-auto flex w-full min-w-0 max-w-6xl items-center gap-2 sm:gap-3">
           <div className="min-w-0 flex-1">
             <p className="truncate text-xs text-gray-500">Your price</p>
-            <p className="text-lg font-bold text-[#1e2e5e]">
+            <p className="text-lg font-bold text-[#1a1a1a]">
               {priceLoading ? "…" : formatUsd(calcTotal())}
             </p>
           </div>
           <button
             onClick={handleContinue}
-            className="flex-shrink-0 rounded-xl bg-[#2D83C2] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#1e2e5e] sm:px-5 sm:py-3"
+            className="flex-shrink-0 rounded-xl bg-[#2D83C2] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#1a5f94] sm:px-5 sm:py-3"
           >
             {user ? "Book →" : "Log in"}
           </button>

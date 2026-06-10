@@ -34,7 +34,7 @@ export default function TravelGuides() {
     <section className="bg-white py-16">
       <div className="mx-auto max-w-6xl px-4 lg:px-6">
         <div className="flex flex-wrap items-end justify-between gap-4">
-          <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#1e2e5e] md:text-3xl">
+          <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#1a1a1a] md:text-3xl">
             {m.travelGuides.title}
           </h2>
           <Link
@@ -71,7 +71,7 @@ export default function TravelGuides() {
                 href={guide.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block py-4 text-sm text-[#1e2e5e] transition hover:text-[#2D83C2]"
+                className="block py-4 text-sm text-[#1a1a1a] transition hover:text-[#2D83C2]"
               >
                 {guide.title}
               </Link>

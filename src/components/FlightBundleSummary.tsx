@@ -25,7 +25,7 @@ export default function FlightBundleSummary({
 
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-      <div className="border-b border-slate-100 bg-[#1e2e5e] px-5 py-4 text-white">
+      <div className="border-b border-slate-100 bg-[#1a5f94] px-5 py-4 text-white">
         <p className="text-xs font-semibold uppercase tracking-wide text-white/70">
           {hotel ? b.flightPlusHotel : m.common.flightLabel}
         </p>
@@ -39,29 +39,29 @@ export default function FlightBundleSummary({
         <div className="flex items-start gap-3">
           <Plane size={16} className="mt-0.5 shrink-0 text-[#2D83C2]" />
           <div className="min-w-0 flex-1">
-            <p className="font-semibold text-[#1e2e5e]">{f.airline}</p>
+            <p className="font-semibold text-[#1a1a1a]">{f.airline}</p>
             {route && <p className="text-xs text-gray-500">{route}</p>}
             {departDate && <p className="mt-1 text-xs text-gray-400">{departDate}</p>}
           </div>
-          <p className="font-semibold text-[#1e2e5e]">{formatUsd(flightTotal)}</p>
+          <p className="font-semibold text-[#1a1a1a]">{formatUsd(flightTotal)}</p>
         </div>
 
         {hotel && (
           <div className="flex items-start gap-3 border-t border-slate-100 pt-3">
             <Building2 size={16} className="mt-0.5 shrink-0 text-[#2D83C2]" />
             <div className="min-w-0 flex-1">
-              <p className="font-semibold text-[#1e2e5e] line-clamp-2">{hotel.title}</p>
+              <p className="font-semibold text-[#1a1a1a] line-clamp-2">{hotel.title}</p>
               <p className="text-xs text-gray-500">
                 {hotel.checkIn} → {hotel.checkOut} · {hotel.nights} {b.nights}
               </p>
             </div>
-            <p className="font-semibold text-[#1e2e5e]">{formatUsd(hotel.hotelTotal)}</p>
+            <p className="font-semibold text-[#1a1a1a]">{formatUsd(hotel.hotelTotal)}</p>
           </div>
         )}
 
         <div className="flex items-center justify-between border-t border-slate-100 pt-3">
-          <span className="font-semibold text-[#1e2e5e]">{m.common.total}</span>
-          <span className="text-xl font-bold text-[#1e2e5e]">{formatUsd(bundleTotal)}</span>
+          <span className="font-semibold text-[#1a1a1a]">{m.common.total}</span>
+          <span className="text-xl font-bold text-[#1a1a1a]">{formatUsd(bundleTotal)}</span>
         </div>
         <p className="text-[10px] text-gray-400">{m.common.taxesIncluded}</p>
       </div>

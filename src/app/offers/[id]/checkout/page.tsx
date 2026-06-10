@@ -103,7 +103,7 @@ function CheckoutContent() {
 
       <div className="mb-8">
         <p className="text-sm font-medium text-slate-500">Step 1 of 2</p>
-        <h1 className="mt-1 text-2xl font-bold text-[#1e2e5e] md:text-3xl">Enter your details</h1>
+        <h1 className="mt-1 text-2xl font-bold text-[#1a1a1a] md:text-3xl">Enter your details</h1>
         <p className="mt-2 text-slate-500">
           {isFlight
             ? "Almost there — we need passenger information before confirming your flight."

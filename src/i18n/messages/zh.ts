@@ -91,6 +91,7 @@ const zh: Partial<Messages> = {
       contact: "联系我们", concierge: "礼宾服务", bugReport: "报告错误", reviews: "阅读评价", careers: "招聘",
     },
     copyright: "© {year} Travala. 保留所有权利。",
+    copyrightLine: "© 2017–2026 Travala.com. All rights reserved.",
   },
   offerTypes: { HOTEL: "酒店", FLIGHT: "航班", CAR_RENTAL: "租车", ACTIVITY: "活动" },
   paymentStatus: { PENDING: "待付款", AWAITING_CONFIRMATION: "验证交易中", PAID: "已付款", FAILED: "失败", REFUNDED: "已退款" },

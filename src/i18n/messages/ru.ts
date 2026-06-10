@@ -91,6 +91,7 @@ const ru: Partial<Messages> = {
       contact: "Контакты", concierge: "Консьерж", bugReport: "Сообщить об ошибке", reviews: "Отзывы", careers: "Карьера",
     },
     copyright: "© {year} Travala. Все права защищены.",
+    copyrightLine: "© 2017–2026 Travala.com. All rights reserved.",
   },
   offerTypes: { HOTEL: "Отель", FLIGHT: "Рейс", CAR_RENTAL: "Аренда авто", ACTIVITY: "Активность" },
   paymentStatus: { PENDING: "Ожидает оплаты", AWAITING_CONFIRMATION: "Проверка TX", PAID: "Оплачено", FAILED: "Ошибка", REFUNDED: "Возврат" },

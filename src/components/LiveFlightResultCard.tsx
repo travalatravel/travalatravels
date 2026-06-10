@@ -99,7 +99,7 @@ function FlightLegRow({
 
         <div className="mt-2 grid grid-cols-[auto_1fr_auto] items-center gap-2 sm:gap-3">
           <div className="text-center sm:text-left">
-            <p className="text-base font-bold text-[#1e2e5e] sm:text-lg">{formatTime(leg.departAt)}</p>
+            <p className="text-base font-bold text-[#1a1a1a] sm:text-lg">{formatTime(leg.departAt)}</p>
             <p className="text-[10px] font-semibold text-gray-500 sm:text-xs">{leg.fromCode}</p>
           </div>
 
@@ -116,7 +116,7 @@ function FlightLegRow({
           </div>
 
           <div className="text-center sm:text-right">
-            <p className="text-base font-bold text-[#1e2e5e] sm:text-lg">{formatTime(leg.arriveAt)}</p>
+            <p className="text-base font-bold text-[#1a1a1a] sm:text-lg">{formatTime(leg.arriveAt)}</p>
             <p className="text-[10px] font-semibold text-gray-500 sm:text-xs">{leg.toCode}</p>
           </div>
         </div>
@@ -176,11 +176,11 @@ export default function LiveFlightResultCard({
 
         <div className="flex shrink-0 flex-row items-center justify-between gap-4 border-t border-gray-100 bg-[#f8fafc] px-4 py-3 sm:px-5 lg:w-52 lg:flex-col lg:items-end lg:justify-center lg:border-l lg:border-t-0 lg:py-4">
           <div className="text-left lg:text-right">
-            <p className="text-xl font-bold text-[#1e2e5e] sm:text-2xl">{formatUsd(pricing.salePrice)}</p>
+            <p className="text-xl font-bold text-[#1a1a1a] sm:text-2xl">{formatUsd(pricing.salePrice)}</p>
             <p className="text-xs text-gray-400 line-through">{formatUsd(pricing.originalPrice)}</p>
             <p className="text-[10px] font-semibold text-emerald-600">-{pricing.discountPct}%</p>
           </div>
-          <span className="rounded-lg bg-[#2D83C2] px-5 py-2.5 text-sm font-semibold text-white transition group-hover:bg-[#1e2e5e]">
+          <span className="rounded-lg bg-[#2D83C2] px-5 py-2.5 text-sm font-semibold text-white transition group-hover:bg-[#1a5f94]">
             {c.select}
           </span>
         </div>

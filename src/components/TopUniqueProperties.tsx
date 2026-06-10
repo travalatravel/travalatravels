@@ -13,7 +13,7 @@ export default function TopUniqueProperties() {
   return (
     <section className="bg-white py-10 sm:py-16">
       <div className="mx-auto max-w-6xl px-3 sm:px-4 lg:px-6">
-        <h2 className="font-[family-name:var(--font-display)] text-xl font-bold text-[#1e2e5e] sm:text-2xl md:text-3xl">
+        <h2 className="font-[family-name:var(--font-display)] text-xl font-bold text-[#1a1a1a] sm:text-2xl md:text-3xl">
           {m.topProperties.title}
         </h2>
         <p className="mt-2 text-sm text-gray-500 sm:text-base">{m.topProperties.subtitle}</p>
@@ -37,7 +37,7 @@ export default function TopUniqueProperties() {
                   />
                 </div>
                 <div className="p-3 sm:p-4">
-                  <p className="text-sm font-semibold text-[#1e2e5e]">{item.name}</p>
+                  <p className="text-sm font-semibold text-[#1a1a1a]">{item.name}</p>
                   <p className="mt-1 text-xs text-gray-500">
                     {fmt(m.topProperties.properties, { count: item.properties.toLocaleString() })}
                   </p>

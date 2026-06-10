@@ -58,13 +58,13 @@ export default function OfferCard({
           </span>
         )}
 
-        <span className="absolute right-3 top-3 rounded-md bg-[#1e2e5e]/90 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur">
+        <span className="absolute right-3 top-3 rounded-md bg-[#1a5f94]/90 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur">
           {TYPE_LABELS[offer.type]}
         </span>
       </div>
 
       <div className="flex flex-1 flex-col p-4">
-        <h3 className="font-semibold text-[#1e2e5e] line-clamp-2 group-hover:text-[#2D83C2]">
+        <h3 className="font-semibold text-[#1a1a1a] line-clamp-2 group-hover:text-[#2D83C2]">
           {offer.title}
         </h3>
         <OfferLocation location={offer.location} country={offer.country} />

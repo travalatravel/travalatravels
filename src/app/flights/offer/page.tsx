@@ -101,7 +101,7 @@ function FlightOfferContent() {
       <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
         <div className="lg:col-span-2">
           <span className="rounded-full bg-[#2D83C2]/10 px-3 py-1 text-xs font-semibold text-[#2D83C2]">{m.common.flightLabel}</span>
-          <h1 className="mt-3 text-xl font-bold text-[#1e2e5e] sm:text-2xl lg:text-3xl">
+          <h1 className="mt-3 text-xl font-bold text-[#1a1a1a] sm:text-2xl lg:text-3xl">
             {flight.airline} · {flight.from} → {flight.to}
           </h1>
           <p className="mt-2 flex items-center gap-1 text-sm text-gray-500">
@@ -110,17 +110,17 @@ function FlightOfferContent() {
           </p>
 
           <section className="mt-6 rounded-2xl border border-gray-200 bg-white p-4 sm:p-5">
-            <h2 className="text-lg font-bold text-[#1e2e5e]">{m.common.flightItinerary}</h2>
+            <h2 className="text-lg font-bold text-[#1a1a1a]">{m.common.flightItinerary}</h2>
             {flight.segments.map((seg, i) => (
               <div key={i} className="mt-4 flex flex-wrap items-center gap-4 border-t border-gray-100 pt-4 first:mt-3 first:border-t-0 first:pt-0">
                 <div>
-                  <p className="font-semibold text-[#1e2e5e]">{seg.airline}</p>
+                  <p className="font-semibold text-[#1a1a1a]">{seg.airline}</p>
                   {seg.flightNumber && <p className="text-xs text-gray-500">{seg.flightNumber}</p>}
                 </div>
                 <div className="text-sm">
-                  <span className="text-xl font-bold text-[#1e2e5e]">{formatTime(seg.departAt)}</span>
+                  <span className="text-xl font-bold text-[#1a1a1a]">{formatTime(seg.departAt)}</span>
                   <span className="mx-2 text-gray-300">→</span>
-                  <span className="text-xl font-bold text-[#1e2e5e]">{formatTime(seg.arriveAt)}</span>
+                  <span className="text-xl font-bold text-[#1a1a1a]">{formatTime(seg.arriveAt)}</span>
                   <p className="text-xs text-gray-500">
                     {seg.fromCode} → {seg.toCode} · {seg.duration}
                   </p>
@@ -159,7 +159,7 @@ function FlightOfferContent() {
             ].map((item) => (
               <div key={item.title} className="rounded-xl border border-gray-100 bg-gray-50/80 p-4">
                 <item.icon size={18} className="text-[#2D83C2]" />
-                <p className="mt-2 text-sm font-semibold text-[#1e2e5e]">{item.title}</p>
+                <p className="mt-2 text-sm font-semibold text-[#1a1a1a]">{item.title}</p>
                 <p className="mt-1 text-xs text-gray-500">{item.text}</p>
               </div>
             ))}
@@ -177,7 +177,7 @@ function FlightOfferContent() {
                 <button
                   type="button"
                   onClick={handleContinue}
-                  className="mt-5 w-full min-h-12 rounded-xl bg-[#2D83C2] py-3.5 text-sm font-bold text-white hover:bg-[#1e2e5e]"
+                  className="mt-5 w-full min-h-12 rounded-xl bg-[#2D83C2] py-3.5 text-sm font-bold text-white hover:bg-[#1a5f94]"
                 >
                   {user ? m.common.continuePassengers : m.searchPage.logInToBook}
                 </button>
@@ -190,7 +190,7 @@ function FlightOfferContent() {
                 <span className="text-sm font-semibold">{fmt(m.common.savePctGuarantee, { pct: pricing.discountPct })}</span>
               </div>
               <div className="p-5">
-                <p className="text-3xl font-bold text-[#1e2e5e]">{formatUsd(pricing.salePrice)}</p>
+                <p className="text-3xl font-bold text-[#1a1a1a]">{formatUsd(pricing.salePrice)}</p>
                 <p className="text-sm text-gray-400 line-through">{formatUsd(pricing.originalPrice)}</p>
               <p className="mt-1 text-xs text-[#2D83C2]">{fmt(m.common.youSave, { amount: formatUsd(pricing.savings) })}</p>
               <p className="mt-2 text-xs text-gray-500">{fmt(m.common.totalForPassengers, { count: pax })}</p>
@@ -204,7 +204,7 @@ function FlightOfferContent() {
                 <button
                   type="button"
                   onClick={handleContinue}
-                  className="mt-5 w-full min-h-12 rounded-xl bg-[#2D83C2] py-3.5 text-sm font-bold text-white hover:bg-[#1e2e5e]"
+                  className="mt-5 w-full min-h-12 rounded-xl bg-[#2D83C2] py-3.5 text-sm font-bold text-white hover:bg-[#1a5f94]"
                 >
                   {user ? m.common.continuePassengers : m.searchPage.logInToBook}
                 </button>

@@ -48,7 +48,7 @@ export default function UniqueProperties() {
   return (
     <section className="bg-white py-16">
       <div className="mx-auto max-w-6xl px-4 lg:px-6">
-        <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#1e2e5e] md:text-3xl">
+        <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#1a1a1a] md:text-3xl">
           Top Unique Properties
         </h2>
         <p className="mt-2 text-gray-500">
@@ -63,7 +63,7 @@ export default function UniqueProperties() {
                 className="flex w-32 flex-shrink-0 cursor-pointer flex-col items-center gap-2 rounded-xl border border-gray-100 p-4 transition hover:border-[#2D83C2] hover:shadow-md"
               >
                 <span className="text-3xl">{PROPERTY_ICONS[type] || "🏠"}</span>
-                <span className="text-center text-xs font-medium text-[#1e2e5e] leading-tight">{type}</span>
+                <span className="text-center text-xs font-medium text-[#1a1a1a] leading-tight">{type}</span>
               </div>
             ))}
           </Carousel>

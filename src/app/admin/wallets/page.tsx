@@ -61,10 +61,10 @@ export default function AdminWalletsPage() {
     <div>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#1e2e5e]">Crypto Wallets</h1>
+          <h1 className="text-2xl font-bold text-[#1a1a1a]">Crypto Wallets</h1>
           <p className="mt-1 text-gray-500">Manage payment wallet addresses</p>
         </div>
-        <button onClick={openCreate} className="flex items-center gap-2 rounded-xl bg-[#2D83C2] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1e2e5e]">
+        <button onClick={openCreate} className="flex items-center gap-2 rounded-xl bg-[#2D83C2] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1a5f94]">
           <Plus size={16} /> Add Wallet
         </button>
       </div>
@@ -72,7 +72,7 @@ export default function AdminWalletsPage() {
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <form onSubmit={handleSubmit} className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-            <h2 className="text-lg font-bold text-[#1e2e5e]">{editing ? "Edit Wallet" : "New Wallet"}</h2>
+            <h2 className="text-lg font-bold text-[#1a1a1a]">{editing ? "Edit Wallet" : "New Wallet"}</h2>
             {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
             <div className="mt-4 space-y-3">
               <div>
@@ -103,7 +103,7 @@ export default function AdminWalletsPage() {
               </label>
             </div>
             <div className="mt-5 flex gap-2">
-              <button type="submit" className="flex-1 rounded-xl bg-[#2dd4bf] py-2.5 text-sm font-semibold text-[#1e2e5e]">
+              <button type="submit" className="flex-1 rounded-xl bg-[#2D83C2] py-2.5 text-sm font-semibold text-[#1a1a1a]">
                 {editing ? "Save Changes" : "Create Wallet"}
               </button>
               <button type="button" onClick={() => setShowForm(false)} className="rounded-xl border px-4 py-2.5 text-sm">
@@ -120,13 +120,13 @@ export default function AdminWalletsPage() {
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="rounded-full bg-[#1e2e5e] px-2.5 py-0.5 text-xs font-bold text-white">{w.currency}</span>
+                  <span className="rounded-full bg-[#1a5f94] px-2.5 py-0.5 text-xs font-bold text-white">{w.currency}</span>
                   {!w.isActive && <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs text-red-700">Inactive</span>}
                   {w._count && w._count.bookings > 0 && (
                     <span className="text-xs text-gray-400">{w._count.bookings} bookings</span>
                   )}
                 </div>
-                <h3 className="mt-2 font-semibold text-[#1e2e5e]">{w.label}</h3>
+                <h3 className="mt-2 font-semibold text-[#1a1a1a]">{w.label}</h3>
                 <p className="mt-1 break-all font-mono text-sm text-gray-600">{w.address}</p>
                 <p className="mt-1 text-xs text-gray-400">Network: {w.network}</p>
                 <div className="mt-3 flex flex-wrap gap-4 text-xs text-gray-400">

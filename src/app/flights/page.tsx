@@ -14,13 +14,13 @@ export default function FlightsPage() {
 
       <section className="border-t border-gray-100 bg-[#f8fafc] py-10">
         <div className="mx-auto max-w-6xl px-3 sm:px-4 lg:px-6">
-          <h2 className="text-xl font-bold text-[#1e2e5e] sm:text-2xl">600+ airlines worldwide</h2>
+          <h2 className="text-xl font-bold text-[#1a1a1a] sm:text-2xl">600+ airlines worldwide</h2>
           <p className="mt-1 text-sm text-gray-500">Search and compare flights from leading carriers</p>
           <div className="mt-6 flex flex-wrap gap-2">
             {FLIGHT_AIRLINES.map((airline) => (
               <span
                 key={airline}
-                className="rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-[#1e2e5e] shadow-sm"
+                className="rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-[#1a1a1a] shadow-sm"
               >
                 {airline}
               </span>

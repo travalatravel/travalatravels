@@ -37,8 +37,8 @@ function RegisterForm() {
       <div className="mx-auto flex w-full max-w-md justify-center">
       <div className="w-full rounded-2xl bg-white p-5 shadow-lg sm:p-8">
         <div className="mb-8 text-center">
-          <Image src={ASSETS.logoDark} alt="Travala" width={140} height={36} className="mx-auto" />
-          <h1 className="mt-6 text-xl font-bold text-[#1e2e5e]">Create your account</h1>
+          <Image src={ASSETS.logoBlack} alt="Travala" width={140} height={36} className="mx-auto" unoptimized />
+          <h1 className="mt-6 text-xl font-bold text-[#1a1a1a]">Create your account</h1>
           <p className="mt-1 text-sm text-gray-500">Join millions of crypto travelers</p>
         </div>
 
@@ -82,7 +82,7 @@ function RegisterForm() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-xl bg-[#2dd4bf] py-3 text-sm font-semibold text-[#1e2e5e] hover:bg-[#14b8a6] disabled:opacity-50"
+            className="w-full rounded-xl bg-[#2D83C2] py-3 text-sm font-semibold text-[#1a1a1a] hover:bg-[#1a5f94] disabled:opacity-50"
           >
             {loading ? "Creating account..." : "Register"}
           </button>

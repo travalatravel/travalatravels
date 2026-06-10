@@ -74,7 +74,7 @@ export default function BookingOrderSummary({
         <span className="text-xs font-semibold uppercase tracking-wide text-[#2D83C2]">
           {m.offerTypes[offer.type]}
         </span>
-        <h3 className="mt-1 font-semibold text-[#1e2e5e] leading-snug">{offer.title}</h3>
+        <h3 className="mt-1 font-semibold text-[#1a1a1a] leading-snug">{offer.title}</h3>
         <p className="mt-1 flex items-center gap-1 text-xs text-gray-500">
           {isFlight ? <Plane size={12} /> : <MapPin size={12} />}
           {isFlight ? flightRoute : offer.location}
@@ -86,7 +86,7 @@ export default function BookingOrderSummary({
               <Calendar size={15} className="mt-0.5 flex-shrink-0 text-gray-400" />
               <div>
                 <p className="text-xs text-gray-400">{p.checkInOut}</p>
-                <p className="font-medium text-[#1e2e5e]">
+                <p className="font-medium text-[#1a1a1a]">
                   {new Date(checkIn).toLocaleDateString()}
                   {checkOut && ` → ${new Date(checkOut).toLocaleDateString()}`}
                 </p>
@@ -113,15 +113,15 @@ export default function BookingOrderSummary({
           {roomPackageName && (
             <div className="rounded-lg bg-blue-50 px-3 py-2 text-sm">
               <p className="text-xs text-gray-400">{p.roomType}</p>
-              <p className="font-medium text-[#1e2e5e]">{roomPackageName}</p>
+              <p className="font-medium text-[#1a1a1a]">{roomPackageName}</p>
               {roomMealType && <p className="text-xs text-gray-500">{roomMealType}</p>}
             </div>
           )}
         </div>
 
         <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4">
-          <span className="font-semibold text-[#1e2e5e]">{m.orderSummary.total}</span>
-          <span className="text-2xl font-bold text-[#1e2e5e]">{formatUsd(totalPrice)}</span>
+          <span className="font-semibold text-[#1a1a1a]">{m.orderSummary.total}</span>
+          <span className="text-2xl font-bold text-[#1a1a1a]">{formatUsd(totalPrice)}</span>
         </div>
         <p className="mt-1 text-[10px] text-gray-400">{p.bestPriceGuarantee}</p>
       </div>

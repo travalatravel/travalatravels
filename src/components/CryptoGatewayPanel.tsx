@@ -78,7 +78,7 @@ function StepIndicator({ step, current }: { step: number; current: number }) {
           done
             ? "bg-emerald-600 text-white"
             : active
-              ? "bg-[#1e2e5e] text-white"
+              ? "bg-[#1a5f94] text-white"
               : "bg-slate-100 text-slate-400"
         }`}
       >
@@ -416,7 +416,7 @@ export default function CryptoGatewayPanel({
                   placeholder={
                     wallet.currency === "BTC" ? p.txPlaceholderBtc : p.txPlaceholderEth
                   }
-                  className="mt-3 w-full rounded-lg border border-slate-200 bg-white px-4 py-3 font-mono text-sm text-slate-800 outline-none transition placeholder:text-slate-300 focus:border-[#1e2e5e] focus:ring-2 focus:ring-[#1e2e5e]/10"
+                  className="mt-3 w-full rounded-lg border border-slate-200 bg-white px-4 py-3 font-mono text-sm text-slate-800 outline-none transition placeholder:text-slate-300 focus:border-[#1a1a1a] focus:ring-2 focus:ring-[#1e2e5e]/10"
                 />
                 {error && (
                   <p className="mt-2 flex items-center gap-1.5 text-sm text-red-600">
@@ -428,7 +428,7 @@ export default function CryptoGatewayPanel({
                   type="button"
                   onClick={submitTx}
                   disabled={submitting || txHash.trim().length < 10}
-                  className="mt-4 w-full rounded-lg bg-[#1e2e5e] py-3.5 text-sm font-semibold text-white transition hover:bg-[#162347] disabled:cursor-not-allowed disabled:opacity-40"
+                  className="mt-4 w-full rounded-lg bg-[#1a5f94] py-3.5 text-sm font-semibold text-white transition hover:bg-[#162347] disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   {submitting ? p.submitting : p.submitConfirmation}
                 </button>

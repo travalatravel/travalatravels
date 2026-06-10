@@ -32,7 +32,7 @@ export default function AdminBookingsPage() {
     <div>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold text-[#1e2e5e] sm:text-2xl">Bookings</h1>
+          <h1 className="text-xl font-bold text-[#1a1a1a] sm:text-2xl">Bookings</h1>
           <p className="mt-1 text-gray-500">{bookings.length} bookings</p>
         </div>
         <button onClick={load} className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm hover:bg-gray-50">
@@ -65,12 +65,12 @@ export default function AdminBookingsPage() {
                   </span>
                   <span className="text-xs text-gray-400">#{b.id.slice(-8)}</span>
                 </div>
-                <h3 className="mt-2 font-semibold text-[#1e2e5e]">{b.offer?.title}</h3>
+                <h3 className="mt-2 font-semibold text-[#1a1a1a]">{b.offer?.title}</h3>
                 <p className="text-sm text-gray-500">
                   Account: {b.user?.name} ({b.user?.email}) · {b.paymentMethod.replace("CRYPTO_", "")}
                 </p>
                 {b.guestFirstName && (
-                  <p className="mt-1 text-sm text-[#1e2e5e]">
+                  <p className="mt-1 text-sm text-[#1a1a1a]">
                     Lead guest: {guestDisplayName(b)}
                     {b.bookingType === "BUSINESS" && b.companyName ? ` · ${b.companyName}` : ""}
                   </p>

@@ -461,7 +461,7 @@ export default function FlightSearchForm({
 
       <button
         type="submit"
-        className={`shrink-0 rounded-xl bg-[#2D83C2] font-semibold uppercase tracking-wide text-white transition hover:bg-[#1e2e5e] ${
+        className={`shrink-0 rounded-xl bg-[#2D83C2] font-semibold uppercase tracking-wide text-white transition hover:bg-[#1a5f94] ${
           isHero ? "min-h-12 min-w-[140px] px-6 py-3 lg:min-w-[168px] lg:self-center" : "min-h-12 w-full px-6 py-3.5 sm:w-auto"
         }`}
       >

@@ -24,10 +24,10 @@ export default function HeroSearch({ defaultTab = "stays" }: { defaultTab?: stri
         fallbackSrc={ASSETS.heroBg}
         alt="Travel booking background"
         fill
-        fallbackClassName="bg-[#1e2e5e]"
+        fallbackClassName="bg-[#1a5f94]"
         className="object-cover"
       />
-      <div className="absolute inset-0 bg-[#1e2e5e]/40" aria-hidden />
+      <div className="absolute inset-0 bg-[#1a5f94]/40" aria-hidden />
 
       <div className="relative z-10 mx-auto max-w-5xl px-4 pt-8 text-center sm:pt-12 lg:pt-14">
         <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold leading-tight text-white sm:text-4xl md:text-5xl">

@@ -20,7 +20,7 @@ export default function AdminUsersPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-[#1e2e5e]">Registered Users</h1>
+      <h1 className="text-2xl font-bold text-[#1a1a1a]">Registered Users</h1>
       <p className="mt-1 text-gray-500">{users.length} users total</p>
 
       <div className="mt-6 overflow-hidden rounded-2xl bg-white shadow-sm">

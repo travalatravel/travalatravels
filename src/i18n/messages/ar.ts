@@ -91,6 +91,7 @@ const ar: Partial<Messages> = {
       contact: "اتصل بنا", concierge: "الكونسيرج", bugReport: "الإبلاغ عن خطأ", reviews: "قراءة التقييمات", careers: "الوظائف",
     },
     copyright: "© {year} Travala. جميع الحقوق محفوظة.",
+    copyrightLine: "© 2017–2026 Travala.com. All rights reserved.",
   },
   offerTypes: { HOTEL: "فندق", FLIGHT: "رحلة", CAR_RENTAL: "تأجير سيارة", ACTIVITY: "نشاط" },
   paymentStatus: { PENDING: "في انتظار الدفع", AWAITING_CONFIRMATION: "التحقق من TX", PAID: "مدفوع", FAILED: "فشل", REFUNDED: "مسترد" },

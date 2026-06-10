@@ -57,7 +57,7 @@ export default function AdminViewsPage() {
     <div>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[#1e2e5e]">Page Views</h1>
+          <h1 className="text-2xl font-bold text-[#1a1a1a]">Page Views</h1>
           <p className="mt-1 text-gray-500">All tracked visits across the public site</p>
         </div>
         <button
@@ -80,7 +80,7 @@ export default function AdminViewsPage() {
 
       {summary && summary.topPages.length > 0 && (
         <div className="mt-6 rounded-2xl bg-white p-6 shadow-sm">
-          <h2 className="font-semibold text-[#1e2e5e]">Top pages</h2>
+          <h2 className="font-semibold text-[#1a1a1a]">Top pages</h2>
           <div className="mt-4 space-y-2">
             {summary.topPages.map((row) => (
               <div key={row.path} className="flex items-center justify-between text-sm">
@@ -125,7 +125,7 @@ export default function AdminViewsPage() {
                     {new Date(view.createdAt).toLocaleString()}
                   </td>
                   <td className="px-4 py-3">
-                    <p className="font-mono font-medium text-[#1e2e5e]">
+                    <p className="font-mono font-medium text-[#1a1a1a]">
                       {view.path}
                       {view.query && <span className="text-gray-400">{view.query}</span>}
                     </p>
@@ -208,7 +208,7 @@ function SummaryCard({
 }) {
   return (
     <div className="rounded-2xl bg-white p-5 shadow-sm">
-      <p className="text-2xl font-bold text-[#1e2e5e]">{value.toLocaleString()}</p>
+      <p className="text-2xl font-bold text-[#1a1a1a]">{value.toLocaleString()}</p>
       <p className="text-sm text-gray-500">{label}</p>
       {sub && <p className="mt-1 truncate font-mono text-xs text-gray-400">{sub}</p>}
     </div>

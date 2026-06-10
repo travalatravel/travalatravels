@@ -1,11 +1,9 @@
 @import "tailwindcss";
 
 :root {
-  --primary-dark: #1e2e5e;
-  --secondary-blue: #2D83C2;
-  --secondary-blue-light: #2D83C2;
-  --mint: #2dd4bf;
-  --mint-dark: #14b8a6;
+  --brand: #2D83C2;
+  --brand-dark: #1a5f94;
+  --text-primary: #1a1a1a;
   --purple: #220a32;
   --white: #ffffff;
   --gray-50: #f8fafc;
@@ -15,14 +13,14 @@
   --gray-600: #475569;
   --gray-800: #1e293b;
   --background: #ffffff;
-  --foreground: #1e293b;
+  --foreground: #1a1a1a;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-montserrat), "Montserrat", system-ui, sans-serif;
-  --font-display: var(--font-montserrat), "Montserrat", system-ui, sans-serif;
+  --font-sans: var(--font-inter), "Inter", system-ui, sans-serif;
+  --font-display: var(--font-inter), "Inter", system-ui, sans-serif;
 }
 
 * {
@@ -37,12 +35,11 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-montserrat), "Montserrat", system-ui, sans-serif;
+  font-family: var(--font-inter), "Inter", system-ui, sans-serif;
   margin: 0;
   overflow-x: hidden;
   min-width: 0;
 }
-
 
 @keyframes marquee-scroll {
   0% {
@@ -69,7 +66,6 @@ body {
   scrollbar-width: none;
 }
 
-/* Prevent mobile overflow from forms, dates, and embedded HTML */
 input,
 select,
 textarea,

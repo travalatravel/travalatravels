@@ -9,7 +9,7 @@ export default function CryptoSection() {
       <div className="mx-auto max-w-6xl px-3 sm:px-4 lg:px-6">
         <div className="grid items-center gap-10 lg:grid-cols-2">
           <div>
-            <h2 className="font-[family-name:var(--font-display)] text-xl font-bold text-[#1e2e5e] sm:text-2xl md:text-3xl">
+            <h2 className="font-[family-name:var(--font-display)] text-xl font-bold text-[#1a1a1a] sm:text-2xl md:text-3xl">
               Book Travel with Cryptocurrency
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-gray-600 sm:text-base">
@@ -18,7 +18,7 @@ export default function CryptoSection() {
             </p>
             <Link
               href="/search?type=stays"
-              className="mt-6 inline-block rounded-lg bg-[#2D83C2] px-8 py-3 text-sm font-semibold text-white hover:bg-[#1e2e5e]"
+              className="mt-6 inline-block rounded-lg bg-[#2D83C2] px-8 py-3 text-sm font-semibold text-white hover:bg-[#1a5f94]"
             >
               Start booking
             </Link>

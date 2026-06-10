@@ -91,6 +91,7 @@ const ja: Partial<Messages> = {
       contact: "お問い合わせ", concierge: "コンシェルジュ", bugReport: "バグ報告", reviews: "レビューを読む", careers: "採用情報",
     },
     copyright: "© {year} Travala. All rights reserved.",
+    copyrightLine: "© 2017–2026 Travala.com. All rights reserved.",
   },
   offerTypes: { HOTEL: "ホテル", FLIGHT: "フライト", CAR_RENTAL: "レンタカー", ACTIVITY: "アクティビティ" },
   paymentStatus: { PENDING: "支払い待ち", AWAITING_CONFIRMATION: "TX確認中", PAID: "支払済", FAILED: "失敗", REFUNDED: "返金済" },

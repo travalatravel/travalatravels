@@ -7,7 +7,7 @@ import { Star } from "lucide-react";
 import Carousel from "./Carousel";
 import SafeImage from "./SafeImage";
 import { DESTINATION_DATA, REGIONS } from "@/data/site-data";
-import { hotelsCityPath, hotelsCountryPath, searchStaysPath } from "@/lib/seo-paths";
+import { featuredHotelPath, hotelsCityPath, hotelsCountryPath } from "@/lib/seo-paths";
 import { useTranslations } from "@/i18n/useTranslations";
 
 function ExploreLabel() {
@@ -84,7 +84,7 @@ export default function Destinations() {
                   onClick={() => setActiveRegion(region.id)}
                   className={`cursor-pointer px-2 pb-2 text-sm font-medium text-[#979696] lg:flex lg:h-9 lg:items-center lg:justify-center lg:rounded lg:border lg:px-2 lg:text-xs lg:font-semibold lg:uppercase lg:transition ${
                     active
-                      ? "text-[#1e2e5e] underline decoration-2 underline-offset-8 lg:border-[#2D83C2] lg:bg-[#2D83C2] lg:text-white lg:no-underline"
+                      ? "text-[#1a1a1a] underline decoration-2 underline-offset-8 lg:border-[#2D83C2] lg:bg-[#2D83C2] lg:text-white lg:no-underline"
                       : "lg:border-[#2D83C2] lg:bg-white lg:text-[#2D83C2] hover:lg:bg-[#eaf3f9]"
                   }`}
                 >
@@ -132,7 +132,7 @@ export default function Destinations() {
                 {data.hotels.map((item) => (
                   <Link
                     key={item.name}
-                    href={searchStaysPath(item.name)}
+                    href={featuredHotelPath(item.name)}
                     className="group block h-[220px] w-[72vw] max-w-[240px] flex-shrink-0 snap-start overflow-hidden rounded-md bg-white shadow-[0_0_10px_rgba(0,0,0,0.2)] transition hover:shadow-[0_0_10px_rgba(0,0,0,0.4)] sm:h-[260px] sm:w-56"
                   >
                     <div className="relative h-[58%] overflow-hidden">

@@ -17,7 +17,7 @@ export default function PopularFlightRoutes() {
 
   return (
     <section className="mx-auto max-w-6xl px-3 py-10 sm:px-4 lg:px-6">
-      <h2 className="text-xl font-bold text-[#1e2e5e] sm:text-2xl">Popular routes</h2>
+      <h2 className="text-xl font-bold text-[#1a1a1a] sm:text-2xl">Popular routes</h2>
       <p className="mt-1 text-sm text-gray-500">Book flights to top destinations worldwide</p>
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {POPULAR_FLIGHT_ROUTES.map((route) => {
@@ -44,7 +44,7 @@ export default function PopularFlightRoutes() {
                 <Plane size={18} />
               </span>
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-[#1e2e5e]">
+                <p className="truncate text-sm font-semibold text-[#1a1a1a]">
                   {route.from} → {route.to}
                 </p>
                 <p className="text-xs text-gray-500">

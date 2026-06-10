@@ -91,6 +91,7 @@ const nl: Partial<Messages> = {
       contact: "Contact", concierge: "Conciërge", bugReport: "Bug melden", reviews: "Reviews lezen", careers: "Carrière",
     },
     copyright: "© {year} Travala. Alle rechten voorbehouden.",
+    copyrightLine: "© 2017–2026 Travala.com. All rights reserved.",
   },
   offerTypes: { HOTEL: "Hotel", FLIGHT: "Vlucht", CAR_RENTAL: "Autoverhuur", ACTIVITY: "Activiteit" },
   paymentStatus: { PENDING: "Betaling in afwachting", AWAITING_CONFIRMATION: "TX verifiëren", PAID: "Betaald", FAILED: "Mislukt", REFUNDED: "Terugbetaald" },

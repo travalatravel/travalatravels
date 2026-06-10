@@ -20,7 +20,7 @@ type Props = {
 function SectionBlock({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="min-w-0 max-w-full border-t border-gray-100 pt-5 sm:pt-6">
-      <h2 className="text-base font-bold text-[#1e2e5e] sm:text-lg">{title}</h2>
+      <h2 className="text-base font-bold text-[#1a1a1a] sm:text-lg">{title}</h2>
       <div className="mt-3 min-w-0 max-w-full text-sm leading-relaxed text-gray-600">{children}</div>
     </section>
   );
@@ -104,7 +104,7 @@ export default function OfferDetails({
               <div className="flex items-start gap-2">
                 <Clock size={16} className="mt-0.5 text-[#2D83C2]" />
                 <div>
-                  <p className="font-medium text-[#1e2e5e]">Check-in</p>
+                  <p className="font-medium text-[#1a1a1a]">Check-in</p>
                   <p>
                     {details.checkIn.from && `From ${details.checkIn.from}`}
                     {details.checkIn.to && ` · Until ${details.checkIn.to}`}
@@ -116,7 +116,7 @@ export default function OfferDetails({
               <div className="flex items-start gap-2">
                 <Clock size={16} className="mt-0.5 text-[#2D83C2]" />
                 <div>
-                  <p className="font-medium text-[#1e2e5e]">Check-out</p>
+                  <p className="font-medium text-[#1a1a1a]">Check-out</p>
                   <p>Until {details.checkOut.until}</p>
                 </div>
               </div>
@@ -161,7 +161,7 @@ export default function OfferDetails({
               >
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0 flex-1">
-                    <p className="break-words font-semibold text-[#1e2e5e]">{room.packageName}</p>
+                    <p className="break-words font-semibold text-[#1a1a1a]">{room.packageName}</p>
                     {room.bedDescription && (
                       <p className="mt-0.5 break-words text-xs text-gray-500">{room.bedDescription}</p>
                     )}

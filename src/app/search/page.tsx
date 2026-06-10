@@ -112,7 +112,7 @@ function FlightSearchResults() {
 
   return (
     <SiteChrome>
-      <div className="bg-[#1e2e5e] py-5 sm:py-8">
+      <div className="bg-[#1a5f94] py-5 sm:py-8">
         <div className="mx-auto max-w-5xl px-3 sm:px-4">
           <SearchForm defaultType="flights" compact syncFromUrl />
         </div>
@@ -122,7 +122,7 @@ function FlightSearchResults() {
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <p className="text-sm font-semibold text-[#2D83C2]">{m.offerTypes.FLIGHT}</p>
-            <h1 className="text-2xl font-bold text-[#1e2e5e]">
+            <h1 className="text-2xl font-bold text-[#1a1a1a]">
               {loading
                 ? m.common.searching
                 : fmt(m.common.flightCount, { count: liveFlights.length.toLocaleString() })}

@@ -96,7 +96,7 @@ function PaymentContent() {
 
       <div className="mb-8">
         <p className="text-sm font-medium text-slate-500">{c.step2}</p>
-        <h1 className="mt-1 text-2xl font-bold text-[#1e2e5e] md:text-3xl">{c.completePayment}</h1>
+        <h1 className="mt-1 text-2xl font-bold text-[#1a1a1a] md:text-3xl">{c.completePayment}</h1>
         <p className="mt-2 text-slate-500">{c.paymentReview}</p>
       </div>
 

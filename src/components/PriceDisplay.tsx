@@ -36,12 +36,12 @@ export default function PriceDisplay({
   return (
     <div className="min-w-0 max-w-full">
       <div className="flex flex-wrap items-baseline gap-2">
-        <span className={`${priceCls} text-[#1e2e5e]`}>
+        <span className={`${priceCls} text-[#1a1a1a]`}>
           {formatUsd(displayPrice)}
           {suffix && <span className="text-sm font-normal text-gray-500">{suffix}</span>}
         </span>
         {p.discountPct > 0 && (
-          <span className="rounded bg-[#2dd4bf]/20 px-2 py-0.5 text-[11px] font-semibold text-[#1e2e5e]">
+          <span className="rounded bg-[#2D83C2]/20 px-2 py-0.5 text-[11px] font-semibold text-[#1a1a1a]">
             -{p.discountPct}%
           </span>
         )}

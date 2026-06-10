@@ -93,7 +93,7 @@ function CheckoutContent() {
 
       <div className="mb-8">
         <p className="text-sm font-medium text-slate-500">{c.step1}</p>
-        <h1 className="mt-1 text-2xl font-bold text-[#1e2e5e] md:text-3xl">
+        <h1 className="mt-1 text-2xl font-bold text-[#1a1a1a] md:text-3xl">
           {bundleHotel ? c.enterTripDetails : m.common.enterPassengerDetails}
         </h1>
       </div>

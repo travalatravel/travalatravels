@@ -16,7 +16,7 @@ export default function Footer() {
   const { messages: m } = useTranslations();
 
   return (
-    <footer className="bg-[#1e2e5e] text-white">
+    <footer className="bg-[#1a5f94] text-white">
       <div className="mx-auto max-w-6xl px-3 py-10 sm:px-4 sm:py-12 lg:px-6">
         <div className="mb-10">
           <h3 className="font-[family-name:var(--font-display)] text-xl font-bold">
@@ -31,11 +31,11 @@ export default function Footer() {
               </h4>
               <div className="flex flex-wrap gap-2">
                 {FOOTER_COUNTRY_LINKS.map((c) => (
-                  <Link key={c.name} href={c.href} className="text-xs text-white/80 hover:text-[#2dd4bf]">
+                  <Link key={c.name} href={c.href} className="text-xs text-white/80 hover:text-[#2D83C2]">
                     {c.name}
                   </Link>
                 ))}
-                <Link href="/stays" className="text-xs font-semibold text-[#2dd4bf]">
+                <Link href="/stays" className="text-xs font-semibold text-[#2D83C2]">
                   {m.common.showMore}
                 </Link>
               </div>
@@ -46,7 +46,7 @@ export default function Footer() {
               </h4>
               <div className="flex flex-wrap gap-2">
                 {FOOTER_REGION_LINKS.map((r) => (
-                  <Link key={r.name} href={r.href} className="text-xs text-white/80 hover:text-[#2dd4bf]">
+                  <Link key={r.name} href={r.href} className="text-xs text-white/80 hover:text-[#2D83C2]">
                     {r.name}
                   </Link>
                 ))}
@@ -58,7 +58,7 @@ export default function Footer() {
               </h4>
               <div className="flex flex-wrap gap-2">
                 {FOOTER_CITY_LINKS.map((c) => (
-                  <Link key={c.name} href={c.href} className="text-xs text-white/80 hover:text-[#2dd4bf]">
+                  <Link key={c.name} href={c.href} className="text-xs text-white/80 hover:text-[#2D83C2]">
                     {c.name}
                   </Link>
                 ))}
@@ -92,7 +92,7 @@ export default function Footer() {
 
           <div className="mb-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             <div>
-              <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-[#2dd4bf]">
+              <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-[#2D83C2]">
                 {m.footer.sections.travala}
               </h4>
               <ul className="space-y-2">
@@ -106,7 +106,7 @@ export default function Footer() {
               </ul>
             </div>
             <div>
-              <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-[#2dd4bf]">
+              <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-[#2D83C2]">
                 {m.footer.sections.support}
               </h4>
               <ul className="space-y-2">
@@ -120,7 +120,7 @@ export default function Footer() {
               </ul>
             </div>
             <div>
-              <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-[#2dd4bf]">
+              <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-[#2D83C2]">
                 {m.footer.sections.resources}
               </h4>
               <ul className="space-y-2">
@@ -134,7 +134,7 @@ export default function Footer() {
               </ul>
             </div>
             <div>
-              <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-[#2dd4bf]">COMMUNITY</h4>
+              <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-[#2D83C2]">COMMUNITY</h4>
               <ul className="space-y-2">
                 {FOOTER_NAV.community.map((link) => (
                   <li key={link.href}>
@@ -149,7 +149,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-10 border-t border-white/10 pt-6 text-center text-xs text-white/50">
-          © 2017–2026 Travala.com. All rights reserved.
+          {m.footer.copyrightLine}
         </div>
       </div>
     </footer>

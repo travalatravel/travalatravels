@@ -46,8 +46,8 @@ export default function AdminSettingsPage() {
         className="mt-8 space-y-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
       >
         <div className="flex items-center gap-3 border-b border-gray-100 pb-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1e2e5e]/10">
-            <KeyRound className="text-[#1e2e5e]" size={20} />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1a5f94]/10">
+            <KeyRound className="text-[#1a1a1a]" size={20} />
           </div>
           <div>
             <p className="font-semibold text-gray-900">Admin password</p>
@@ -101,7 +101,7 @@ export default function AdminSettingsPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-xl bg-[#1e2e5e] py-3 text-sm font-semibold text-white hover:bg-[#2D83C2] disabled:opacity-50"
+          className="w-full rounded-xl bg-[#1a5f94] py-3 text-sm font-semibold text-white hover:bg-[#2D83C2] disabled:opacity-50"
         >
           {loading ? "Saving…" : "Update password"}
         </button>
