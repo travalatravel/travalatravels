@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { resolveIataCode } from "@/lib/iata-codes";
 import { generateMarketFlights } from "@/lib/flight-market-engine";
+import { searchSkyScrapperFlights, skyScrapperConfigured } from "@/lib/sky-scrapper-flights";
 import type { CabinClass, TripType } from "@/lib/flight-types";
+import type { LiveFlightOffer } from "@/lib/live-flight-types";
 
 function defaultDepart() {
   const d = new Date();
@@ -39,7 +41,7 @@ export async function GET(request: Request) {
     );
   }
 
-  let flights = generateMarketFlights({
+  const searchInput = {
     fromCode,
     toCode,
     fromLabel: from,
@@ -51,7 +53,23 @@ export async function GET(request: Request) {
     adults,
     children,
     infants,
-  });
+  };
+
+  let flights: LiveFlightOffer[] = [];
+  let source: "sky-scrapper" | "market" = "market";
+
+  if (skyScrapperConfigured()) {
+    const live = await searchSkyScrapperFlights(searchInput);
+    if (live?.length) {
+      flights = live;
+      source = "sky-scrapper";
+    }
+  }
+
+  if (!flights.length) {
+    flights = generateMarketFlights(searchInput);
+    source = "market";
+  }
 
   if (sort === "price-desc") {
     flights.sort((a, b) => b.salePrice - a.salePrice);
@@ -62,7 +80,8 @@ export async function GET(request: Request) {
   return NextResponse.json({
     flights,
     total: flights.length,
-    source: "market",
+    source,
+    liveConfigured: skyScrapperConfigured(),
     fromCode,
     toCode,
     discountPct: 30,

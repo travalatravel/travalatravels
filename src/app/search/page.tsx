@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useMemo, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import SiteChrome from "@/components/SiteChrome";
 import SearchForm from "@/components/SearchForm";
@@ -13,11 +13,22 @@ import type { CabinClass, TripType } from "@/lib/flight-types";
 import { useTranslations } from "@/i18n/useTranslations";
 import { cabinLabel } from "@/i18n/cabin-label";
 
+function sortFlights(flights: LiveFlightOffer[], sort: SortOption): LiveFlightOffer[] {
+  if (sort === "recommended") return flights;
+  const sorted = [...flights];
+  if (sort === "price-desc") {
+    sorted.sort((a, b) => b.salePrice - a.salePrice);
+  } else if (sort === "price-asc") {
+    sorted.sort((a, b) => a.salePrice - b.salePrice);
+  }
+  return sorted;
+}
+
 function FlightSearchResults() {
   const { messages: m, fmt } = useTranslations();
   const searchParams = useSearchParams();
   const [liveFlights, setLiveFlights] = useState<LiveFlightOffer[]>([]);
-  const [flightSource, setFlightSource] = useState<"market" | null>(null);
+  const [flightSource, setFlightSource] = useState<"sky-scrapper" | "market" | null>(null);
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState<SortOption>("recommended");
   const [flightError, setFlightError] = useState("");
@@ -72,7 +83,6 @@ function FlightSearchResults() {
       adults: String(adults),
       children: String(children),
       infants: String(infants),
-      sort: sort === "price-desc" ? "price-desc" : "price-asc",
     });
     if (fromCode) params.set("fromCode", fromCode);
     if (toCode) params.set("toCode", toCode);
@@ -103,12 +113,13 @@ function FlightSearchResults() {
     adults,
     children,
     infants,
-    sort,
     m.searchPage.noFlightsFound,
   ]);
 
+  const sortedFlights = useMemo(() => sortFlights(liveFlights, sort), [liveFlights, sort]);
+
   const routeLabel = from || to ? `${from || m.common.anywhere} → ${to || m.common.anywhere}` : null;
-  const hasResults = liveFlights.length > 0;
+  const hasResults = sortedFlights.length > 0;
 
   return (
     <SiteChrome>
@@ -125,7 +136,7 @@ function FlightSearchResults() {
             <h1 className="text-2xl font-bold text-[#1a1a1a]">
               {loading
                 ? m.common.searching
-                : fmt(m.common.flightCount, { count: liveFlights.length.toLocaleString() })}
+                : fmt(m.common.flightCount, { count: sortedFlights.length.toLocaleString() })}
               {routeLabel && <span className="font-normal text-gray-500"> · {routeLabel}</span>}
             </h1>
             {!loading && (
@@ -148,7 +159,7 @@ function FlightSearchResults() {
 
         {!loading && hasResults && (
           <div className="mt-6">
-            <SearchFilters sort={sort} onSortChange={setSort} total={liveFlights.length} />
+            <SearchFilters sort={sort} onSortChange={setSort} total={sortedFlights.length} />
           </div>
         )}
 
@@ -168,7 +179,7 @@ function FlightSearchResults() {
         ) : (
           <>
             <div className="mt-8 space-y-2">
-              {liveFlights.map((flight) => (
+              {sortedFlights.map((flight) => (
                 <LiveFlightResultCard key={flight.id} flight={flight} searchContext={flightSearchContext} />
               ))}
             </div>

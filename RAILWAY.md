@@ -54,6 +54,7 @@ Im Service → **Variables** → diese Werte eintragen:
 | `JWT_SECRET` | Langer Zufallsstring (mind. 32 Zeichen) |
 | `NEXT_PUBLIC_APP_URL` | `https://travala.travel` |
 | `APP_URL` | `https://travala.travel` |
+| `RAPIDAPI_KEY` | Dein **X-RapidAPI-Key** von [Sky Scrapper / Air Scraper](https://rapidapi.com/apiheya/api/sky-scrapper) (Tab *App* → *X-RapidAPI-Key*) |
 | `NODE_ENV` | `production` |
 
 **Nicht setzen:** `PORT` — Railway vergibt den Port automatisch. Wenn du `PORT=3000` manuell setzt, kann die Seite mit „Application failed to respond“ abbrechen.
