@@ -14,7 +14,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
       href={`/offers/${offer.id}`}
       className="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition hover:-translate-y-1 hover:border-amber-200 hover:shadow-xl"
     >
-      <div className="relative h-52 overflow-hidden">
+      <div className="relative h-44 overflow-hidden sm:h-48 md:h-52">
         <OfferImage
           src={offer.image}
           alt={offer.title}
@@ -65,7 +65,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
             perNight={offer.type === "HOTEL"}
             showCrypto
           />
-          <span className="mt-3 block w-full rounded-xl bg-[#1e2e5e] py-2.5 text-center text-xs font-bold text-white transition group-hover:bg-amber-500 group-hover:text-slate-900">
+          <span className="mt-3 block w-full rounded-xl bg-[#1e2e5e] py-2.5 text-center text-xs font-bold text-white transition sm:opacity-0 sm:group-hover:opacity-100 sm:group-hover:bg-amber-500 sm:group-hover:text-slate-900">
             Secure this rate →
           </span>
         </div>

@@ -355,7 +355,7 @@ export default function CryptoGatewayPanel({
                       alt="Payment QR code"
                       width={200}
                       height={200}
-                      className="rounded-lg"
+                      className="h-auto max-w-full rounded-lg"
                     />
                   </div>
                   <p className="mt-2 text-center text-[11px] text-slate-400">

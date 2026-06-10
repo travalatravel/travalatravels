@@ -32,8 +32,8 @@ function RegisterForm() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-3 py-6 sm:px-4">
+      <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-lg sm:p-8">
         <div className="mb-8 text-center">
           <Image src={ASSETS.logoDark} alt="Travala" width={140} height={36} className="mx-auto" />
           <h1 className="mt-6 text-xl font-bold text-[#1e2e5e]">Create your account</h1>

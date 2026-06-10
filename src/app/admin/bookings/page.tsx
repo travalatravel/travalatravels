@@ -30,9 +30,9 @@ export default function AdminBookingsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#1e2e5e]">Bookings</h1>
+          <h1 className="text-xl font-bold text-[#1e2e5e] sm:text-2xl">Bookings</h1>
           <p className="mt-1 text-gray-500">{bookings.length} bookings</p>
         </div>
         <button onClick={load} className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm hover:bg-gray-50">
@@ -40,7 +40,7 @@ export default function AdminBookingsPage() {
         </button>
       </div>
 
-      <div className="mt-4 flex gap-2">
+      <div className="mt-4 flex flex-wrap gap-2">
         {filters.map((f) => (
           <button
             key={f || "all"}

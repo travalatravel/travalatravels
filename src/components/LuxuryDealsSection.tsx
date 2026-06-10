@@ -24,15 +24,15 @@ export default function LuxuryDealsSection() {
   }, []);
 
   return (
-    <section className="bg-gradient-to-b from-slate-900 to-[#1e2e5e] py-16 text-white">
-      <div className="mx-auto max-w-6xl px-4 lg:px-6">
+    <section className="bg-gradient-to-b from-slate-900 to-[#1e2e5e] py-10 text-white sm:py-16">
+      <div className="mx-auto max-w-6xl px-3 sm:px-4 lg:px-6">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-amber-400">
               <Crown size={16} />
               Curated luxury escapes
             </p>
-            <h2 className="mt-2 font-[family-name:var(--font-display)] text-3xl font-bold md:text-4xl">
+            <h2 className="mt-2 font-[family-name:var(--font-display)] text-2xl font-bold sm:text-3xl md:text-4xl">
               Today&apos;s deepest discounts
             </h2>
             <p className="mt-2 max-w-xl text-white/60">
@@ -42,7 +42,7 @@ export default function LuxuryDealsSection() {
           </div>
           <Link
             href="/search?type=stays"
-            className="rounded-xl border border-white/20 bg-white/10 px-6 py-3 text-sm font-semibold backdrop-blur transition hover:bg-white/20"
+            className="w-full rounded-xl border border-white/20 bg-white/10 px-6 py-3 text-center text-sm font-semibold backdrop-blur transition hover:bg-white/20 sm:w-auto"
           >
             View all luxury deals
           </Link>
@@ -65,7 +65,7 @@ export default function LuxuryDealsSection() {
                   href={`/offers/${offer.id}`}
                   className="group overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur transition hover:border-amber-500/50 hover:shadow-2xl hover:shadow-amber-500/10"
                 >
-                  <div className="relative h-44 overflow-hidden">
+                  <div className="relative h-40 overflow-hidden sm:h-44">
                     <OfferImage
                       src={offer.image}
                       alt={offer.title}
@@ -108,7 +108,7 @@ export default function LuxuryDealsSection() {
                         perNight
                       />
                     </div>
-                    <span className="mt-3 block w-full rounded-lg bg-amber-500 py-2 text-center text-xs font-bold text-slate-900 opacity-0 transition group-hover:opacity-100">
+                    <span className="mt-3 block w-full rounded-lg bg-amber-500 py-2 text-center text-xs font-bold text-slate-900 transition sm:opacity-0 sm:group-hover:opacity-100">
                       Book before price rises →
                     </span>
                   </div>

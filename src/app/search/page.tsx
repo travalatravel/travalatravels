@@ -52,13 +52,13 @@ function SearchResults() {
     <>
       <FlashSaleBanner />
       <Header />
-      <div className="bg-gradient-to-r from-[#0f172a] to-[#1e2e5e] py-8">
-        <div className="mx-auto max-w-5xl px-4">
+      <div className="bg-gradient-to-r from-[#0f172a] to-[#1e2e5e] py-5 sm:py-8">
+        <div className="mx-auto max-w-5xl px-3 sm:px-4">
           <SearchForm defaultType={type} defaultQuery={q} compact />
         </div>
       </div>
 
-      <main className="mx-auto max-w-6xl px-4 py-10 lg:px-6">
+      <main className="mx-auto max-w-6xl px-3 py-8 sm:px-4 sm:py-10 lg:px-6">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <p className="text-sm font-semibold text-amber-600">Luxury deals · Flash pricing active</p>

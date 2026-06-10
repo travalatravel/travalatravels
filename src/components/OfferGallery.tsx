@@ -51,6 +51,7 @@ export default function OfferGallery({ title, fallbackImage, metadata }: Props) 
           src={current}
           alt={`${title} — photo ${active + 1}`}
           fill
+          sizes="(max-width: 1024px) 100vw, 66vw"
           className="object-cover"
           priority
           unoptimized={current.includes("travelapi.com")}
@@ -95,7 +96,7 @@ export default function OfferGallery({ title, fallbackImage, metadata }: Props) 
               key={`${src}-${i}`}
               type="button"
               onClick={() => setActive(i)}
-              className={`relative h-16 w-24 shrink-0 overflow-hidden rounded-lg border-2 transition md:h-20 md:w-28 ${
+              className={`relative h-14 w-20 shrink-0 overflow-hidden rounded-lg border-2 transition sm:h-16 sm:w-24 md:h-20 md:w-28 ${
                 i === active ? "border-[#2577be] ring-2 ring-[#2577be]/30" : "border-transparent opacity-80 hover:opacity-100"
               }`}
             >
@@ -103,6 +104,7 @@ export default function OfferGallery({ title, fallbackImage, metadata }: Props) 
                 src={src}
                 alt={`${title} thumbnail ${i + 1}`}
                 fill
+                sizes="112px"
                 className="object-cover"
                 unoptimized={src.includes("travelapi.com")}
               />

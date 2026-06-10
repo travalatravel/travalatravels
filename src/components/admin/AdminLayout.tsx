@@ -12,6 +12,8 @@ import {
   ArrowLeft,
   Settings,
   Eye,
+  Menu,
+  X,
 } from "lucide-react";
 
 const NAV = [
@@ -23,12 +25,64 @@ const NAV = [
   { href: "/admin/settings", label: "Security", icon: Settings },
 ];
 
+function SidebarContent({
+  pathname,
+  onNavigate,
+  onLogout,
+}: {
+  pathname: string;
+  onNavigate?: () => void;
+  onLogout: () => void;
+}) {
+  return (
+    <>
+      <div className="border-b border-white/10 p-4 sm:p-5">
+        <p className="text-xs font-semibold uppercase tracking-wider text-[#2dd4bf]">Travala Admin</p>
+        <p className="mt-1 text-sm text-white/70">Password protected</p>
+      </div>
+      <nav className="flex-1 overflow-y-auto p-3">
+        {NAV.map(({ href, label, icon: Icon }) => (
+          <Link
+            key={href}
+            href={href}
+            onClick={onNavigate}
+            className={`mb-1 flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition ${
+              pathname === href
+                ? "bg-[#2577be] text-white"
+                : "text-white/70 hover:bg-white/10 hover:text-white"
+            }`}
+          >
+            <Icon size={18} />
+            {label}
+          </Link>
+        ))}
+      </nav>
+      <div className="border-t border-white/10 p-3">
+        <Link
+          href="/"
+          onClick={onNavigate}
+          className="mb-1 flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-white/70 hover:bg-white/10"
+        >
+          <ArrowLeft size={16} /> Back to Site
+        </Link>
+        <button
+          onClick={onLogout}
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-white/70 hover:bg-white/10"
+        >
+          <LogOut size={16} /> Log out
+        </button>
+      </div>
+    </>
+  );
+}
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const isLoginPage = pathname === "/admin/login";
 
   const [authState, setAuthState] = useState<"loading" | "ok" | "denied">("loading");
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     if (isLoginPage) return;
@@ -49,6 +103,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       });
   }, [isLoginPage, router, pathname]);
 
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [menuOpen]);
+
   const logout = async () => {
     await fetch("/api/admin/auth/logout", { method: "POST" });
     router.push("/admin/login");
@@ -68,43 +133,50 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      <aside className="fixed inset-y-0 left-0 z-30 w-64 bg-[#1e2e5e] text-white">
-        <div className="border-b border-white/10 p-5">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[#2dd4bf]">Travala Admin</p>
-          <p className="mt-1 text-sm text-white/70">Password protected</p>
-        </div>
-        <nav className="p-3">
-          {NAV.map(({ href, label, icon: Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              className={`mb-1 flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition ${
-                pathname === href
-                  ? "bg-[#2577be] text-white"
-                  : "text-white/70 hover:bg-white/10 hover:text-white"
-              }`}
-            >
-              <Icon size={18} />
-              {label}
-            </Link>
-          ))}
-        </nav>
-        <div className="absolute bottom-0 left-0 right-0 border-t border-white/10 p-3">
-          <Link
-            href="/"
-            className="mb-1 flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-white/70 hover:bg-white/10"
-          >
-            <ArrowLeft size={16} /> Back to Site
-          </Link>
-          <button
-            onClick={() => logout()}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-white/70 hover:bg-white/10"
-          >
-            <LogOut size={16} /> Log out
-          </button>
-        </div>
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 bg-[#1e2e5e] text-white lg:flex lg:flex-col">
+        <SidebarContent pathname={pathname} onLogout={logout} />
       </aside>
-      <main className="ml-64 flex-1 p-8">{children}</main>
+
+      {menuOpen && (
+        <div className="fixed inset-0 z-40 lg:hidden">
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setMenuOpen(false)}
+            aria-label="Close menu"
+          />
+          <aside className="relative flex h-full w-[min(280px,85vw)] flex-col bg-[#1e2e5e] text-white shadow-xl">
+            <button
+              type="button"
+              onClick={() => setMenuOpen(false)}
+              className="absolute right-3 top-3 rounded-lg p-1.5 text-white/70 hover:bg-white/10"
+              aria-label="Close menu"
+            >
+              <X size={20} />
+            </button>
+            <SidebarContent
+              pathname={pathname}
+              onNavigate={() => setMenuOpen(false)}
+              onLogout={logout}
+            />
+          </aside>
+        </div>
+      )}
+
+      <div className="flex min-w-0 flex-1 flex-col lg:ml-64">
+        <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-gray-200 bg-white px-4 py-3 lg:hidden">
+          <button
+            type="button"
+            onClick={() => setMenuOpen(true)}
+            className="rounded-lg p-2 text-[#1e2e5e] hover:bg-gray-100"
+            aria-label="Open menu"
+          >
+            <Menu size={22} />
+          </button>
+          <p className="text-sm font-semibold text-[#1e2e5e]">Travala Admin</p>
+        </header>
+        <main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
+      </div>
     </div>
   );
 }

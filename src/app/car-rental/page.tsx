@@ -10,10 +10,10 @@ export default function CarRentalPage() {
     <>
       <FlashSaleBanner />
       <Header />
-      <div className="bg-[#1e2e5e] py-12 text-center text-white">
-        <h1 className="text-3xl font-bold">Car Rental</h1>
-        <p className="mt-2 text-white/80">NEW! Rent a car anywhere in the world and pay with crypto</p>
-        <div className="mx-auto mt-8 max-w-4xl px-4">
+      <div className="bg-[#1e2e5e] px-3 py-8 text-center text-white sm:px-4 sm:py-12">
+        <h1 className="text-2xl font-bold sm:text-3xl">Car Rental</h1>
+        <p className="mt-2 text-sm text-white/80 sm:text-base">NEW! Rent a car anywhere in the world and pay with crypto</p>
+        <div className="mx-auto mt-6 w-full max-w-4xl sm:mt-8">
           <SearchForm defaultType="car-rental" />
         </div>
       </div>

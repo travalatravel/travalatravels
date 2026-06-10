@@ -24,7 +24,8 @@ export default function AdminUsersPage() {
       <p className="mt-1 text-gray-500">{users.length} users total</p>
 
       <div className="mt-6 overflow-hidden rounded-2xl bg-white shadow-sm">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[640px] text-sm">
           <thead className="bg-gray-50">
             <tr className="text-left text-gray-500">
               <th className="px-5 py-3">Name</th>
@@ -50,6 +51,7 @@ export default function AdminUsersPage() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

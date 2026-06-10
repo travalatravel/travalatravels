@@ -14,7 +14,7 @@ const SOCIAL = ["Twitter", "Facebook", "Telegram", "Instagram", "Reddit", "Linke
 export default function Footer() {
   return (
     <footer className="bg-[#1e2e5e] text-white">
-      <div className="mx-auto max-w-6xl px-4 py-12 lg:px-6">
+      <div className="mx-auto max-w-6xl px-3 py-10 sm:px-4 sm:py-12 lg:px-6">
         <div className="mb-10">
           <h3 className="font-[family-name:var(--font-display)] text-xl font-bold">
             Explore Luxury Hotels Worldwide

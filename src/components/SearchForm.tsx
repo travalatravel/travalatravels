@@ -37,22 +37,27 @@ export default function SearchForm({
     router.push(`/search?${params.toString()}`);
   };
 
+  const showDates = type === "stays" || type === "car-rental";
+
   return (
-    <form onSubmit={handleSearch} className={`rounded-2xl bg-white shadow-xl ${compact ? "p-2" : "p-2"}`}>
-      <div className="flex overflow-x-auto border-b border-gray-100 scrollbar-hide">
+    <form
+      onSubmit={handleSearch}
+      className="w-full min-w-0 rounded-2xl bg-white p-2 shadow-xl sm:p-2.5"
+    >
+      <div className="flex snap-x snap-mandatory gap-0 overflow-x-auto border-b border-gray-100 scrollbar-hide">
         {TABS.map((tab) => (
           <button
             key={tab.key}
             type="button"
             onClick={() => setType(tab.key)}
-            className={`relative flex-shrink-0 px-5 py-3 text-sm font-semibold transition ${
+            className={`relative flex-shrink-0 snap-start px-3 py-2.5 text-xs font-semibold transition sm:px-5 sm:py-3 sm:text-sm ${
               type === tab.key
                 ? "text-[#2577be] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[#2577be]"
                 : "text-gray-500 hover:text-gray-700"
             }`}
           >
             {"badge" in tab && tab.badge && (
-              <span className="mr-1 rounded bg-[#2dd4bf] px-1.5 py-0.5 text-[9px] font-bold text-[#1e2e5e]">
+              <span className="mr-1 rounded bg-[#2dd4bf] px-1 py-0.5 text-[8px] font-bold text-[#1e2e5e] sm:text-[9px]">
                 {tab.badge}
               </span>
             )}
@@ -61,52 +66,57 @@ export default function SearchForm({
         ))}
       </div>
 
-      <div className={`flex flex-col gap-2 p-3 ${compact ? "" : "md:flex-row md:items-center"}`}>
-        <div className="flex flex-1 items-center gap-2 rounded-xl border border-gray-200 px-4 py-3">
-          <Search size={18} className="text-gray-400" />
+      <div
+        className={`flex min-w-0 flex-col gap-2 p-2 sm:p-3 ${
+          compact ? "md:flex-row md:flex-wrap md:items-center lg:flex-nowrap" : "md:flex-row md:items-center"
+        }`}
+      >
+        <div className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-gray-200 px-3 py-2.5 sm:px-4 sm:py-3">
+          <Search size={18} className="flex-shrink-0 text-gray-400" />
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search destination, city, or property..."
-            className="w-full text-sm outline-none"
+            placeholder="Where to?"
+            className="min-w-0 w-full text-sm outline-none placeholder:text-gray-400 sm:placeholder:text-gray-500"
           />
         </div>
 
-        {(type === "stays" || type === "car-rental") && (
-          <>
+        {showDates && (
+          <div className="grid min-w-0 grid-cols-2 gap-2 md:contents">
             <input
               type="date"
               value={checkIn}
               onChange={(e) => setCheckIn(e.target.value)}
-              className="rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none md:w-40"
+              className="min-w-0 w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none sm:px-4 sm:py-3 md:w-36 lg:w-40"
               title="Check-in"
             />
             <input
               type="date"
               value={checkOut}
               onChange={(e) => setCheckOut(e.target.value)}
-              className="rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none md:w-40"
+              className="min-w-0 w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none sm:px-4 sm:py-3 md:w-36 lg:w-40"
               title="Check-out"
             />
-          </>
+          </div>
         )}
 
-        <div className="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-3 md:w-32">
-          <Users size={16} className="text-gray-400" />
+        <div className="flex min-w-0 items-center gap-2 rounded-xl border border-gray-200 px-3 py-2.5 sm:px-4 sm:py-3 md:w-28 lg:w-32">
+          <Users size={16} className="flex-shrink-0 text-gray-400" />
           <input
             type="number"
             min={1}
             max={20}
             value={guests}
             onChange={(e) => setGuests(parseInt(e.target.value) || 1)}
-            className="w-full text-sm outline-none"
+            className="min-w-0 w-full text-sm outline-none"
+            aria-label="Guests"
           />
         </div>
 
         <button
           type="submit"
-          className="flex items-center justify-center gap-2 rounded-xl bg-[#2577be] px-8 py-3.5 text-sm font-semibold text-white hover:bg-[#1e2e5e]"
+          className="flex w-full flex-shrink-0 items-center justify-center gap-2 rounded-xl bg-[#2577be] px-6 py-3 text-sm font-semibold text-white hover:bg-[#1e2e5e] sm:py-3.5 md:w-auto md:px-8"
         >
           <Search size={16} />
           Search

@@ -28,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${poppins.variable} antialiased`}>
+      <body className={`${inter.variable} ${poppins.variable} min-w-0 overflow-x-hidden antialiased`}>
         <AuthProvider>
           <Suspense fallback={null}>
             <ViewTracker />

@@ -79,7 +79,7 @@ function CheckoutContent() {
   const totalPrice = applySalePrice(baseTotal, offer.id, offer.stars, true);
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-8 lg:px-6">
+    <main className="mx-auto max-w-6xl px-3 py-6 sm:px-4 sm:py-8 lg:px-6">
       <Link
         href={`/offers/${id}`}
         className="mb-6 inline-flex items-center gap-1 text-sm text-[#2577be] hover:underline"
@@ -95,8 +95,8 @@ function CheckoutContent() {
         </p>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+      <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
+        <div className="order-2 lg:order-1 lg:col-span-2">
           <BookingCheckoutForm
             offer={offer}
             checkIn={checkIn}
@@ -108,8 +108,8 @@ function CheckoutContent() {
             roomTotalPrice={roomTotalPrice}
           />
         </div>
-        <div className="lg:col-span-1">
-          <div className="sticky top-24">
+        <div className="order-1 lg:order-2 lg:col-span-1">
+          <div className="lg:sticky lg:top-20">
             <BookingOrderSummary
               offer={offer}
               checkIn={checkIn}

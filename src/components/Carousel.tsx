@@ -8,24 +8,28 @@ export default function Carousel({ children }: { children: React.ReactNode }) {
 
   const scroll = (dir: "left" | "right") => {
     if (!ref.current) return;
-    ref.current.scrollBy({ left: dir === "left" ? -320 : 320, behavior: "smooth" });
+    const amount = Math.min(ref.current.clientWidth * 0.85, 320);
+    ref.current.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
   };
 
   return (
-    <div className="relative">
+    <div className="relative -mx-1 px-1 sm:mx-0 sm:px-0">
       <button
         onClick={() => scroll("left")}
-        className="absolute -left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white shadow-md hover:bg-gray-50"
+        className="absolute left-0 top-1/2 z-10 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white shadow-md hover:bg-gray-50 md:flex"
         aria-label="Previous"
       >
         <ChevronLeft size={18} />
       </button>
-      <div ref={ref} className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth px-1 py-1">
+      <div
+        ref={ref}
+        className="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth pb-1 scrollbar-hide sm:gap-4"
+      >
         {children}
       </div>
       <button
         onClick={() => scroll("right")}
-        className="absolute -right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white shadow-md hover:bg-gray-50"
+        className="absolute right-0 top-1/2 z-10 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white shadow-md hover:bg-gray-50 md:flex"
         aria-label="Next"
       >
         <ChevronRight size={18} />

@@ -19,7 +19,7 @@ export default function CryptoMethodPicker({
   className?: string;
 }) {
   return (
-    <div className={`grid grid-cols-3 gap-2 ${className}`}>
+    <div className={`grid grid-cols-2 gap-2 sm:grid-cols-3 ${className}`}>
       {CRYPTO_PAYMENT_METHODS.map((method) => {
         const selected = value === method;
         return (

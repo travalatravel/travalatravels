@@ -5,15 +5,15 @@ import { Bitcoin } from "lucide-react";
 
 export default function CryptoSection() {
   return (
-    <section className="bg-[#0f172a] py-16">
-      <div className="mx-auto max-w-6xl px-4 lg:px-6">
+    <section className="bg-[#0f172a] py-10 sm:py-16">
+      <div className="mx-auto max-w-6xl px-3 sm:px-4 lg:px-6">
         <div className="grid items-center gap-10 lg:grid-cols-2">
           <div>
             <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-amber-400">
               <Bitcoin size={16} />
               Pay less with crypto
             </p>
-            <h2 className="mt-3 font-[family-name:var(--font-display)] text-3xl font-bold text-white md:text-4xl">
+            <h2 className="mt-3 font-[family-name:var(--font-display)] text-2xl font-bold text-white sm:text-3xl md:text-4xl">
               An extra 20% off
               <br />
               <span className="text-amber-400">every single booking</span>

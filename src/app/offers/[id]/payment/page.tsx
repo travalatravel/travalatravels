@@ -73,7 +73,7 @@ function PaymentContent() {
       : undefined;
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-8 lg:px-6">
+    <main className="mx-auto max-w-6xl px-3 py-6 sm:px-4 sm:py-8 lg:px-6">
       <Link
         href={`/offers/${id}/checkout?checkIn=${booking.checkIn?.slice(0, 10)}&checkOut=${booking.checkOut?.slice(0, 10)}&guests=${booking.guests}&rooms=${booking.rooms}`}
         className="mb-6 inline-flex items-center gap-1 text-sm text-[#2577be] hover:underline"
@@ -87,12 +87,12 @@ function PaymentContent() {
         <p className="mt-2 text-slate-500">Review your details and pay securely with cryptocurrency.</p>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
+      <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
+        <div className="order-2 space-y-6 lg:order-1 lg:col-span-2">
           <BookingGuestSummary booking={booking} />
           <CryptoGatewayPanel booking={booking} onPaid={refresh} />
         </div>
-        <div className="lg:col-span-1">
+        <div className="order-1 lg:order-2 lg:col-span-1">
           <BookingOrderSummary
             offer={booking.offer}
             checkIn={booking.checkIn?.slice(0, 10)}

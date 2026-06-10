@@ -8,8 +8,8 @@ export default function FAQ() {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <section className="bg-gray-50 py-16">
-      <div className="mx-auto max-w-3xl px-4 lg:px-6">
+    <section className="bg-gray-50 py-10 sm:py-16">
+      <div className="mx-auto max-w-3xl px-3 sm:px-4 lg:px-6">
         <h2 className="text-center font-[family-name:var(--font-display)] text-2xl font-bold text-[#1e2e5e] md:text-3xl">
           FAQs
         </h2>
@@ -17,7 +17,7 @@ export default function FAQ() {
           {FAQ_ITEMS.map((item, i) => (
             <div key={i} className="overflow-hidden rounded-xl border border-gray-200 bg-white">
               <button
-                className="flex w-full items-center justify-between px-5 py-4 text-left"
+                className="flex w-full items-start justify-between gap-3 px-4 py-4 text-left sm:px-5"
                 onClick={() => setOpen(open === i ? null : i)}
               >
                 <span className="text-sm font-semibold text-[#1e2e5e]">{item.q}</span>

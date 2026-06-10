@@ -49,7 +49,7 @@ export default function MyTripsPage() {
     <>
       <FlashSaleBanner />
       <Header />
-      <main className="mx-auto max-w-4xl px-4 py-10 lg:px-6">
+      <main className="mx-auto max-w-4xl px-3 py-8 sm:px-4 sm:py-10 lg:px-6">
         <h1 className="text-2xl font-bold text-[#1e2e5e]">My Trips</h1>
         <p className="mt-1 text-gray-500">Welcome back, {user.name}</p>
 
@@ -70,13 +70,13 @@ export default function MyTripsPage() {
           <div className="mt-8 space-y-4">
             {bookings.map((booking) => (
               <div key={booking.id} className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-                <div className="flex gap-4">
-                  <div className="relative h-24 w-32 flex-shrink-0 overflow-hidden rounded-xl">
+                <div className="flex flex-col gap-4 sm:flex-row">
+                  <div className="relative h-40 w-full flex-shrink-0 overflow-hidden rounded-xl sm:h-24 sm:w-32">
                     <OfferImage src={booking.offer.image} alt={booking.offer.title} metadata={booking.offer.metadata} fill className="object-cover" />
                   </div>
                   <div className="flex-1">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0 flex-1">
                         <div className="flex gap-2">
                           <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${PAYMENT_STATUS_COLORS[booking.paymentStatus]}`}>
                             {PAYMENT_STATUS_LABELS[booking.paymentStatus]}
@@ -96,7 +96,7 @@ export default function MyTripsPage() {
                         )}
                         <p className="text-xs text-gray-500">{TYPE_LABELS[booking.offer.type as keyof typeof TYPE_LABELS]} · {booking.offer.location}</p>
                       </div>
-                      <span className="text-lg font-bold text-[#2577be]">${booking.totalPrice.toFixed(2)}</span>
+                      <span className="text-lg font-bold text-[#2577be] sm:flex-shrink-0">${booking.totalPrice.toFixed(2)}</span>
                     </div>
                     <div className="mt-2 flex flex-wrap gap-3 text-xs text-gray-500">
                       {booking.checkIn && <span>Check-in: {new Date(booking.checkIn).toLocaleDateString()}</span>}

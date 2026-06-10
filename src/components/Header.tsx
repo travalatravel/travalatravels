@@ -12,7 +12,7 @@ function Logo() {
 
   if (imgError) {
     return (
-      <span className="font-[family-name:var(--font-display)] text-2xl font-bold tracking-tight text-white">
+      <span className="font-[family-name:var(--font-display)] text-xl font-bold tracking-tight text-white sm:text-2xl">
         Trav<span className="text-[#2dd4bf]">ala</span>
       </span>
     );
@@ -24,7 +24,7 @@ function Logo() {
       alt="Travala"
       width={140}
       height={36}
-      className="h-8 w-auto lg:h-9"
+      className="h-7 w-auto sm:h-8 lg:h-9"
       priority
       onError={() => setImgError(true)}
     />
@@ -43,6 +43,13 @@ export default function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [menuOpen]);
+
   return (
     <header
       className={`sticky top-0 z-50 w-full transition-all duration-200 ${
@@ -51,8 +58,8 @@ export default function Header() {
           : "bg-[#1e2e5e]/95 backdrop-blur-sm"
       }`}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 lg:px-6">
-        <Link href="/" className="flex-shrink-0">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-2.5 sm:px-4 sm:py-3 lg:px-6">
+        <Link href="/" className="min-w-0 flex-shrink-0">
           <Logo />
         </Link>
 
@@ -119,34 +126,50 @@ export default function Header() {
         </div>
 
         <button
-          className="rounded-lg p-1 text-white hover:bg-white/15 lg:hidden"
+          className="flex-shrink-0 rounded-lg p-1.5 text-white hover:bg-white/15 lg:hidden"
           onClick={() => setMenuOpen(!menuOpen)}
-          aria-label="Menu"
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
         >
           {menuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
       {menuOpen && (
-        <div className="border-t border-white/10 bg-[#1e2e5e] px-4 py-4 lg:hidden">
+        <div className="max-h-[calc(100dvh-3.5rem)] overflow-y-auto border-t border-white/10 bg-[#1e2e5e] px-4 py-4 lg:hidden">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="block py-3 text-white"
+              className="block border-b border-white/5 py-3.5 text-white"
               onClick={() => setMenuOpen(false)}
             >
               {link.label}
+              {link.badge && (
+                <span className="ml-2 rounded bg-[#2dd4bf] px-1.5 py-0.5 text-[9px] font-bold text-[#1e2e5e]">
+                  {link.badge}
+                </span>
+              )}
             </Link>
           ))}
+
+          <div className="mt-4 flex gap-2">
+            <button className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-white/20 py-2.5 text-sm text-white">
+              <Globe size={16} />
+              EN
+            </button>
+            <button className="flex-1 rounded-lg border border-white/20 py-2.5 text-sm text-white">
+              USD
+            </button>
+          </div>
+
           {user ? (
             <div className="mt-4 border-t border-white/10 pt-4">
-              <Link href="/my-trips" className="block py-2 text-white" onClick={() => setMenuOpen(false)}>
+              <Link href="/my-trips" className="block py-2.5 text-white" onClick={() => setMenuOpen(false)}>
                 My Trips ({user.name})
               </Link>
               <button
                 onClick={() => { logout(); setMenuOpen(false); }}
-                className="py-2 text-white/70"
+                className="py-2.5 text-white/70"
               >
                 Log out
               </button>
@@ -155,14 +178,14 @@ export default function Header() {
             <div className="mt-4 flex gap-3 border-t border-white/10 pt-4">
               <Link
                 href="/login"
-                className="flex-1 rounded-lg border border-white/30 py-2 text-center text-white"
+                className="flex-1 rounded-lg border border-white/30 py-2.5 text-center text-sm text-white"
                 onClick={() => setMenuOpen(false)}
               >
                 Log in
               </Link>
               <Link
                 href="/register"
-                className="flex-1 rounded-lg bg-[#2dd4bf] py-2 text-center font-semibold text-[#1e2e5e]"
+                className="flex-1 rounded-lg bg-[#2dd4bf] py-2.5 text-center text-sm font-semibold text-[#1e2e5e]"
                 onClick={() => setMenuOpen(false)}
               >
                 Register

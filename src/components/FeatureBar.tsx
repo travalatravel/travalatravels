@@ -11,7 +11,7 @@ const ICONS = {
 export default function FeatureBar() {
   return (
     <section className="bg-white py-10">
-      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 px-4 sm:grid-cols-2 lg:grid-cols-4 lg:px-6">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 px-3 sm:grid-cols-2 sm:px-4 lg:grid-cols-4 lg:px-6">
         {FEATURES.map((feature) => {
           const Icon = ICONS[feature.icon as keyof typeof ICONS];
           return (

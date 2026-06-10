@@ -23,10 +23,10 @@ export default function Destinations() {
   const data = DESTINATION_DATA[activeRegion];
 
   return (
-    <section className="bg-gray-50 py-16">
-      <div className="mx-auto max-w-6xl px-4 lg:px-6">
+    <section className="bg-gray-50 py-10 sm:py-16">
+      <div className="mx-auto max-w-6xl px-3 sm:px-4 lg:px-6">
         <p className="text-sm font-semibold uppercase tracking-wider text-amber-600">Luxury destinations</p>
-        <h2 className="mt-1 font-[family-name:var(--font-display)] text-2xl font-bold text-[#1e2e5e] md:text-3xl">
+        <h2 className="mt-1 font-[family-name:var(--font-display)] text-xl font-bold text-[#1e2e5e] sm:text-2xl md:text-3xl">
           Where will you escape next?
         </h2>
         <p className="mt-2 text-gray-500">
@@ -42,8 +42,8 @@ export default function Destinations() {
                 activeRegion === region.id ? "ring-2 ring-[#2577be] ring-offset-2" : ""
               }`}
             >
-              <div className="relative h-24 w-36">
-                <Image src={region.image} alt={region.label} fill className="object-cover" />
+              <div className="relative h-20 w-28 sm:h-24 sm:w-36">
+                <Image src={region.image} alt={region.label} fill sizes="144px" className="object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                 <span className="absolute bottom-2 left-2 right-2 text-xs font-semibold text-white leading-tight">
                   {region.label}
@@ -59,9 +59,9 @@ export default function Destinations() {
               <h3 className="mb-4 text-lg font-semibold text-[#1e2e5e]">Most Visited Countries</h3>
               <Carousel>
                 {data.countries.map((item) => (
-                  <Link key={item.name} href={`/search?type=stays&q=${encodeURIComponent(item.name)}`} className="w-36 flex-shrink-0">
-                    <div className="relative h-28 overflow-hidden rounded-xl">
-                      <Image src={item.image} alt={item.name} fill className="object-cover transition hover:scale-105" />
+                  <Link key={item.name} href={`/search?type=stays&q=${encodeURIComponent(item.name)}`} className="w-[42vw] max-w-36 flex-shrink-0 snap-start sm:w-36">
+                    <div className="relative h-24 overflow-hidden rounded-xl sm:h-28">
+                      <Image src={item.image} alt={item.name} fill sizes="144px" className="object-cover transition hover:scale-105" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                       <span className="absolute bottom-2 left-2 text-sm font-semibold text-white">{item.name}</span>
                     </div>
@@ -74,9 +74,9 @@ export default function Destinations() {
               <h3 className="mb-4 text-lg font-semibold text-[#1e2e5e]">Top Cities</h3>
               <Carousel>
                 {data.cities.map((item) => (
-                  <Link key={item.name} href={`/search?type=stays&q=${encodeURIComponent(item.name)}`} className="w-40 flex-shrink-0">
-                    <div className="relative h-32 overflow-hidden rounded-xl">
-                      <Image src={item.image} alt={item.name} fill className="object-cover transition hover:scale-105" />
+                  <Link key={item.name} href={`/search?type=stays&q=${encodeURIComponent(item.name)}`} className="w-[46vw] max-w-40 flex-shrink-0 snap-start sm:w-40">
+                    <div className="relative h-28 overflow-hidden rounded-xl sm:h-32">
+                      <Image src={item.image} alt={item.name} fill sizes="160px" className="object-cover transition hover:scale-105" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                       <div className="absolute bottom-2 left-2">
                         <div className="text-sm font-semibold text-white">{item.name}</div>
@@ -92,8 +92,8 @@ export default function Destinations() {
               <h3 className="mb-4 text-lg font-semibold text-[#1e2e5e]">Popular Hotels</h3>
               <Carousel>
                 {data.hotels.map((item) => (
-                  <Link key={item.name} href={`/search?type=stays&q=${encodeURIComponent(item.name)}`} className="w-56 flex-shrink-0">
-                    <div className="relative h-36 overflow-hidden rounded-xl">
+                  <Link key={item.name} href={`/search?type=stays&q=${encodeURIComponent(item.name)}`} className="w-[72vw] max-w-56 flex-shrink-0 snap-start sm:w-56">
+                    <div className="relative h-32 overflow-hidden rounded-xl sm:h-36">
                       <SafeImage
                         src={item.image}
                         alt={item.name}

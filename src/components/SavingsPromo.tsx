@@ -3,8 +3,8 @@ import { Percent, Bitcoin, BadgeCheck } from "lucide-react";
 
 export default function SavingsPromo() {
   return (
-    <section className="border-y border-slate-200 bg-white py-14">
-      <div className="mx-auto max-w-6xl px-4 lg:px-6">
+    <section className="border-y border-slate-200 bg-white py-10 sm:py-14">
+      <div className="mx-auto max-w-6xl px-3 sm:px-4 lg:px-6">
         <div className="grid gap-8 md:grid-cols-3">
           {[
             {

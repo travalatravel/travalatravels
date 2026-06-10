@@ -151,19 +151,19 @@ export default function OfferDetailPage() {
     <>
       <FlashSaleBanner />
       <Header />
-      <main className="mx-auto max-w-6xl px-4 py-8 lg:px-6">
+      <main className="mx-auto max-w-6xl px-3 py-6 pb-28 sm:px-4 sm:py-8 lg:px-6 lg:pb-8">
         <Link href="/search" className="mb-6 inline-flex items-center gap-1 text-sm text-[#2577be] hover:underline">
           <ArrowLeft size={16} /> Back to search
         </Link>
 
-        <div className="grid gap-8 lg:grid-cols-3">
-          <div className="lg:col-span-2">
+        <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
+          <div className="order-2 lg:order-1 lg:col-span-2">
             <OfferGallery title={offer.title} fallbackImage={offer.image} metadata={offer.metadata} />
             <div className="mt-6">
               <span className="rounded-full bg-[#2577be]/10 px-3 py-1 text-xs font-semibold text-[#2577be]">
                 {TYPE_LABELS[offer.type]}
               </span>
-              <h1 className="mt-3 text-2xl font-bold text-[#1e2e5e] md:text-3xl">{offer.title}</h1>
+              <h1 className="mt-3 text-xl font-bold text-[#1e2e5e] sm:text-2xl md:text-3xl">{offer.title}</h1>
               <div className="mt-2 flex items-center gap-1 text-gray-500">
                 <MapPin size={16} />
                 <span>{offer.location}</span>
@@ -189,11 +189,11 @@ export default function OfferDetailPage() {
             </div>
           </div>
 
-          <div className="lg:col-span-1">
-            <div className="sticky top-24 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+          <div className="order-1 lg:order-2 lg:col-span-1">
+            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl lg:sticky lg:top-20">
               {pricing && (
-                <div className="flex items-center justify-between bg-red-600 px-4 py-2.5 text-white">
-                  <span className="flex items-center gap-1.5 text-xs font-bold">
+                <div className="flex flex-wrap items-center justify-between gap-2 bg-red-600 px-3 py-2 text-white sm:px-4 sm:py-2.5">
+                  <span className="flex items-center gap-1.5 text-[11px] font-bold sm:text-xs">
                     <Flame size={14} />
                     FLASH DEAL — {pricing.discountPct}% OFF
                   </span>
@@ -203,7 +203,7 @@ export default function OfferDetailPage() {
                   </span>
                 </div>
               )}
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
               {livePrice?.source === "travala" && (
                 <span className="mb-2 inline-block rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
                   Live rate · locked for 15 min
@@ -319,6 +319,24 @@ export default function OfferDetailPage() {
           </div>
         </div>
       </main>
+
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 p-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] backdrop-blur lg:hidden">
+        <div className="mx-auto flex max-w-6xl items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-xs text-gray-500">Your price</p>
+            <p className="text-lg font-bold text-emerald-700">
+              {priceLoading ? "…" : formatUsd(calcTotal())}
+            </p>
+          </div>
+          <button
+            onClick={handleContinue}
+            className="flex-shrink-0 rounded-xl bg-[#1e2e5e] px-5 py-3 text-sm font-bold text-white"
+          >
+            {user ? "Book now →" : "Log in"}
+          </button>
+        </div>
+      </div>
+
       <Footer />
     </>
   );
