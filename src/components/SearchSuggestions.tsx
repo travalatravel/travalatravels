@@ -37,7 +37,6 @@ export default function SearchSuggestions({
   activeIndex,
   onSelect,
   onHover,
-  mobileSheet = false,
 }: {
   suggestions: SearchSuggestion[];
   loading: boolean;
@@ -45,27 +44,18 @@ export default function SearchSuggestions({
   activeIndex: number;
   onSelect: (item: SearchSuggestion) => void;
   onHover: (index: number) => void;
-  mobileSheet?: boolean;
 }) {
   const { messages: m, fmt } = useTranslations();
   const kindLabels = m.suggestionKinds;
 
   if (!query.trim()) return null;
 
-  const listClass = mobileSheet
-    ? "fixed inset-x-0 bottom-0 z-[60] max-h-[min(24rem,55vh)] overflow-y-auto rounded-t-2xl border border-gray-200 bg-white py-1 shadow-2xl sm:absolute sm:inset-x-0 sm:bottom-auto sm:top-[calc(100%+0.35rem)] sm:z-50 sm:max-h-[min(22rem,60vh)] sm:rounded-xl"
-    : "absolute left-0 right-0 top-[calc(100%+0.35rem)] z-50 max-h-[min(22rem,60vh)] overflow-y-auto rounded-xl border border-gray-200 bg-white py-1 shadow-2xl";
-
   return (
-    <>
-      {mobileSheet && (suggestions.length > 0 || loading) && (
-        <div className="fixed inset-0 z-[55] bg-black/25 sm:hidden" aria-hidden />
-      )}
-      <div
-        className={listClass}
-        role="listbox"
-        aria-label="Search suggestions"
-      >
+    <div
+      className="absolute left-0 right-0 top-full z-[70] mt-1 max-h-[min(16rem,45vh)] overflow-y-auto rounded-xl border border-gray-200 bg-white py-1 shadow-lg"
+      role="listbox"
+      aria-label={m.common.search}
+    >
       {loading && suggestions.length === 0 && (
         <p className="px-4 py-3 text-sm text-gray-500">{m.common.searching}</p>
       )}
@@ -82,7 +72,7 @@ export default function SearchSuggestions({
           aria-selected={activeIndex === index}
           onMouseEnter={() => onHover(index)}
           onClick={() => onSelect(item)}
-          className={`flex w-full min-h-[52px] items-start gap-3 px-3 py-3 text-left transition sm:min-h-0 sm:px-4 sm:py-2.5 ${
+          className={`flex w-full min-h-[48px] items-start gap-3 px-3 py-2.5 text-left transition sm:px-4 ${
             activeIndex === index ? "bg-[#eef5fc]" : "hover:bg-gray-50"
           }`}
         >
@@ -90,7 +80,7 @@ export default function SearchSuggestions({
             <SuggestionIcon kind={item.kind} />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-base font-medium text-gray-900 sm:text-sm">{item.label}</span>
+            <span className="block truncate text-sm font-medium text-gray-900">{item.label}</span>
             <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-gray-500">
               <span>{kindLabels[item.kind as keyof typeof kindLabels]}</span>
               {item.subtitle && (
@@ -103,7 +93,6 @@ export default function SearchSuggestions({
           </span>
         </button>
       ))}
-      </div>
-    </>
+    </div>
   );
 }

@@ -65,7 +65,7 @@ function PaymentContent() {
       <div className="mx-auto max-w-lg px-4 py-16 text-center">
         <p className="text-gray-500">{c.bookingNotFound}</p>
         <Link href="/my-trips" className="mt-4 inline-block text-[#2577be] hover:underline">
-          My Trips
+          {m.paymentPage.myTrips}
         </Link>
       </div>
     );
@@ -122,6 +122,7 @@ function PaymentContent() {
               rooms={booking.rooms}
               totalPrice={booking.totalPrice}
               nights={nights}
+              specialRequests={booking.specialRequests}
             />
           )}
         </div>

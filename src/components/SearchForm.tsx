@@ -231,7 +231,7 @@ export default function SearchForm({
     >
       <div
         ref={containerRef}
-        className={`relative flex min-h-[52px] min-w-0 items-center gap-2 rounded-xl border border-gray-200 bg-[#f8fafc] px-3 py-2 sm:min-h-0 sm:rounded-none sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 ${isHero ? "flex-[1.4] lg:px-2" : "w-full flex-1 sm:min-w-[240px]"}`}
+        className={`relative z-20 flex min-h-[52px] min-w-0 items-center gap-2 overflow-visible rounded-xl border border-gray-200 bg-[#f8fafc] px-3 py-2 sm:min-h-0 sm:rounded-none sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 ${isHero ? "flex-[1.4] lg:px-2" : "w-full flex-1 sm:min-w-[240px]"}`}
       >
         <Image src={ASSETS.searchIcon} alt="" width={24} height={24} className="hidden shrink-0 lg:block" unoptimized />
         <input
@@ -259,7 +259,6 @@ export default function SearchForm({
             activeIndex={activeIndex}
             onSelect={selectSuggestion}
             onHover={setActiveIndex}
-            mobileSheet
           />
         )}
       </div>

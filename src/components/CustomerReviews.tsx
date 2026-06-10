@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import Carousel from "./Carousel";
 import { CUSTOMER_REVIEWS, TRUSTPILOT_RATING } from "@/data/reviews-data";
@@ -47,10 +48,14 @@ export default function CustomerReviews() {
             rel="noopener noreferrer"
             className="inline-flex shrink-0 flex-col items-start rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm transition hover:border-[#00b67a]/40 hover:shadow-md sm:items-center"
           >
-            <div className="flex items-center gap-2">
-              <TrustpilotStar size={20} />
-              <span className="text-sm font-bold text-[#1e2e5e]">Trustpilot</span>
-            </div>
+            <Image
+              src="https://cdn.trustpilot.net/brand-assets/4.1.0/logo-black.svg"
+              alt="Trustpilot"
+              width={110}
+              height={28}
+              className="h-6 w-auto"
+              unoptimized
+            />
             <div className="mt-2 flex items-center gap-2">
               <StarRow rating={5} size={14} />
               <span className="text-lg font-bold text-[#1e2e5e]">{TRUSTPILOT_RATING.score}</span>

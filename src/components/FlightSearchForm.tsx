@@ -182,6 +182,10 @@ export default function FlightSearchForm({
 
   const handleSearch = (e?: React.FormEvent) => {
     e?.preventDefault();
+    if (!from.trim() || !to.trim()) {
+      router.push("/search?type=flights");
+      return;
+    }
     const params = buildFlightSearchQuery({
       trip,
       from: from.trim(),
@@ -214,7 +218,7 @@ export default function FlightSearchForm({
     className = "",
   ) => (
     <div
-      className={`relative min-w-0 rounded-xl border border-gray-200 bg-[#f8fafc] px-3 py-2.5 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 ${className}`}
+      className={`relative z-20 min-w-0 overflow-visible rounded-xl border border-gray-200 bg-[#f8fafc] px-3 py-2.5 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 ${className}`}
     >
       <label className="text-[10px] font-medium uppercase tracking-wide text-gray-500">{label}</label>
       <input
@@ -238,7 +242,6 @@ export default function FlightSearchForm({
           activeIndex={activeIndex}
           onSelect={selectSuggestion}
           onHover={setActiveIndex}
-          mobileSheet
         />
       )}
     </div>
@@ -478,7 +481,7 @@ export default function FlightSearchForm({
             <label className="mt-4 flex cursor-pointer items-center gap-2 text-sm text-gray-600">
               <input type="checkbox" checked={addHotel} onChange={(e) => setAddHotel(e.target.checked)} className="accent-[#2577be]" />
               <Building2 size={16} className="text-[#2577be]" />
-              Add a hotel at destination
+              {m.common.addHotel}
             </label>
           </div>
         </div>
@@ -490,7 +493,7 @@ export default function FlightSearchForm({
             {flightRow}
             <label className="mt-3 flex cursor-pointer items-center gap-2 text-sm text-gray-600">
               <input type="checkbox" checked={addHotel} onChange={(e) => setAddHotel(e.target.checked)} className="accent-[#2577be]" />
-              Add a hotel at destination
+              {m.common.addHotel}
             </label>
           </div>
         </div>

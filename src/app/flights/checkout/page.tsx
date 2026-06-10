@@ -9,6 +9,7 @@ import BookingCheckoutForm from "@/components/BookingCheckoutForm";
 import FlightBundleSummary from "@/components/FlightBundleSummary";
 import { useFlightOffer } from "@/hooks/useFlightOffer";
 import { parseBundleHotelFromParams } from "@/lib/flight-hotel-bundle";
+import { normalizeFlightPayload, flightRouteLabel } from "@/lib/flight-route";
 import { useAuth } from "@/context/AuthContext";
 import { useTranslations } from "@/i18n/useTranslations";
 
@@ -52,8 +53,10 @@ function CheckoutContent() {
     );
   }
 
-  const checkIn = bundleHotel?.checkIn ?? flight.departAt.slice(0, 10);
-  const checkOut = bundleHotel?.checkOut ?? flight.returnLeg?.departAt.slice(0, 10) ?? flight.arriveAt.slice(0, 10);
+  const f = normalizeFlightPayload(flight);
+  const route = flightRouteLabel(f);
+  const checkIn = bundleHotel?.checkIn ?? f.departAt.slice(0, 10);
+  const checkOut = bundleHotel?.checkOut ?? flight.returnLeg?.departAt.slice(0, 10) ?? f.arriveAt.slice(0, 10);
   const pax = flight.adults + flight.children + flight.infants;
   const bundleTotal = flight.salePrice + (bundleHotel?.hotelTotal ?? 0);
 
@@ -61,17 +64,17 @@ function CheckoutContent() {
     id: systemOfferId,
     type: "FLIGHT" as const,
     title: bundleHotel
-      ? `${flight.airline} + Hotel · ${flight.from} → ${flight.to}`
-      : `${flight.airline} · ${flight.from} → ${flight.to}`,
+      ? `${f.airline} + Hotel · ${route}`
+      : `${f.airline} · ${route}`,
     description: bundleHotel ? "Flight + hotel bundle" : "Live flight booking",
-    location: `${flight.fromCode} → ${flight.toCode}`,
-    city: flight.from,
-    country: flight.to,
+    location: route,
+    city: f.from,
+    country: f.to,
     region: null,
     price: bundleTotal,
     stars: null,
-    image: "https://static.travala.com/resources/images-pc/rebranding/flight-banner.jpg",
-    metadata: JSON.stringify({ airline: flight.airline, source: "live", bundle: Boolean(bundleHotel) }),
+    image: "",
+    metadata: JSON.stringify({ airline: f.airline, source: "live", bundle: Boolean(bundleHotel) }),
   };
 
   return (
@@ -117,7 +120,7 @@ function CheckoutContent() {
         </div>
         <div className="order-1 lg:order-2 lg:col-span-1">
           <div className="lg:sticky lg:top-20">
-            <FlightBundleSummary flight={flight} flightTotal={flight.salePrice} hotel={bundleHotel} />
+            <FlightBundleSummary flight={f} flightTotal={flight.salePrice} hotel={bundleHotel} />
           </div>
         </div>
       </div>

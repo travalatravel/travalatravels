@@ -4,6 +4,7 @@ import { Plane, Building2 } from "lucide-react";
 import { formatUsd } from "@/lib/pricing";
 import type { FlightTokenPayload } from "@/lib/flight-token";
 import type { BundleHotelSelection } from "@/lib/flight-hotel-bundle";
+import { normalizeFlightPayload, flightRouteLabel } from "@/lib/flight-route";
 import { useTranslations } from "@/i18n/useTranslations";
 
 export default function FlightBundleSummary({
@@ -17,7 +18,10 @@ export default function FlightBundleSummary({
 }) {
   const { messages: m } = useTranslations();
   const b = m.bundle;
+  const f = normalizeFlightPayload(flight);
+  const route = flightRouteLabel(f);
   const bundleTotal = flightTotal + (hotel?.hotelTotal ?? 0);
+  const departDate = f.departAt ? f.departAt.slice(0, 10) : "";
 
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -35,11 +39,9 @@ export default function FlightBundleSummary({
         <div className="flex items-start gap-3">
           <Plane size={16} className="mt-0.5 shrink-0 text-[#2577be]" />
           <div className="min-w-0 flex-1">
-            <p className="font-semibold text-[#1e2e5e]">{flight.airline}</p>
-            <p className="text-xs text-gray-500">
-              {flight.from} → {flight.to}
-            </p>
-            <p className="mt-1 text-xs text-gray-400">{flight.departAt.slice(0, 10)}</p>
+            <p className="font-semibold text-[#1e2e5e]">{f.airline}</p>
+            {route && <p className="text-xs text-gray-500">{route}</p>}
+            {departDate && <p className="mt-1 text-xs text-gray-400">{departDate}</p>}
           </div>
           <p className="font-semibold text-[#1e2e5e]">{formatUsd(flightTotal)}</p>
         </div>

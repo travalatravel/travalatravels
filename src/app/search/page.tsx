@@ -118,6 +118,15 @@ function SearchResults() {
 
     setLiveFlights([]);
     setFlightSource(null);
+
+    if (isFlights) {
+      setOffers([]);
+      setTotal(0);
+      setPages(1);
+      setLoading(false);
+      return;
+    }
+
     fetch(`/api/search?${buildApiParams(1)}`)
       .then((r) => r.json())
       .then((data) => {
@@ -126,7 +135,7 @@ function SearchResults() {
         setPages(data.pages || 1);
       })
       .finally(() => setLoading(false));
-  }, [q, type, sort, from, to, fromCode, toCode, depart, returnDate, trip, cabin, adults, children, infants, canLiveSearch]);
+  }, [q, type, sort, from, to, fromCode, toCode, depart, returnDate, trip, cabin, adults, children, infants, canLiveSearch, isFlights]);
 
   const loadMore = async () => {
     if (page >= pages || loadingMore || canLiveSearch) return;
@@ -209,15 +218,17 @@ function SearchResults() {
           <div className="mt-12 text-center">
             <p className="text-gray-500">
               {flightError ||
-                (isFlights
-                  ? "No flights found for this route. Try different airports or dates."
-                  : "No results found. Try a different search term.")}
+                (isFlights && !canLiveSearch
+                  ? m.searchPage.enterRoute
+                  : isFlights
+                    ? m.searchPage.noFlightsFound
+                    : m.searchPage.noResultsFound)}
             </p>
-            <p className="mt-2 text-sm text-gray-400">
-              {isFlights
-                ? "Try: London → Paris, New York → London, Dubai → Bangkok"
-                : "Try: London, Paris, Dubai, Las Vegas, Tokyo, Barcelona"}
-            </p>
+            {canLiveSearch || !isFlights ? (
+              <p className="mt-2 text-sm text-gray-400">
+                {isFlights ? m.searchPage.tryFlights : m.searchPage.tryStays}
+              </p>
+            ) : null}
           </div>
         ) : (
           <>

@@ -79,7 +79,7 @@ export default function BookingCheckoutForm({
 }) {
   const router = useRouter();
   const { user } = useAuth();
-  const { messages: m } = useTranslations();
+  const { messages: m, fmt } = useTranslations();
   const c = m.checkout;
   const isFlight = offer.type === "FLIGHT";
 
@@ -282,10 +282,10 @@ export default function BookingCheckoutForm({
         </Section>
       )}
 
-      <Section title="Contact information" subtitle="We'll send your confirmation and updates here.">
+      <Section title={c.contactInfo} subtitle={c.contactSubtitle}>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className={labelCls}>Email address *</label>
+            <label className={labelCls}>{c.email} *</label>
             <input type="email" className={inputCls} value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} />
             {fieldErrors.contactEmail && <p className="mt-1 text-xs text-red-500">{fieldErrors.contactEmail}</p>}
           </div>
@@ -310,7 +310,7 @@ export default function BookingCheckoutForm({
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
             <div>
-              <label className={labelCls}>City *</label>
+              <label className={labelCls}>{c.city} *</label>
               <input className={inputCls} value={addressCity} onChange={(e) => setAddressCity(e.target.value)} />
               {fieldErrors.addressCity && <p className="mt-1 text-xs text-red-500">{fieldErrors.addressCity}</p>}
             </div>
@@ -331,30 +331,22 @@ export default function BookingCheckoutForm({
         </div>
       </Section>
 
+      {!isFlight && (
       <Section
-        title="Additional guests"
+        title={c.additionalGuestsTitle}
         subtitle={
           requiredAdditionalCount > 0
-            ? `${requiredAdditionalCount} additional guest${requiredAdditionalCount > 1 ? "s" : ""} required for your ${guests}-guest booking.`
-            : "Optional — add names of other travelers in your party."
+            ? fmt(c.additionalGuestsRequired, { count: requiredAdditionalCount, guests })
+            : c.additionalGuestsOptional
         }
       >
         {(requiredAdditionalCount > 0 || additionalGuests.length > 0) && (
           <div className="mb-5 flex gap-3 rounded-xl border border-sky-100 bg-sky-50 px-4 py-3 text-sm text-sky-900">
             <Info size={18} className="mt-0.5 flex-shrink-0 text-sky-600" />
             <p>
-              {requiredAdditionalCount > 0 ? (
-                <>
-                  Your reservation includes <strong>{guests} guests</strong>. Please enter the full
-                  legal name of each additional person — hotels often require this before check-in.
-                  Names should match passport or ID.
-                </>
-              ) : (
-                <>
-                  Traveling with family or friends? Add their names here so the property can
-                  register everyone on arrival.
-                </>
-              )}
+              {requiredAdditionalCount > 0
+                ? fmt(c.additionalGuestsInfoRequired, { guests })
+                : c.additionalGuestsInfoOptional}
             </p>
           </div>
         )}
@@ -365,9 +357,9 @@ export default function BookingCheckoutForm({
               <div key={i} className="rounded-xl border border-slate-100 bg-slate-50/50 p-4">
                 <div className="mb-3 flex items-center justify-between gap-2">
                   <p className="text-xs font-semibold text-slate-500">
-                    Guest {i + 2}
+                    {fmt(c.guestNumber, { n: i + 2 })}
                     {i < requiredAdditionalCount && (
-                      <span className="ml-1.5 font-normal text-sky-600">· required</span>
+                      <span className="ml-1.5 font-normal text-sky-600">{c.requiredLabel}</span>
                     )}
                   </p>
                   {i >= requiredAdditionalCount && (
@@ -375,16 +367,16 @@ export default function BookingCheckoutForm({
                       type="button"
                       onClick={() => removeAdditionalGuest(i)}
                       className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-slate-500 transition hover:bg-red-50 hover:text-red-600"
-                      aria-label={`Remove guest ${i + 2}`}
+                      aria-label={fmt(c.guestNumber, { n: i + 2 })}
                     >
                       <Trash2 size={14} />
-                      Remove
+                      {c.removeGuest}
                     </button>
                   )}
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div>
-                    <label className={labelCls}>First name *</label>
+                    <label className={labelCls}>{c.firstName} *</label>
                     <input
                       className={inputCls}
                       value={g.firstName}
@@ -393,7 +385,7 @@ export default function BookingCheckoutForm({
                         next[i] = { ...next[i], firstName: e.target.value };
                         setAdditionalGuests(next);
                       }}
-                      placeholder="As on passport / ID"
+                      placeholder={c.passportPlaceholder}
                     />
                     {fieldErrors[`guest_${i}_first`] && (
                       <p className="mt-1 text-xs text-red-500">{fieldErrors[`guest_${i}_first`]}</p>
@@ -419,7 +411,7 @@ export default function BookingCheckoutForm({
             ))}
           </div>
         ) : (
-          <p className="text-sm text-slate-500">No additional guests added yet.</p>
+          <p className="text-sm text-slate-500">{c.noAdditionalGuests}</p>
         )}
 
         <button
@@ -428,14 +420,16 @@ export default function BookingCheckoutForm({
           className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 bg-white py-3 text-sm font-semibold text-[#2577be] transition hover:border-[#2577be] hover:bg-sky-50/50"
         >
           <Plus size={18} />
-          Add guest
+          {c.addGuest}
         </button>
       </Section>
+      )}
 
-      <Section title="Arrival & special requests">
+      {!isFlight && (
+      <Section title={c.arrivalSection}>
         <div className="grid gap-4">
           <div>
-            <label className={labelCls}>Estimated arrival time</label>
+            <label className={labelCls}>{c.estimatedArrival}</label>
             <select className={inputCls} value={estimatedArrival} onChange={(e) => setEstimatedArrival(e.target.value)}>
               {ARRIVAL_SLOTS.map((s) => (
                 <option key={s} value={s}>{s}</option>
@@ -443,18 +437,19 @@ export default function BookingCheckoutForm({
             </select>
           </div>
           <div>
-            <label className={labelCls}>Special requests (optional)</label>
+            <label className={labelCls}>{c.specialRequests}</label>
             <textarea
               className={`${inputCls} min-h-[100px] resize-y`}
               value={specialRequests}
               onChange={(e) => setSpecialRequests(e.target.value)}
-              placeholder="High floor, late check-in, dietary requirements, crib, etc."
+              placeholder={c.specialRequestsPlaceholder}
               maxLength={1000}
             />
-            <p className="mt-1 text-[10px] text-slate-400">Requests are subject to availability and cannot be guaranteed.</p>
+            <p className="mt-1 text-[10px] text-slate-400">{c.specialRequestsHint}</p>
           </div>
         </div>
       </Section>
+      )}
 
       <Section title={m.common.paymentMethod} subtitle={GATEWAY_NAME}>
         <CryptoMethodPicker value={paymentMethod} onChange={setPaymentMethod} />

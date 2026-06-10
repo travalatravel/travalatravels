@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { ReadonlyURLSearchParams } from "next/navigation";
 import { decodeFlightToken, type FlightTokenPayload } from "@/lib/flight-token";
+import { normalizeFlightPayload } from "@/lib/flight-route";
 
 export function useFlightOffer(searchParams: ReadonlyURLSearchParams) {
   const tokenParam = searchParams.get("token") || "";
@@ -21,7 +22,7 @@ export function useFlightOffer(searchParams: ReadonlyURLSearchParams) {
         .then((r) => r.json())
         .then((data) => {
           if (data.offer && data.token) {
-            setFlight(data.offer);
+            setFlight(normalizeFlightPayload(data.offer));
             setToken(data.token);
           } else {
             setFlight(null);
@@ -37,7 +38,8 @@ export function useFlightOffer(searchParams: ReadonlyURLSearchParams) {
     }
 
     if (tokenParam) {
-      setFlight(decodeFlightToken(tokenParam));
+      const decoded = decodeFlightToken(tokenParam);
+      setFlight(decoded ? normalizeFlightPayload(decoded) : null);
       setToken(tokenParam);
       setLoading(false);
       return;

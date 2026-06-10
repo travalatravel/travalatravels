@@ -11,8 +11,9 @@ import {
   AlertCircle,
 } from "lucide-react";
 import type { Booking } from "@/lib/types";
-import { PAYMENT_STATUS_COLORS, PAYMENT_STATUS_LABELS } from "@/lib/types";
+import { PAYMENT_STATUS_COLORS } from "@/lib/types";
 import { GATEWAY_NAME } from "@/lib/payments";
+import { useTranslations } from "@/i18n/useTranslations";
 import type { CryptoQuote } from "@/lib/crypto-rates";
 import CoinIcon, { type CoinId } from "@/components/CoinIcon";
 
@@ -103,6 +104,8 @@ export default function CryptoGatewayPanel({
   const [error, setError] = useState("");
   const [quote, setQuote] = useState<CryptoQuote | null>(null);
   const [quoteLoading, setQuoteLoading] = useState(true);
+  const { messages: m, fmt } = useTranslations();
+  const p = m.paymentPage;
 
   const wallet = booking.wallet;
   const step =
@@ -138,7 +141,7 @@ export default function CryptoGatewayPanel({
     const data = await res.json();
     setSubmitting(false);
     if (!res.ok) {
-      setError(data.error || "Submission failed");
+      setError(data.error || p.submissionFailed);
       return;
     }
     onPaid();
@@ -189,21 +192,21 @@ export default function CryptoGatewayPanel({
               <ShieldCheck className="text-emerald-600" size={20} />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-slate-900">Payment Confirmed</h2>
-              <p className="text-sm text-slate-500">Your reservation is secured.</p>
+              <h2 className="text-lg font-semibold text-slate-900">{p.paymentConfirmed}</h2>
+              <p className="text-sm text-slate-500">{p.reservationSecured}</p>
             </div>
           </div>
         </div>
         <div className="space-y-4 p-6">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <p className="text-xs text-slate-400">Reference</p>
+              <p className="text-xs text-slate-400">{p.reference}</p>
               <p className="mt-0.5 font-mono text-sm font-medium text-slate-800">
                 {booking.id.slice(0, 12).toUpperCase()}
               </p>
             </div>
             <div>
-              <p className="text-xs text-slate-400">Amount paid</p>
+              <p className="text-xs text-slate-400">{p.amountPaid}</p>
               <p className="mt-0.5 text-sm font-semibold text-slate-800">
                 ${payUsd.toFixed(2)} USD
               </p>
@@ -211,7 +214,7 @@ export default function CryptoGatewayPanel({
           </div>
           {booking.paidAt && (
             <p className="text-sm text-slate-500">
-              Confirmed {new Date(booking.paidAt).toLocaleString()}
+              {fmt(p.confirmedAt, { date: new Date(booking.paidAt).toLocaleString() })}
             </p>
           )}
           {booking.txHash && explorerUrl && (
@@ -221,7 +224,7 @@ export default function CryptoGatewayPanel({
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 text-sm font-medium text-[#2577be] hover:underline"
             >
-              View on blockchain explorer
+              {p.viewExplorer}
               <ExternalLink size={14} />
             </a>
           )}
@@ -233,7 +236,7 @@ export default function CryptoGatewayPanel({
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       {/* Header */}
-      <div className="border-b border-slate-100 px-6 py-5">
+      <div className="border-b border-slate-100 px-4 py-4 sm:px-6 sm:py-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <div className="flex items-center gap-2 text-slate-500">
@@ -243,7 +246,7 @@ export default function CryptoGatewayPanel({
               </span>
             </div>
             <h2 className="mt-1 text-xl font-semibold tracking-tight text-slate-900">
-              Cryptocurrency Payment
+              {p.cryptoPayment}
             </h2>
             <p className="mt-0.5 font-mono text-xs text-slate-400">
               REF {booking.id.slice(0, 12).toUpperCase()}
@@ -252,7 +255,7 @@ export default function CryptoGatewayPanel({
           <span
             className={`rounded-md px-2.5 py-1 text-xs font-semibold ${PAYMENT_STATUS_COLORS[booking.paymentStatus]}`}
           >
-            {PAYMENT_STATUS_LABELS[booking.paymentStatus]}
+            {m.paymentStatus[booking.paymentStatus]}
           </span>
         </div>
 
@@ -264,7 +267,7 @@ export default function CryptoGatewayPanel({
           <div className={`h-px flex-1 ${step > 2 ? "bg-emerald-300" : "bg-slate-200"}`} />
           <StepIndicator step={3} current={step} />
           <span className="ml-1 hidden text-xs text-slate-400 sm:inline">
-            {step === 2 ? "Send payment" : step === 3 ? "Verification" : "Complete"}
+            {step === 2 ? p.stepSend : step === 3 ? p.stepVerification : p.stepComplete}
           </span>
         </div>
       </div>
@@ -282,7 +285,7 @@ export default function CryptoGatewayPanel({
 
           <div className="mt-6 space-y-3 border-t border-slate-200/80 pt-5">
             <div className="flex justify-between items-center text-sm">
-              <span className="text-slate-500">Payment method</span>
+              <span className="text-slate-500">{p.paymentMethod}</span>
               <span className="flex items-center gap-2 font-medium text-slate-800">
                 {CURRENCY_COIN[wallet.currency] && (
                   <CoinIcon coin={CURRENCY_COIN[wallet.currency]} size={20} />
@@ -291,12 +294,12 @@ export default function CryptoGatewayPanel({
               </span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-slate-500">Network</span>
+              <span className="text-slate-500">{p.network}</span>
               <span className="font-medium text-slate-800">{wallet.network}</span>
             </div>
             {booking.checkIn && (
               <div className="flex justify-between text-sm">
-                <span className="text-slate-500">Check-in</span>
+                <span className="text-slate-500">{p.checkIn}</span>
                 <span className="font-medium text-slate-800">
                   {new Date(booking.checkIn).toLocaleDateString()}
                 </span>
@@ -305,7 +308,7 @@ export default function CryptoGatewayPanel({
           </div>
 
           <div className="mt-6 rounded-xl border border-slate-200 bg-white p-4">
-            <p className="text-xs text-slate-400">Total due</p>
+            <p className="text-xs text-slate-400">{p.totalDue}</p>
             <p className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">
               ${payUsd.toFixed(2)}
               <span className="ml-1 text-base font-normal text-slate-400">USD</span>
@@ -317,28 +320,27 @@ export default function CryptoGatewayPanel({
               </p>
             )}
             {quoteLoading && (
-              <p className="mt-2 text-sm text-slate-400">Calculating rate…</p>
+              <p className="mt-2 text-sm text-slate-400">{p.calculatingRate}</p>
             )}
           </div>
         </div>
 
         {/* Payment instructions */}
-        <div className="p-6 lg:col-span-3">
+        <div className="p-4 sm:p-6 lg:col-span-3">
           {booking.paymentStatus === "AWAITING_CONFIRMATION" ? (
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-50">
                 <Clock className="text-[#2577be]" size={28} />
               </div>
               <h3 className="mt-4 text-lg font-semibold text-slate-900">
-                Awaiting confirmation
+                {p.awaitingConfirmation}
               </h3>
               <p className="mt-2 max-w-sm text-sm text-slate-500">
-                Your transaction has been submitted and is being verified on the blockchain.
-                This typically takes a few minutes.
+                {p.awaitingHint}
               </p>
               {booking.txHash && (
                 <div className="mt-5 w-full max-w-md text-left">
-                  <CopyField label="Transaction hash" value={booking.txHash} mono />
+                  <CopyField label={p.txHash} value={booking.txHash} mono />
                   {explorerUrl && (
                     <a
                       href={explorerUrl}
@@ -346,7 +348,7 @@ export default function CryptoGatewayPanel({
                       rel="noopener noreferrer"
                       className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-[#2577be] hover:underline"
                     >
-                      Track on explorer
+                      {p.trackExplorer}
                       <ExternalLink size={14} />
                     </a>
                   )}
@@ -362,42 +364,40 @@ export default function CryptoGatewayPanel({
             </div>
           ) : (
             <>
-              <div className="flex flex-col gap-6 sm:flex-row">
-                <div className="flex flex-col items-center">
-                  <div className="rounded-xl border border-slate-200 bg-white p-2 shadow-sm">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={qrUrl}
-                      alt="Payment QR code"
-                      width={200}
-                      height={200}
-                      className="h-auto max-w-full rounded-lg"
-                    />
+              <div className="flex flex-col gap-5">
+                <div className="mx-auto flex w-full max-w-[220px] flex-col items-center sm:max-w-none sm:flex-row sm:items-start sm:gap-6">
+                  <div className="flex flex-col items-center sm:shrink-0">
+                    <div className="rounded-xl border border-slate-200 bg-white p-2">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={qrUrl}
+                        alt={p.qrAlt}
+                        width={200}
+                        height={200}
+                        className="h-auto w-full max-w-[200px] rounded-lg"
+                      />
+                    </div>
+                    <p className="mt-2 text-center text-[11px] text-slate-400">{p.scanQr}</p>
                   </div>
-                  <p className="mt-2 text-center text-[11px] text-slate-400">
-                    Scan with your wallet app
-                  </p>
-                </div>
 
-                <div className="flex-1 space-y-4">
-                  {cryptoAmount && (
-                    <CopyField
-                      label={`Amount (${wallet.currency})`}
-                      value={`${cryptoAmount} ${wallet.currency}`}
-                      mono
-                    />
-                  )}
-                  <CopyField label="Deposit address" value={wallet.address} mono />
-                  <CopyField label="Network" value={wallet.network} />
+                  <div className="w-full flex-1 space-y-4">
+                    {cryptoAmount && (
+                      <CopyField
+                        label={fmt(p.amountLabel, { currency: wallet.currency })}
+                        value={`${cryptoAmount} ${wallet.currency}`}
+                        mono
+                      />
+                    )}
+                    <CopyField label={p.depositAddress} value={wallet.address} mono />
+                    <CopyField label={p.network} value={wallet.network} />
+                  </div>
                 </div>
               </div>
 
-              <div className="mt-5 rounded-lg border border-amber-100 bg-amber-50/60 px-4 py-3">
+              <div className="mt-5 rounded-lg border border-amber-100 bg-amber-50/60 px-3 py-3 sm:px-4">
                 <p className="text-xs leading-relaxed text-amber-900/80">
-                  <strong className="font-semibold">Important:</strong> Send only{" "}
-                  {wallet.currency} on the {wallet.network} network. Sending any other asset
-                  may result in permanent loss. Include sufficient network fees for timely
-                  confirmation.
+                  <strong className="font-semibold">{p.important}</strong>{" "}
+                  {fmt(p.importantHint, { currency: wallet.currency, network: wallet.network })}
                 </p>
               </div>
 
@@ -406,19 +406,15 @@ export default function CryptoGatewayPanel({
                   htmlFor={`tx-${booking.id}`}
                   className="text-[11px] font-medium uppercase tracking-wider text-slate-400"
                 >
-                  Step 3 — Confirm transaction
+                  {p.step3Confirm}
                 </label>
-                <p className="mt-1 text-sm text-slate-500">
-                  After sending, paste your transaction hash below.
-                </p>
+                <p className="mt-1 text-sm text-slate-500">{p.pasteTxHint}</p>
                 <input
                   id={`tx-${booking.id}`}
                   value={txHash}
                   onChange={(e) => setTxHash(e.target.value)}
                   placeholder={
-                    wallet.currency === "BTC"
-                      ? "Transaction ID (txid)"
-                      : "0x… transaction hash"
+                    wallet.currency === "BTC" ? p.txPlaceholderBtc : p.txPlaceholderEth
                   }
                   className="mt-3 w-full rounded-lg border border-slate-200 bg-white px-4 py-3 font-mono text-sm text-slate-800 outline-none transition placeholder:text-slate-300 focus:border-[#1e2e5e] focus:ring-2 focus:ring-[#1e2e5e]/10"
                 />
@@ -434,7 +430,7 @@ export default function CryptoGatewayPanel({
                   disabled={submitting || txHash.trim().length < 10}
                   className="mt-4 w-full rounded-lg bg-[#1e2e5e] py-3.5 text-sm font-semibold text-white transition hover:bg-[#162347] disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  {submitting ? "Submitting…" : "Submit payment confirmation"}
+                  {submitting ? p.submitting : p.submitConfirmation}
                 </button>
               </div>
             </>
@@ -445,7 +441,7 @@ export default function CryptoGatewayPanel({
       <div className="border-t border-slate-100 bg-slate-50/50 px-6 py-3">
         <p className="flex items-center justify-center gap-1.5 text-center text-[11px] text-slate-400">
           <ShieldCheck size={12} />
-          Encrypted connection · Manual verification · Blockchain settlement
+          {p.footerSecure}
         </p>
       </div>
     </div>

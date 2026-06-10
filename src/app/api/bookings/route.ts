@@ -6,6 +6,7 @@ import { CRYPTO_WALLET_LOOKUP, CRYPTO_PAYMENT_METHODS } from "@/lib/payments";
 import { applySalePrice } from "@/lib/pricing";
 import { priceForFlight } from "@/lib/flight-display";
 import { decodeFlightToken } from "@/lib/flight-token";
+import { normalizeFlightPayload, flightRouteLabel } from "@/lib/flight-route";
 import type { CabinClass, TripType } from "@/lib/flight-types";
 import { fetchLiveHotelPrice } from "@/lib/travala-price";
 import { travalaSlugFromOffer } from "@/lib/travala-image";
@@ -65,15 +66,16 @@ export async function POST(request: Request) {
 
     const liveFlight = data.liveFlightToken ? decodeFlightToken(data.liveFlightToken) : null;
     if (liveFlight) {
+      const norm = normalizeFlightPayload(liveFlight);
       totalPrice = data.liveFlightTotal ?? liveFlight.salePrice;
       flightSpecialRequests = JSON.stringify({
         type: "live_flight",
-        airline: liveFlight.airline,
-        route: `${liveFlight.from} → ${liveFlight.to}`,
-        fromCode: liveFlight.fromCode,
-        toCode: liveFlight.toCode,
-        departAt: liveFlight.departAt,
-        arriveAt: liveFlight.arriveAt,
+        airline: norm.airline,
+        route: flightRouteLabel(norm),
+        fromCode: norm.fromCode,
+        toCode: norm.toCode,
+        departAt: norm.departAt,
+        arriveAt: norm.arriveAt,
         cabin: liveFlight.cabin,
         trip: liveFlight.trip,
         sourcePrice: liveFlight.sourcePrice,
