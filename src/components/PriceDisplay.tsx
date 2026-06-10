@@ -20,13 +20,13 @@ export default function PriceDisplay({
 
   const priceCls =
     size === "lg"
-      ? "text-3xl font-bold"
+      ? "text-xl font-bold sm:text-2xl lg:text-3xl"
       : size === "sm"
         ? "text-lg font-bold"
         : "text-xl font-bold";
 
   return (
-    <div>
+    <div className="min-w-0 max-w-full">
       <div className="flex flex-wrap items-center gap-2">
         <span className={`${priceCls} text-[#1e2e5e]`}>
           {formatUsd(showCrypto ? p.cryptoPrice : p.salePrice)}

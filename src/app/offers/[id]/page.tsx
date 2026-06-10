@@ -151,22 +151,23 @@ export default function OfferDetailPage() {
     <>
       <FlashSaleBanner />
       <Header />
-      <main className="mx-auto max-w-6xl px-3 py-6 pb-28 sm:px-4 sm:py-8 lg:px-6 lg:pb-8">
-        <Link href="/search" className="mb-6 inline-flex items-center gap-1 text-sm text-[#2577be] hover:underline">
+      <div className="w-full min-w-0 overflow-x-hidden">
+      <main className="mx-auto w-full min-w-0 max-w-6xl px-3 py-6 pb-28 sm:px-4 sm:py-8 lg:px-6 lg:pb-8">
+        <Link href="/search" className="mb-4 inline-flex items-center gap-1 text-sm text-[#2577be] hover:underline sm:mb-6">
           <ArrowLeft size={16} /> Back to search
         </Link>
 
-        <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
-          <div className="order-2 lg:order-1 lg:col-span-2">
+        <div className="grid w-full min-w-0 grid-cols-1 gap-5 lg:grid-cols-3 lg:gap-8">
+          <div className="order-2 min-w-0 lg:order-1 lg:col-span-2">
             <OfferGallery title={offer.title} fallbackImage={offer.image} metadata={offer.metadata} />
-            <div className="mt-6">
+            <div className="mt-4 min-w-0 sm:mt-6">
               <span className="rounded-full bg-[#2577be]/10 px-3 py-1 text-xs font-semibold text-[#2577be]">
                 {TYPE_LABELS[offer.type]}
               </span>
-              <h1 className="mt-3 text-xl font-bold text-[#1e2e5e] sm:text-2xl md:text-3xl">{offer.title}</h1>
-              <div className="mt-2 flex items-center gap-1 text-gray-500">
-                <MapPin size={16} />
-                <span>{offer.location}</span>
+              <h1 className="mt-3 break-words text-lg font-bold text-[#1e2e5e] sm:text-2xl md:text-3xl">{offer.title}</h1>
+              <div className="mt-2 flex min-w-0 items-start gap-1 text-sm text-gray-500">
+                <MapPin size={16} className="mt-0.5 flex-shrink-0" />
+                <span className="break-words">{offer.location}</span>
               </div>
               {offer.stars && (
                 <div className="mt-2 flex gap-0.5">
@@ -189,12 +190,12 @@ export default function OfferDetailPage() {
             </div>
           </div>
 
-          <div className="order-1 lg:order-2 lg:col-span-1">
-            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl lg:sticky lg:top-20">
+          <div className="order-1 min-w-0 lg:order-2 lg:col-span-1">
+            <div className="w-full min-w-0 max-w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl sm:rounded-2xl lg:sticky lg:top-20">
               {pricing && (
-                <div className="flex flex-wrap items-center justify-between gap-2 bg-red-600 px-3 py-2 text-white sm:px-4 sm:py-2.5">
+                <div className="flex flex-col gap-1 bg-red-600 px-3 py-2 text-white sm:flex-row sm:items-center sm:justify-between sm:gap-2 sm:px-4 sm:py-2.5">
                   <span className="flex items-center gap-1.5 text-[11px] font-bold sm:text-xs">
-                    <Flame size={14} />
+                    <Flame size={14} className="flex-shrink-0" />
                     FLASH DEAL — {pricing.discountPct}% OFF
                   </span>
                   <span className="flex items-center gap-1 text-[10px] text-red-100">
@@ -203,7 +204,7 @@ export default function OfferDetailPage() {
                   </span>
                 </div>
               )}
-              <div className="p-4 sm:p-6">
+              <div className="min-w-0 p-3 sm:p-6">
               {livePrice?.source === "travala" && (
                 <span className="mb-2 inline-block rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
                   Live rate · locked for 15 min
@@ -222,9 +223,9 @@ export default function OfferDetailPage() {
                 )}
               </div>
               {selectedRoom ? (
-                <div className="mt-3 rounded-xl border border-[#2577be]/20 bg-blue-50/50 p-3">
+                <div className="mt-3 min-w-0 rounded-xl border border-[#2577be]/20 bg-blue-50/50 p-3">
                   <p className="text-[11px] font-semibold uppercase tracking-wide text-[#2577be]">Selected room</p>
-                  <p className="mt-1 text-sm font-semibold text-[#1e2e5e]">{selectedRoom.packageName}</p>
+                  <p className="mt-1 break-words text-sm font-semibold text-[#1e2e5e]">{selectedRoom.packageName}</p>
                   {selectedRoom.bedDescription && (
                     <p className="text-xs text-gray-500">{selectedRoom.bedDescription}</p>
                   )}
@@ -244,51 +245,53 @@ export default function OfferDetailPage() {
                 <p className="mt-1 text-xs text-gray-500">{livePrice.mealType}{livePrice.refundable ? " · Refundable" : ""}</p>
               )}
 
-              <div className="mt-5 space-y-3">
+              <div className="mt-4 min-w-0 space-y-3 sm:mt-5">
                 {(offer.type === "HOTEL" || offer.type === "CAR_RENTAL") && (
-                  <>
-                    <div>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div className="min-w-0">
                       <label className="text-xs font-medium text-gray-500">Check-in</label>
                       <input type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)}
-                        className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#2577be]" />
+                        className="mt-1 w-full min-w-0 max-w-full rounded-xl border border-gray-200 px-2 py-2 text-sm outline-none focus:border-[#2577be] sm:px-3 sm:py-2.5" />
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <label className="text-xs font-medium text-gray-500">Check-out</label>
                       <input type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)}
-                        className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#2577be]" />
+                        className="mt-1 w-full min-w-0 max-w-full rounded-xl border border-gray-200 px-2 py-2 text-sm outline-none focus:border-[#2577be] sm:px-3 sm:py-2.5" />
                     </div>
-                  </>
-                )}
-                <div>
-                  <label className="text-xs font-medium text-gray-500">Guests</label>
-                  <input type="number" min={1} max={20} value={guests} onChange={(e) => setGuests(+e.target.value)}
-                    className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#2577be]" />
-                </div>
-                {offer.type === "HOTEL" && (
-                  <div>
-                    <label className="text-xs font-medium text-gray-500">Rooms</label>
-                    <input type="number" min={1} max={10} value={rooms} onChange={(e) => setRooms(+e.target.value)}
-                      className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-[#2577be]" />
                   </div>
                 )}
-                <div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="min-w-0">
+                    <label className="text-xs font-medium text-gray-500">Guests</label>
+                    <input type="number" min={1} max={20} value={guests} onChange={(e) => setGuests(+e.target.value)}
+                      className="mt-1 w-full min-w-0 rounded-xl border border-gray-200 px-2 py-2 text-sm outline-none focus:border-[#2577be] sm:px-3 sm:py-2.5" />
+                  </div>
+                  {offer.type === "HOTEL" && (
+                    <div className="min-w-0">
+                      <label className="text-xs font-medium text-gray-500">Rooms</label>
+                      <input type="number" min={1} max={10} value={rooms} onChange={(e) => setRooms(+e.target.value)}
+                        className="mt-1 w-full min-w-0 rounded-xl border border-gray-200 px-2 py-2 text-sm outline-none focus:border-[#2577be] sm:px-3 sm:py-2.5" />
+                    </div>
+                  )}
+                </div>
+                <div className="min-w-0">
                   <label className="text-xs font-medium text-gray-500">Payment method</label>
-                  <p className="mt-0.5 mb-2 text-[11px] text-gray-400">{GATEWAY_NAME}</p>
+                  <p className="mt-0.5 mb-2 break-words text-[11px] text-gray-400">{GATEWAY_NAME}</p>
                   <CryptoMethodPicker value={paymentMethod} onChange={setPaymentMethod} />
                 </div>
               </div>
 
-              <div className="mt-5 rounded-xl border border-emerald-100 bg-emerald-50/50 p-3">
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-[#1e2e5e]">
+              <div className="mt-4 min-w-0 rounded-xl border border-emerald-100 bg-emerald-50/50 p-3 sm:mt-5">
+                <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                  <span className="text-sm font-semibold text-[#1e2e5e] sm:text-base">
                     Your price{livePrice?.nights ? ` · ${livePrice.nights} nights` : ""}
                   </span>
-                  <span className={`text-2xl font-bold text-emerald-700 ${priceLoading ? "opacity-50" : ""}`}>
+                  <span className={`text-xl font-bold text-emerald-700 sm:text-2xl ${priceLoading ? "opacity-50" : ""}`}>
                     {priceLoading ? "…" : formatUsd(calcTotal())}
                   </span>
                 </div>
                 {pricing && (
-                  <p className="mt-1 text-xs text-emerald-600">
+                  <p className="mt-1 break-words text-xs text-emerald-600">
                     Includes crypto discount · You save {formatUsd(pricing.savings)}+ vs public rate
                   </p>
                 )}
@@ -298,7 +301,7 @@ export default function OfferDetailPage() {
 
               <button
                 onClick={handleContinue}
-                className="mt-4 w-full rounded-xl bg-[#1e2e5e] py-4 text-sm font-bold text-white shadow-lg transition hover:bg-amber-500 hover:text-slate-900"
+                className="mt-4 hidden w-full rounded-xl bg-[#1e2e5e] py-3.5 text-sm font-bold text-white shadow-lg transition hover:bg-amber-500 hover:text-slate-900 sm:block sm:py-4"
               >
                 {user ? "Continue — enter guest details →" : "Log in to book"}
               </button>
@@ -319,9 +322,10 @@ export default function OfferDetailPage() {
           </div>
         </div>
       </main>
+      </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 p-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] backdrop-blur lg:hidden">
-        <div className="mx-auto flex max-w-6xl items-center gap-3">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-3 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] backdrop-blur pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden">
+        <div className="mx-auto flex w-full min-w-0 max-w-6xl items-center gap-2 sm:gap-3">
           <div className="min-w-0 flex-1">
             <p className="truncate text-xs text-gray-500">Your price</p>
             <p className="text-lg font-bold text-emerald-700">
@@ -330,9 +334,9 @@ export default function OfferDetailPage() {
           </div>
           <button
             onClick={handleContinue}
-            className="flex-shrink-0 rounded-xl bg-[#1e2e5e] px-5 py-3 text-sm font-bold text-white"
+            className="flex-shrink-0 rounded-xl bg-[#1e2e5e] px-4 py-2.5 text-sm font-bold text-white sm:px-5 sm:py-3"
           >
-            {user ? "Book now →" : "Log in"}
+            {user ? "Book →" : "Log in"}
           </button>
         </div>
       </div>

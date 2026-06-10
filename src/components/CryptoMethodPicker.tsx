@@ -19,7 +19,7 @@ export default function CryptoMethodPicker({
   className?: string;
 }) {
   return (
-    <div className={`grid grid-cols-2 gap-2 sm:grid-cols-3 ${className}`}>
+    <div className={`grid min-w-0 max-w-full grid-cols-2 gap-2 sm:grid-cols-3 ${className}`}>
       {CRYPTO_PAYMENT_METHODS.map((method) => {
         const selected = value === method;
         return (
@@ -27,7 +27,7 @@ export default function CryptoMethodPicker({
             key={method}
             type="button"
             onClick={() => onChange(method)}
-            className={`flex flex-col items-center gap-1.5 rounded-xl border px-2 py-3 text-center transition ${
+            className={`flex min-w-0 flex-col items-center gap-1 rounded-xl border px-1.5 py-2.5 text-center transition sm:gap-1.5 sm:px-2 sm:py-3 ${
               selected
                 ? "border-[#1e2e5e] bg-slate-50 ring-1 ring-[#1e2e5e]"
                 : "border-slate-200 bg-white hover:border-slate-300"

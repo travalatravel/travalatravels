@@ -18,9 +18,9 @@ type Props = {
 
 function SectionBlock({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="border-t border-gray-100 pt-6">
-      <h2 className="text-lg font-bold text-[#1e2e5e]">{title}</h2>
-      <div className="mt-3 text-sm leading-relaxed text-gray-600">{children}</div>
+    <section className="min-w-0 max-w-full border-t border-gray-100 pt-5 sm:pt-6">
+      <h2 className="text-base font-bold text-[#1e2e5e] sm:text-lg">{title}</h2>
+      <div className="mt-3 min-w-0 max-w-full text-sm leading-relaxed text-gray-600">{children}</div>
     </section>
   );
 }
@@ -74,18 +74,18 @@ export default function OfferDetails({
   }
 
   return (
-    <div className="mt-6 space-y-0">
+    <div className="mt-6 min-w-0 max-w-full space-y-0 overflow-hidden">
       {(details?.address || details?.phone) && (
-        <div className="mb-4 flex flex-wrap gap-4 text-sm text-gray-500">
+        <div className="mb-4 flex flex-col gap-2 text-sm text-gray-500 sm:flex-row sm:flex-wrap sm:gap-4">
           {details.address && (
-            <span className="flex items-center gap-1.5">
-              <MapPin size={15} className="text-[#2577be]" />
+            <span className="flex min-w-0 items-start gap-1.5 break-words">
+              <MapPin size={15} className="mt-0.5 flex-shrink-0 text-[#2577be]" />
               {details.address}
             </span>
           )}
           {details.phone && (
-            <span className="flex items-center gap-1.5">
-              <Phone size={15} className="text-[#2577be]" />
+            <span className="flex min-w-0 items-center gap-1.5">
+              <Phone size={15} className="flex-shrink-0 text-[#2577be]" />
               {details.phone}
             </span>
           )}
@@ -93,7 +93,7 @@ export default function OfferDetails({
       )}
 
       <SectionBlock title="Description">
-        <p className="whitespace-pre-line">{description}</p>
+        <p className="whitespace-pre-line break-words">{description}</p>
       </SectionBlock>
 
       {(details?.checkIn || details?.checkOut) && (
@@ -150,21 +150,21 @@ export default function OfferDetails({
                 key={room.id}
                 type="button"
                 onClick={() => onSelectRoom?.(room)}
-                className={`w-full rounded-xl border p-4 text-left transition ${
+                className={`w-full min-w-0 max-w-full rounded-xl border p-3 text-left transition sm:p-4 ${
                   selected
                     ? "border-[#2577be] bg-blue-50 ring-2 ring-[#2577be]/20"
                     : "border-gray-100 bg-gray-50 hover:border-gray-200 hover:bg-white"
                 }`}
               >
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <div>
-                    <p className="font-semibold text-[#1e2e5e]">{room.packageName}</p>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0 flex-1">
+                    <p className="break-words font-semibold text-[#1e2e5e]">{room.packageName}</p>
                     {room.bedDescription && (
-                      <p className="mt-0.5 text-xs text-gray-500">{room.bedDescription}</p>
+                      <p className="mt-0.5 break-words text-xs text-gray-500">{room.bedDescription}</p>
                     )}
                   </div>
-                  <div className="text-right">
-                    <p className="text-lg font-bold text-[#2577be]">${room.pricePerNight.toFixed(2)}</p>
+                  <div className="flex-shrink-0 sm:text-right">
+                    <p className="text-base font-bold text-[#2577be] sm:text-lg">${room.pricePerNight.toFixed(2)}</p>
                     <p className="text-xs text-gray-400">/ night · ${room.totalPrice.toFixed(2)} total</p>
                   </div>
                 </div>
@@ -181,7 +181,7 @@ export default function OfferDetails({
                   </span>
                 </div>
                 {room.amenities.length > 0 && (
-                  <p className="mt-2 text-xs text-gray-500">{room.amenities.join(" · ")}</p>
+                  <p className="mt-2 break-words text-xs text-gray-500">{room.amenities.join(" · ")}</p>
                 )}
                 <div className="mt-3 flex items-center justify-between">
                   <span className={`text-xs font-semibold ${selected ? "text-[#2577be]" : "text-gray-400"}`}>
@@ -210,7 +210,7 @@ export default function OfferDetails({
         <SectionBlock key={section.title} title={section.title}>
           {section.html ? (
             <div
-              className="prose prose-sm max-w-none prose-ul:my-2 prose-li:my-0"
+              className="offer-rich-content prose prose-sm max-w-none prose-ul:my-2 prose-li:my-0 prose-img:max-w-full prose-img:h-auto"
               dangerouslySetInnerHTML={{ __html: section.content }}
             />
           ) : (

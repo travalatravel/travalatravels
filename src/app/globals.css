@@ -69,3 +69,38 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Prevent mobile overflow from forms, dates, and embedded HTML */
+input,
+select,
+textarea,
+button {
+  max-width: 100%;
+}
+
+input[type="date"],
+input[type="datetime-local"],
+input[type="time"] {
+  min-width: 0;
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.offer-rich-content {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.offer-rich-content img,
+.offer-rich-content video,
+.offer-rich-content iframe,
+.offer-rich-content table {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+.offer-rich-content table {
+  display: block;
+  overflow-x: auto;
+}
