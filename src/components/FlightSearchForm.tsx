@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeftRight, Building2, Plane } from "lucide-react";
+import { ArrowLeftRight, Building2 } from "lucide-react";
 import SearchSuggestions from "./SearchSuggestions";
 import type { SearchSuggestion } from "@/lib/travala-suggest";
 import { ASSETS } from "@/data/site-data";
@@ -11,11 +11,15 @@ import { buildFlightSearchQuery } from "@/lib/flight-display";
 import type { CabinClass, TripType } from "@/lib/flight-types";
 import { CABIN_LABELS } from "@/lib/flight-types";
 import { useTranslations } from "@/i18n/useTranslations";
-
-const TABS = [
-  { key: "stays", labelKey: "stays" as const, icon: Building2 },
-  { key: "flights", labelKey: "flights" as const, icon: Plane },
-] as const;
+import {
+  formatDesktopDate,
+  MobileDateRange,
+  DesktopDateButton,
+  SearchFormPanel,
+  SearchFormShell,
+  SearchFormTabs,
+  SearchSubmitButton,
+} from "./search-form-ui";
 
 const TRIP_KEYS: TripType[] = ["roundtrip", "oneway", "multicity"];
 
@@ -26,15 +30,6 @@ function defaultFlightDates() {
   const r = new Date(d);
   r.setDate(r.getDate() + 7);
   return { depart, return: r.toISOString().slice(0, 10) };
-}
-
-function formatDisplayDate(iso: string) {
-  if (!iso) return { full: "", day: "" };
-  const d = new Date(`${iso}T12:00:00`);
-  return {
-    full: d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
-    day: d.toLocaleDateString("en-GB", { weekday: "long" }),
-  };
 }
 
 type AirportField = "from" | "to" | "leg0from" | "leg0to" | "leg1from" | "leg1to";
@@ -205,9 +200,9 @@ export default function FlightSearchForm({
     router.push(`/search?${params.toString()}`);
   };
 
-  const departFmt = formatDisplayDate(depart);
-  const returnFmt = formatDisplayDate(returnDate);
   const selectDateLabel = m.common.selectDate;
+  const departFmt = formatDesktopDate(depart, selectDateLabel);
+  const returnFmt = formatDesktopDate(returnDate, selectDateLabel);
   const paxTotal = adults + children + infants;
 
   const airportInput = (
@@ -218,9 +213,9 @@ export default function FlightSearchForm({
     className = "",
   ) => (
     <div
-      className={`relative z-20 min-w-0 overflow-visible rounded-xl border border-gray-200 bg-[#f8fafc] px-3 py-2.5 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 ${className}`}
+      className={`relative z-20 min-w-0 overflow-visible rounded-xl bg-[#eef3f8] px-4 py-3 lg:border-0 lg:bg-transparent lg:px-0 lg:py-0 ${className}`}
     >
-      <label className="text-[10px] font-medium uppercase tracking-wide text-gray-500">{label}</label>
+      <label className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">{label}</label>
       <input
         type="text"
         value={activeField === field ? fieldQuery : value}
@@ -247,43 +242,11 @@ export default function FlightSearchForm({
     </div>
   );
 
-  const tabRow = (
-    <div
-      role="tablist"
-      className={`flex ${isHero ? "gap-1 overflow-x-auto scrollbar-hide" : "snap-x snap-mandatory gap-0 overflow-x-auto border-b border-gray-100 scrollbar-hide"}`}
-    >
-      {TABS.map((tab) => {
-        const active = activeTab === tab.key;
-        const Icon = tab.icon;
-        return (
-          <button
-            key={tab.key}
-            type="button"
-            role="tab"
-            onClick={() => onTabChange?.(tab.key)}
-            className={
-              isHero
-                ? `flex min-w-[72px] flex-shrink-0 flex-col items-center gap-1.5 rounded-t-lg border border-b-0 px-3 py-2 sm:min-w-[88px] sm:px-4 ${
-                    active ? "z-[2] border-[#ccc] border-b-white bg-white" : "border-transparent bg-white/80 text-gray-600"
-                  }`
-                : `relative flex-shrink-0 snap-start px-3 py-2.5 text-xs font-semibold sm:px-5 sm:py-3 sm:text-sm ${
-                    active ? "text-[#2D83C2] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[#2D83C2]" : "text-gray-500"
-                  }`
-            }
-          >
-            {isHero && (
-              <span className={`flex h-9 w-9 items-center justify-center rounded-full sm:h-10 sm:w-10 ${active ? "bg-[#2d83c2] text-white" : "bg-[#eaf3f9] text-[#2d83c2]"}`}>
-                <Icon size={18} />
-              </span>
-            )}
-            <span className={`text-[11px] font-medium sm:text-xs ${isHero && active ? "text-[#1a1a1a]" : ""}`}>
-              {m.nav[tab.labelKey]}
-            </span>
-          </button>
-        );
-      })}
-    </div>
+  const tabRow = <SearchFormTabs activeTab={activeTab} onTabChange={(tab) => onTabChange?.(tab)} isHero={isHero} />;
+  const dateIcon = (
+    <Image src={ASSETS.datepickerIcon} alt="" width={24} height={24} className="shrink-0 opacity-70" unoptimized />
   );
+  const canSearchFlights = from.trim().length > 0 && to.trim().length > 0;
 
   const tripRow = (
     <div className="mb-3 flex flex-wrap gap-2 border-b border-gray-100 pb-3 sm:gap-4">
@@ -343,63 +306,64 @@ export default function FlightSearchForm({
         </div>
       )}
 
-      <div className={`flex min-w-0 flex-col gap-2 sm:flex-row sm:gap-2 ${isHero ? "lg:w-auto" : "w-full"}`}>
-        <label className="flex min-h-[52px] min-w-0 flex-1 flex-col justify-center rounded-xl border border-gray-200 bg-[#f8fafc] px-3 py-2 sm:hidden">
-          <span className="text-[10px] font-medium uppercase tracking-wide text-gray-500">Depart</span>
-          <input
-            type="date"
-            value={depart}
-            onChange={(e) => setDepart(e.target.value)}
-            className="mt-1 w-full bg-transparent text-base font-semibold text-[#1a1a1a] outline-none"
-          />
-        </label>
-        <button
-          type="button"
-          onClick={() => departRef.current?.showPicker?.() ?? departRef.current?.focus()}
-          className="hidden min-w-0 flex-1 items-center gap-2 rounded-lg bg-[#f2f5f9] px-3 py-2 text-left sm:flex lg:bg-transparent lg:px-2"
-        >
-          {isHero && <Image src={ASSETS.datepickerIcon} alt="" width={24} height={24} className="shrink-0" unoptimized />}
-          <div>
-            <div className="text-[10px] text-gray-500">Depart</div>
-            <div className="text-sm font-semibold text-[#1a1a1a]">{departFmt.full || selectDateLabel}</div>
-            {isHero && departFmt.day && <div className="text-xs text-gray-500">{departFmt.day}</div>}
-          </div>
-          <input ref={departRef} type="date" value={depart} onChange={(e) => setDepart(e.target.value)} className="sr-only" tabIndex={-1} />
-        </button>
-        {trip === "roundtrip" && (
-          <>
-            <label className="flex min-h-[52px] min-w-0 flex-1 flex-col justify-center rounded-xl border border-gray-200 bg-[#f8fafc] px-3 py-2 sm:hidden">
-              <span className="text-[10px] font-medium uppercase tracking-wide text-gray-500">Return</span>
-              <input
-                type="date"
-                value={returnDate}
-                min={depart}
-                onChange={(e) => setReturnDate(e.target.value)}
-                className="mt-1 w-full bg-transparent text-base font-semibold text-[#1a1a1a] outline-none"
-              />
-            </label>
-            <button
-              type="button"
-              onClick={() => returnRef.current?.showPicker?.() ?? returnRef.current?.focus()}
-              className="hidden min-w-0 flex-1 items-center gap-2 rounded-lg bg-[#f2f5f9] px-3 py-2 text-left sm:flex lg:bg-transparent lg:px-2"
-            >
-              {isHero && <Image src={ASSETS.datepickerIcon} alt="" width={24} height={24} className="shrink-0" unoptimized />}
-              <div>
-                <div className="text-[10px] text-gray-500">Return</div>
-                <div className="text-sm font-semibold text-[#1a1a1a]">{returnFmt.full}</div>
-                {isHero && returnFmt.day && <div className="text-xs text-gray-500">{returnFmt.day}</div>}
-              </div>
+      <div className={`min-w-0 ${isHero ? "w-full lg:w-auto" : "w-full"}`}>
+        {trip === "roundtrip" ? (
+          <MobileDateRange
+            checkIn={depart}
+            checkOut={returnDate}
+            checkInLabel="Depart"
+            checkOutLabel="Return"
+            onCheckInClick={() => departRef.current?.showPicker?.() ?? departRef.current?.focus()}
+            onCheckOutClick={() => returnRef.current?.showPicker?.() ?? returnRef.current?.focus()}
+            checkInInput={
+              <input ref={departRef} type="date" value={depart} onChange={(e) => setDepart(e.target.value)} className="sr-only" tabIndex={-1} />
+            }
+            checkOutInput={
               <input ref={returnRef} type="date" value={returnDate} min={depart} onChange={(e) => setReturnDate(e.target.value)} className="sr-only" tabIndex={-1} />
-            </button>
-          </>
+            }
+          />
+        ) : (
+          <label className="flex min-h-[72px] w-full flex-col justify-center rounded-xl bg-[#eef3f8] px-4 py-3 lg:hidden">
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">Depart</span>
+            <input
+              type="date"
+              value={depart}
+              onChange={(e) => setDepart(e.target.value)}
+              className="mt-1 w-full bg-transparent text-base font-semibold text-[#1a1a1a] outline-none"
+            />
+          </label>
         )}
+        <div className="hidden lg:flex">
+          <DesktopDateButton
+            label="Depart"
+            full={departFmt.full}
+            day={departFmt.day}
+            onClick={() => departRef.current?.showPicker?.() ?? departRef.current?.focus()}
+            icon={dateIcon}
+            input={
+              <input ref={departRef} type="date" value={depart} onChange={(e) => setDepart(e.target.value)} className="sr-only" tabIndex={-1} />
+            }
+          />
+          {trip === "roundtrip" && (
+            <DesktopDateButton
+              label="Return"
+              full={returnFmt.full}
+              day={returnFmt.day}
+              onClick={() => returnRef.current?.showPicker?.() ?? returnRef.current?.focus()}
+              icon={dateIcon}
+              input={
+                <input ref={returnRef} type="date" value={returnDate} min={depart} onChange={(e) => setReturnDate(e.target.value)} className="sr-only" tabIndex={-1} />
+              }
+            />
+          )}
+        </div>
       </div>
 
-      <div ref={paxRef} className={`relative ${isHero ? "min-w-[180px]" : "w-full sm:w-auto"}`}>
+      <div ref={paxRef} className={`relative ${isHero ? "w-full lg:min-w-[180px]" : "w-full sm:w-auto"}`}>
         <button
           type="button"
           onClick={() => setPaxOpen((v) => !v)}
-          className="flex min-h-[52px] w-full items-center gap-2 rounded-xl border border-gray-200 bg-[#f8fafc] px-3 py-2.5 text-left sm:min-h-0 sm:rounded-lg sm:border-0 sm:bg-[#f2f5f9] lg:bg-transparent lg:px-2"
+          className="flex min-h-[52px] w-full items-center gap-3 rounded-xl bg-[#eef3f8] px-4 py-3 text-left lg:min-h-0 lg:rounded-none lg:bg-transparent lg:px-4 lg:py-3.5"
         >
           {isHero && <Image src={ASSETS.userIcon} alt="" width={24} height={24} className="shrink-0" unoptimized />}
           <div>
@@ -450,7 +414,7 @@ export default function FlightSearchForm({
             <button
               type="button"
               onClick={() => setPaxOpen(false)}
-              className="mt-4 w-full rounded-xl bg-[#2D83C2] py-3 text-sm font-semibold text-white sm:hidden"
+              className="mt-4 w-full rounded-xl bg-[#9eb8f5] py-3 text-sm font-bold uppercase text-[#1E2E5E] lg:hidden"
             >
               Done
             </button>
@@ -459,45 +423,29 @@ export default function FlightSearchForm({
         )}
       </div>
 
-      <button
-        type="submit"
-        className={`shrink-0 rounded-xl bg-[#2D83C2] font-semibold uppercase tracking-wide text-white transition hover:bg-[#1a5f94] ${
-          isHero ? "min-h-12 min-w-[140px] px-6 py-3 lg:min-w-[168px] lg:self-center" : "min-h-12 w-full px-6 py-3.5 sm:w-auto"
-        }`}
-      >
-        {m.common.search}
-      </button>
+      <SearchSubmitButton disabled={!canSearchFlights} isHero={isHero} />
     </div>
+  );
+
+  const addHotelRow = (
+    <label className={`flex cursor-pointer items-center gap-2 text-sm text-gray-600 ${isHero ? "mt-4 px-4 pb-4 lg:px-6 lg:pb-5" : "mt-3"}`}>
+      <input type="checkbox" checked={addHotel} onChange={(e) => setAddHotel(e.target.checked)} className="accent-[#2D83C2]" />
+      <Building2 size={16} className="text-[#2D83C2]" />
+      {m.common.addHotel}
+    </label>
   );
 
   return (
     <form onSubmit={handleSearch} className="w-full min-w-0">
-      {isHero ? (
-        <div className="w-full">
-          {tabRow}
-          <div className="rounded-b-lg rounded-tr-lg border border-[#2d83c2] bg-white p-4 shadow-[0_3px_6px_rgba(0,0,0,0.16)] sm:p-5 lg:rounded-tl-none lg:p-6">
+      <SearchFormShell isHero={isHero}>
+        <SearchFormPanel isHero={isHero} tabRow={tabRow}>
+          <div className={isHero ? "p-4 lg:p-5" : ""}>
             {tripRow}
             {flightRow}
-            <label className="mt-4 flex cursor-pointer items-center gap-2 text-sm text-gray-600">
-              <input type="checkbox" checked={addHotel} onChange={(e) => setAddHotel(e.target.checked)} className="accent-[#2D83C2]" />
-              <Building2 size={16} className="text-[#2D83C2]" />
-              {m.common.addHotel}
-            </label>
           </div>
-        </div>
-      ) : (
-        <div className="w-full min-w-0 rounded-2xl bg-white p-2 shadow-xl sm:p-2.5">
-          {tabRow}
-          <div className="p-2 sm:p-3">
-            {tripRow}
-            {flightRow}
-            <label className="mt-3 flex cursor-pointer items-center gap-2 text-sm text-gray-600">
-              <input type="checkbox" checked={addHotel} onChange={(e) => setAddHotel(e.target.checked)} className="accent-[#2D83C2]" />
-              {m.common.addHotel}
-            </label>
-          </div>
-        </div>
-      )}
+          {addHotelRow}
+        </SearchFormPanel>
+      </SearchFormShell>
     </form>
   );
 }

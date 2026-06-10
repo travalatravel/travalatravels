@@ -37,7 +37,7 @@ export default function HeroSearch({ defaultTab = "stays" }: { defaultTab?: stri
           {copy.subtitle}
         </h2>
 
-        <div className="mx-auto mt-8 w-full max-w-4xl sm:mt-10">
+        <div className="mx-auto mt-8 w-full max-w-4xl sm:mt-10 lg:max-w-5xl">
           <Suspense fallback={<div className="h-40 animate-pulse rounded-lg bg-white/20" />}>
             <SearchForm defaultType={defaultTab} onTypeChange={setTab} />
           </Suspense>
