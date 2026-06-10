@@ -20,7 +20,7 @@ export default function CryptoPaymentMarquee() {
         {coins.map((coin, i) => (
           <div
             key={`${coin.key}-${i}`}
-            className="flex h-[72px] w-[72px] flex-shrink-0 items-center justify-center rounded-full bg-white/[0.08] shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_8px_24px_rgba(0,0,0,0.25)] backdrop-blur-sm sm:h-20 sm:w-20"
+            className="flex h-11 w-11 flex-shrink-0 items-center justify-center sm:h-20 sm:w-20 sm:rounded-full sm:bg-white/[0.08] sm:shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_8px_24px_rgba(0,0,0,0.25)] sm:backdrop-blur-sm"
             title={coin.name}
           >
             <Image
@@ -28,7 +28,7 @@ export default function CryptoPaymentMarquee() {
               alt={coin.name}
               width={44}
               height={44}
-              className="h-10 w-10 object-contain sm:h-11 sm:w-11"
+              className="h-9 w-9 object-contain mix-blend-screen sm:h-11 sm:w-11 sm:mix-blend-normal"
               unoptimized
             />
           </div>

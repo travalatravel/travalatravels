@@ -6,6 +6,7 @@ import Link from "next/link";
 import SiteChrome from "@/components/SiteChrome";
 import CryptoGatewayPanel from "@/components/CryptoGatewayPanel";
 import BookingOrderSummary from "@/components/BookingOrderSummary";
+import BundlePaymentSummary from "@/components/BundlePaymentSummary";
 import BookingGuestSummary from "@/components/BookingGuestSummary";
 import { useAuth } from "@/context/AuthContext";
 import type { Booking } from "@/lib/types";
@@ -17,7 +18,9 @@ function PaymentContent() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
   const bookingId = searchParams.get("bookingId");
+  const bundleId = searchParams.get("bundleId");
   const [booking, setBooking] = useState<Booking | null>(null);
+  const [bundleBooking, setBundleBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
 
   const refresh = () => {
@@ -25,8 +28,14 @@ function PaymentContent() {
     fetch("/api/bookings")
       .then((r) => r.json())
       .then((d) => {
-        const found = (d.bookings as Booking[] | undefined)?.find((b) => b.id === bookingId);
+        const list = (d.bookings as Booking[] | undefined) ?? [];
+        const found = list.find((b) => b.id === bookingId);
         setBooking(found ?? null);
+        if (bundleId) {
+          setBundleBooking(list.find((b) => b.id === bundleId) ?? null);
+        } else {
+          setBundleBooking(null);
+        }
       })
       .finally(() => setLoading(false));
   };
@@ -70,6 +79,9 @@ function PaymentContent() {
         )
       : undefined;
 
+  const bundleTotal =
+    bundleBooking && bundleId ? booking.totalPrice + bundleBooking.totalPrice : undefined;
+
   return (
     <main className="mx-auto max-w-6xl px-3 py-6 sm:px-4 sm:py-8 lg:px-6">
       <Link
@@ -88,18 +100,27 @@ function PaymentContent() {
       <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
         <div className="order-2 space-y-6 lg:order-1 lg:col-span-2">
           <BookingGuestSummary booking={booking} />
-          <CryptoGatewayPanel booking={booking} onPaid={refresh} />
+          <CryptoGatewayPanel
+            booking={booking}
+            onPaid={refresh}
+            bundleBookingId={bundleId || undefined}
+            bundleTotal={bundleTotal}
+          />
         </div>
         <div className="order-1 lg:order-2 lg:col-span-1">
-          <BookingOrderSummary
-            offer={booking.offer}
-            checkIn={booking.checkIn?.slice(0, 10)}
-            checkOut={booking.checkOut?.slice(0, 10)}
-            guests={booking.guests}
-            rooms={booking.rooms}
-            totalPrice={booking.totalPrice}
-            nights={nights}
-          />
+          {bundleBooking && bundleId ? (
+            <BundlePaymentSummary flightBooking={booking} hotelBooking={bundleBooking} />
+          ) : (
+            <BookingOrderSummary
+              offer={booking.offer}
+              checkIn={booking.checkIn?.slice(0, 10)}
+              checkOut={booking.checkOut?.slice(0, 10)}
+              guests={booking.guests}
+              rooms={booking.rooms}
+              totalPrice={booking.totalPrice}
+              nights={nights}
+            />
+          )}
         </div>
       </div>
     </main>

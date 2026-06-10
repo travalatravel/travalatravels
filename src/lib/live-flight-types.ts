@@ -13,6 +13,20 @@ export type LiveFlightSegment = {
   duration: string;
 };
 
+export type FlightLeg = {
+  airline: string;
+  airlineCode: string;
+  flightNumber?: string;
+  from: string;
+  to: string;
+  fromCode: string;
+  toCode: string;
+  departAt: string;
+  arriveAt: string;
+  duration: string;
+  stops: number;
+};
+
 export type LiveFlightOffer = {
   id: string;
   airline: string;
@@ -25,6 +39,8 @@ export type LiveFlightOffer = {
   arriveAt: string;
   duration: string;
   stops: number;
+  outbound: FlightLeg;
+  returnLeg?: FlightLeg;
   sourcePrice: number;
   salePrice: number;
   currency: string;
@@ -35,7 +51,7 @@ export type LiveFlightOffer = {
 };
 
 export type LiveFlightSearchMeta = {
-  source: "skyscanner" | "skyscrapper" | "market" | "catalog";
+  source: "market";
   total: number;
   fromCode: string;
   toCode: string;

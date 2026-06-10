@@ -175,6 +175,21 @@ export async function searchSkyScrapperFlights(input: {
         const pricing = getFlightPricing(raw);
         const stops = Math.max(0, segments.length - 1);
 
+        const duration = parseDuration(leg.duration as string | number);
+        const outbound = {
+          airline: airlineName(carrier),
+          airlineCode: carrier,
+          flightNumber: first.flightNumber,
+          from: input.fromLabel,
+          fromCode: first.fromCode,
+          to: input.toLabel,
+          toCode: last.toCode,
+          departAt: first.departAt,
+          arriveAt: last.arriveAt,
+          duration,
+          stops,
+        };
+
         const offer: LiveFlightOffer = {
           id: String(it.id || `sky-${index}`),
           airline: airlineName(carrier),
@@ -185,8 +200,9 @@ export async function searchSkyScrapperFlights(input: {
           toCode: last.toCode,
           departAt: first.departAt,
           arriveAt: last.arriveAt,
-          duration: parseDuration(leg.duration as string | number),
+          duration,
           stops,
+          outbound,
           sourcePrice: pricing.originalPrice,
           salePrice: pricing.salePrice,
           currency: "USD",
@@ -208,6 +224,7 @@ export async function searchSkyScrapperFlights(input: {
           arriveAt: offer.arriveAt,
           duration: offer.duration,
           stops: offer.stops,
+          outbound: offer.outbound,
           sourcePrice: offer.sourcePrice,
           salePrice: offer.salePrice,
           currency: offer.currency,

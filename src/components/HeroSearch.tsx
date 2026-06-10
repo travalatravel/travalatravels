@@ -4,34 +4,20 @@ import { Suspense, useState } from "react";
 import SearchForm from "./SearchForm";
 import SafeImage from "./SafeImage";
 import { ASSETS } from "@/data/site-data";
-import { FLIGHT_HERO } from "@/data/flight-data";
-
-const HERO_COPY: Record<string, { title: string; subtitle: string; bg?: string }> = {
-  stays: {
-    title: "Book Hotels & SAVE UP TO 60%",
-    subtitle: "Best Prices Guaranteed on 2,200,000+ Hotels Worldwide",
-    bg: ASSETS.heroBg,
-  },
-  flights: {
-    title: FLIGHT_HERO.title,
-    subtitle: FLIGHT_HERO.subtitle,
-    bg: FLIGHT_HERO.background,
-  },
-  "car-rental": {
-    title: "BOOK CAR RENTALS WITH CRYPTO",
-    subtitle: "Compare deals from top rental companies worldwide",
-    bg: ASSETS.heroBg,
-  },
-  activities: {
-    title: "BOOK ACTIVITIES & TOURS",
-    subtitle: "Best prices on 410,000+ experiences worldwide",
-    bg: ASSETS.heroBg,
-  },
-};
+import { useTranslations } from "@/i18n/useTranslations";
 
 export default function HeroSearch({ defaultTab = "stays" }: { defaultTab?: string }) {
   const [tab, setTab] = useState(defaultTab);
-  const copy = HERO_COPY[tab] || HERO_COPY.stays;
+  const { messages: m } = useTranslations();
+
+  const heroCopy: Record<string, { title: string; subtitle: string; bg?: string }> = {
+    stays: { title: m.hero.stays.title, subtitle: m.hero.stays.subtitle, bg: ASSETS.heroBg },
+    flights: { title: m.hero.flights.title, subtitle: m.hero.flights.subtitle, bg: ASSETS.heroBg },
+    "car-rental": { title: m.hero.carRental.title, subtitle: m.hero.carRental.subtitle, bg: ASSETS.heroBg },
+    activities: { title: m.hero.activities.title, subtitle: m.hero.activities.subtitle, bg: ASSETS.heroBg },
+  };
+
+  const copy = heroCopy[tab] || heroCopy.stays;
 
   return (
     <section className="relative min-h-[480px] overflow-hidden pb-10 pt-6 sm:min-h-[540px] sm:pb-14 lg:min-h-[600px] lg:pb-16">

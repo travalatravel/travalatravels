@@ -25,7 +25,7 @@ function SearchResults() {
   const searchParams = useSearchParams();
   const [offers, setOffers] = useState<Offer[]>([]);
   const [liveFlights, setLiveFlights] = useState<LiveFlightOffer[]>([]);
-  const [flightSource, setFlightSource] = useState<"skyscanner" | "skyscrapper" | "market" | "catalog" | null>(null);
+  const [flightSource, setFlightSource] = useState<"market" | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [total, setTotal] = useState(0);
@@ -52,6 +52,21 @@ function SearchResults() {
 
   const typeLabel = TYPE_LABELS[TYPE_MAP[type] as keyof typeof TYPE_LABELS] || "Stays";
   const canLiveSearch = isFlights && from && to && depart;
+
+  const flightSearchContext = {
+    from,
+    to,
+    fromCode,
+    toCode,
+    depart,
+    returnDate,
+    trip,
+    cabin,
+    adults,
+    children,
+    infants,
+    addHotel,
+  };
 
   const buildApiParams = (pageNum: number) => {
     const params = new URLSearchParams({ type, limit: "48", sort, page: String(pageNum) });
@@ -154,9 +169,9 @@ function SearchResults() {
                 {adults + children + infants} passenger{adults + children + infants !== 1 ? "s" : ""}
                 {" · "}
                 {CABIN_LABELS[cabin]}
-                {(flightSource === "skyscanner" || flightSource === "skyscrapper" || flightSource === "market") && (
+                {flightSource === "market" && (
                   <span className="ml-2 rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-800">
-                    {flightSource === "market" ? "Best rates" : "Live rates"} · 30% off
+                    Best rates · 30% off
                   </span>
                 )}
               </p>
@@ -176,11 +191,11 @@ function SearchResults() {
         )}
 
         {loading ? (
-          <div className={`mt-8 ${isFlights ? "space-y-4" : "grid gap-6 sm:grid-cols-2 lg:grid-cols-3"}`}>
+          <div className={`mt-8 ${isFlights ? "space-y-2" : "grid gap-6 sm:grid-cols-2 lg:grid-cols-3"}`}>
             {Array.from({ length: isFlights ? 5 : 6 }).map((_, i) => (
               <div
                 key={i}
-                className={`animate-pulse rounded-2xl bg-gray-100 ${isFlights ? "h-28" : "h-72"}`}
+                className={`animate-pulse bg-gray-100 ${isFlights ? "h-36 border border-gray-200" : "h-72 rounded-2xl"}`}
               />
             ))}
           </div>
@@ -200,9 +215,11 @@ function SearchResults() {
           </div>
         ) : (
           <>
-            <div className={`mt-8 ${isFlights ? "space-y-3" : "grid gap-6 sm:grid-cols-2 lg:grid-cols-3"}`}>
+            <div className={`mt-8 ${isFlights ? "space-y-2" : "grid gap-6 sm:grid-cols-2 lg:grid-cols-3"}`}>
               {canLiveSearch
-                ? liveFlights.map((flight) => <LiveFlightResultCard key={flight.id} flight={flight} />)
+                ? liveFlights.map((flight) => (
+                    <LiveFlightResultCard key={flight.id} flight={flight} searchContext={flightSearchContext} />
+                  ))
                 : offers.map((offer) => <OfferCard key={offer.id} offer={offer} />)}
             </div>
             {!canLiveSearch && page < pages && (
@@ -218,7 +235,12 @@ function SearchResults() {
               </div>
             )}
             {isFlights && addHotel && to && (
-              <FlightHotelBundle destination={to} depart={depart} returnDate={returnDate} />
+              <FlightHotelBundle
+                destination={to}
+                depart={depart}
+                returnDate={returnDate || depart}
+                guests={adults + children + infants}
+              />
             )}
           </>
         )}

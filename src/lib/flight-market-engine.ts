@@ -2,7 +2,7 @@ import { airlineName } from "./airline-names";
 import { hashSeed } from "./flight-display";
 import { getFlightPricing } from "./flight-pricing";
 import { encodeFlightToken } from "./flight-token";
-import type { LiveFlightOffer, LiveFlightSegment } from "./live-flight-types";
+import type { FlightLeg, LiveFlightOffer, LiveFlightSegment } from "./live-flight-types";
 import type { CabinClass, TripType } from "./flight-types";
 
 /** Approximate airport coordinates for market-rate estimation */
@@ -181,6 +181,66 @@ export function generateMarketFlights(input: {
       duration,
     };
 
+    const outbound: FlightLeg = {
+      airline: segment.airline,
+      airlineCode: segment.airlineCode,
+      flightNumber: segment.flightNumber,
+      from: segment.from,
+      fromCode: segment.fromCode,
+      to: segment.to,
+      toCode: segment.toCode,
+      departAt,
+      arriveAt,
+      duration,
+      stops,
+    };
+
+    let returnLeg: FlightLeg | undefined;
+    const segments: LiveFlightSegment[] = [segment];
+
+    if (input.trip === "roundtrip" && input.returnDate) {
+      const rh = hashSeed(`${seed}-return`);
+      const retCarrier = CARRIER_POOL[(rh + 3) % CARRIER_POOL.length];
+      const retStops = rh % 7 === 0 ? 1 : rh % 11 === 0 ? 2 : 0;
+      const retDepartH = 7 + (rh % 12);
+      const retDepartM = (rh % 10) * 5;
+      const retTotalMin = flightMin + retStops * (40 + (rh % 35));
+      const retArriveTotal = retDepartH * 60 + retDepartM + retTotalMin;
+      const retArriveH = Math.floor(retArriveTotal / 60) % 24;
+      const retArriveM = retArriveTotal % 60;
+      const retDepartAt = isoAt(input.returnDate, retDepartH, retDepartM);
+      const retArriveAt = isoAt(input.returnDate, retArriveH, retArriveM);
+      const retDuration = formatDuration(retTotalMin);
+
+      const returnSegment: LiveFlightSegment = {
+        airline: airlineName(retCarrier),
+        airlineCode: retCarrier,
+        flightNumber: `${retCarrier}${200 + (rh % 799)}`,
+        from: input.toLabel,
+        fromCode: input.toCode,
+        to: input.fromLabel,
+        toCode: input.fromCode,
+        departAt: retDepartAt,
+        arriveAt: retArriveAt,
+        duration: retDuration,
+      };
+
+      returnLeg = {
+        airline: returnSegment.airline,
+        airlineCode: returnSegment.airlineCode,
+        flightNumber: returnSegment.flightNumber,
+        from: returnSegment.from,
+        fromCode: returnSegment.fromCode,
+        to: returnSegment.to,
+        toCode: returnSegment.toCode,
+        departAt: retDepartAt,
+        arriveAt: retArriveAt,
+        duration: retDuration,
+        stops: retStops,
+      };
+      segments.push(returnSegment);
+    }
+
     const offer: LiveFlightOffer = {
       id: `market-${input.fromCode}-${input.toCode}-${i}`,
       airline: airlineName(carrier),
@@ -193,12 +253,14 @@ export function generateMarketFlights(input: {
       arriveAt,
       duration,
       stops,
+      outbound,
+      returnLeg,
       sourcePrice: pricing.originalPrice,
       salePrice: pricing.salePrice,
       currency: "USD",
       cabin: input.cabin,
       trip: input.trip,
-      segments: [segment],
+      segments,
       offerToken: "",
     };
 
@@ -214,6 +276,8 @@ export function generateMarketFlights(input: {
       arriveAt: offer.arriveAt,
       duration: offer.duration,
       stops: offer.stops,
+      outbound: offer.outbound,
+      returnLeg: offer.returnLeg,
       sourcePrice: offer.sourcePrice,
       salePrice: offer.salePrice,
       currency: offer.currency,

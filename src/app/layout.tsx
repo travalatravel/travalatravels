@@ -3,6 +3,9 @@ import { Suspense } from "react";
 import { Inter, Montserrat, Satisfy } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
 import ViewTracker from "@/components/ViewTracker";
+import { LocaleProvider } from "@/i18n/LocaleProvider";
+import { LOCALE_META } from "@/i18n/config";
+import { resolveLocale } from "@/i18n/detect";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -44,20 +47,25 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await resolveLocale();
+  const dir = LOCALE_META[locale].dir;
+
   return (
-    <html lang="en">
+    <html lang={locale} dir={dir}>
       <body className={`${montserrat.variable} ${inter.variable} ${satisfy.variable} min-w-0 overflow-x-hidden antialiased`}>
-        <AuthProvider>
-          <Suspense fallback={null}>
-            <ViewTracker />
-          </Suspense>
-          {children}
-        </AuthProvider>
+        <LocaleProvider locale={locale}>
+          <AuthProvider>
+            <Suspense fallback={null}>
+              <ViewTracker />
+            </Suspense>
+            {children}
+          </AuthProvider>
+        </LocaleProvider>
       </body>
     </html>
   );

@@ -6,6 +6,7 @@ import TopUniqueProperties from "@/components/TopUniqueProperties";
 import BlogSection from "@/components/BlogSection";
 import TravelGuides from "@/components/TravelGuides";
 import PartnersSection from "@/components/PartnersSection";
+import CustomerReviews from "@/components/CustomerReviews";
 import CryptoFriendlySection from "@/components/CryptoFriendlySection";
 import FAQ from "@/components/FAQ";
 import Footer from "@/components/Footer";
@@ -24,6 +25,7 @@ export default function Home() {
       <BlogSection />
       <TravelGuides />
       <PartnersSection />
+      <CustomerReviews />
       <FAQ />
       <Footer />
     </>

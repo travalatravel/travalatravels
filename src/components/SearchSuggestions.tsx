@@ -9,17 +9,7 @@ import {
   Train,
 } from "lucide-react";
 import type { SearchSuggestion, SuggestionKind } from "@/lib/travala-suggest";
-
-const KIND_LABELS: Record<SuggestionKind, string> = {
-  airport: "Airport",
-  city: "City",
-  hotel: "Hotel",
-  country: "Country",
-  neighborhood: "Neighborhood",
-  landmark: "Landmark",
-  region: "Region",
-  station: "Station",
-};
+import { useTranslations } from "@/i18n/useTranslations";
 
 function SuggestionIcon({ kind }: { kind: SuggestionKind }) {
   const className = "h-4 w-4 flex-shrink-0 text-[#2577be]";
@@ -47,6 +37,7 @@ export default function SearchSuggestions({
   activeIndex,
   onSelect,
   onHover,
+  mobileSheet = false,
 }: {
   suggestions: SearchSuggestion[];
   loading: boolean;
@@ -54,21 +45,29 @@ export default function SearchSuggestions({
   activeIndex: number;
   onSelect: (item: SearchSuggestion) => void;
   onHover: (index: number) => void;
+  mobileSheet?: boolean;
 }) {
+  const { messages: m, fmt } = useTranslations();
+  const kindLabels = m.suggestionKinds;
+
   if (!query.trim()) return null;
+
+  const listClass = mobileSheet
+    ? "fixed inset-x-3 top-[20%] z-[60] max-h-[min(24rem,55vh)] overflow-y-auto rounded-2xl border border-gray-200 bg-white py-1 shadow-2xl sm:absolute sm:inset-x-0 sm:top-[calc(100%+0.35rem)] sm:z-50 sm:max-h-[min(22rem,60vh)] sm:rounded-xl"
+    : "absolute left-0 right-0 top-[calc(100%+0.35rem)] z-50 max-h-[min(22rem,60vh)] overflow-y-auto rounded-xl border border-gray-200 bg-white py-1 shadow-2xl";
 
   return (
     <div
-      className="absolute left-0 right-0 top-[calc(100%+0.35rem)] z-50 max-h-[min(22rem,60vh)] overflow-y-auto rounded-xl border border-gray-200 bg-white py-1 shadow-2xl"
+      className={listClass}
       role="listbox"
       aria-label="Search suggestions"
     >
       {loading && suggestions.length === 0 && (
-        <p className="px-4 py-3 text-sm text-gray-500">Searching...</p>
+        <p className="px-4 py-3 text-sm text-gray-500">{m.common.searching}</p>
       )}
 
       {!loading && suggestions.length === 0 && query.trim().length >= 1 && (
-        <p className="px-4 py-3 text-sm text-gray-500">No results for &ldquo;{query}&rdquo;</p>
+        <p className="px-4 py-3 text-sm text-gray-500">{fmt(m.common.noResults, { query })}</p>
       )}
 
       {suggestions.map((item, index) => (
@@ -79,7 +78,7 @@ export default function SearchSuggestions({
           aria-selected={activeIndex === index}
           onMouseEnter={() => onHover(index)}
           onClick={() => onSelect(item)}
-          className={`flex w-full items-start gap-3 px-3 py-2.5 text-left transition sm:px-4 ${
+          className={`flex w-full min-h-[52px] items-start gap-3 px-3 py-3 text-left transition sm:min-h-0 sm:px-4 sm:py-2.5 ${
             activeIndex === index ? "bg-[#eef5fc]" : "hover:bg-gray-50"
           }`}
         >
@@ -87,9 +86,9 @@ export default function SearchSuggestions({
             <SuggestionIcon kind={item.kind} />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-sm font-medium text-gray-900">{item.label}</span>
+            <span className="block truncate text-base font-medium text-gray-900 sm:text-sm">{item.label}</span>
             <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-gray-500">
-              <span>{KIND_LABELS[item.kind]}</span>
+              <span>{kindLabels[item.kind as keyof typeof kindLabels]}</span>
               {item.subtitle && (
                 <>
                   <span aria-hidden>·</span>

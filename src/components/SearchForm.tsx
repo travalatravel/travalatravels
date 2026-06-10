@@ -9,20 +9,14 @@ import type { SearchSuggestion } from "@/lib/travala-suggest";
 import { ASSETS } from "@/data/site-data";
 import { defaultStayDates } from "@/lib/travala-price";
 import FlightSearchForm from "./FlightSearchForm";
+import { useTranslations } from "@/i18n/useTranslations";
 
 const TABS = [
-  { key: "stays", label: "Stays", icon: Building2 },
-  { key: "flights", label: "Flights", icon: Plane },
-  { key: "car-rental", label: "Car Rental", badge: "NEW!" as const, icon: Car },
-  { key: "activities", label: "Activities", icon: MapPin },
+  { key: "stays", labelKey: "stays" as const, icon: Building2 },
+  { key: "flights", labelKey: "flights" as const, icon: Plane },
+  { key: "car-rental", labelKey: "carRental" as const, badge: "NEW!" as const, icon: Car },
+  { key: "activities", labelKey: "activities" as const, icon: MapPin },
 ] as const;
-
-const PLACEHOLDERS: Record<string, string> = {
-  stays: "Search for Places or Properties",
-  flights: "From airport or city",
-  "car-rental": "Pick-up city or airport",
-  activities: "City or destination",
-};
 
 function formatDisplayDate(iso: string) {
   if (!iso) return { full: "Select date", day: "" };
@@ -45,6 +39,7 @@ export default function SearchForm({
   onTypeChange?: (type: string) => void;
 }) {
   const router = useRouter();
+  const { messages: m, fmt } = useTranslations();
   const defaults = defaultStayDates();
   const [type, setType] = useState(defaultType);
   const [query, setQuery] = useState(defaultQuery);
@@ -222,10 +217,10 @@ export default function SearchForm({
             <span className={`text-[11px] font-medium sm:text-xs ${isHero && active ? "text-[#1a1a1a]" : ""}`}>
               {"badge" in tab && tab.badge && (
                 <span className="mr-1 rounded bg-[#2dd4bf] px-1 py-0.5 text-[8px] font-bold text-[#1e2e5e]">
-                  {tab.badge}
+                  {m.nav.badgeNew}
                 </span>
               )}
-              {tab.label}
+              {m.nav[tab.labelKey]}
             </span>
           </button>
         );
@@ -243,7 +238,7 @@ export default function SearchForm({
     >
       <div
         ref={containerRef}
-        className={`relative flex min-w-0 items-center gap-2 ${isHero ? "flex-[1.4] px-1 lg:px-2" : "w-full flex-1 sm:min-w-[240px]"}`}
+        className={`relative flex min-h-[52px] min-w-0 items-center gap-2 rounded-xl border border-gray-200 bg-[#f8fafc] px-3 py-2 sm:min-h-0 sm:rounded-none sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 ${isHero ? "flex-[1.4] lg:px-2" : "w-full flex-1 sm:min-w-[240px]"}`}
       >
         <Image src={ASSETS.searchIcon} alt="" width={24} height={24} className="hidden shrink-0 lg:block" unoptimized />
         <input
@@ -256,11 +251,12 @@ export default function SearchForm({
           }}
           onFocus={() => setSuggestOpen(true)}
           onKeyDown={handleKeyDown}
-          placeholder={PLACEHOLDERS[type] || "Where to?"}
+          placeholder={m.search.placeholders[type as keyof typeof m.search.placeholders] || m.common.whereTo}
           autoComplete="off"
+          enterKeyHint="search"
           aria-autocomplete="list"
           aria-expanded={suggestOpen && (suggestions.length > 0 || suggestLoading)}
-          className="min-w-0 w-full bg-transparent text-sm font-medium text-[#1a1a1a] outline-none placeholder:text-gray-400"
+          className="min-h-[44px] min-w-0 w-full bg-transparent text-base font-medium text-[#1a1a1a] outline-none placeholder:text-gray-400 sm:min-h-0 sm:text-sm"
         />
         {suggestOpen && (
           <SearchSuggestions
@@ -270,22 +266,32 @@ export default function SearchForm({
             activeIndex={activeIndex}
             onSelect={selectSuggestion}
             onHover={setActiveIndex}
+            mobileSheet
           />
         )}
       </div>
 
       {showDates && (
-        <div className={`flex min-w-0 gap-2 ${isHero ? "flex-[1.2]" : "w-full sm:w-auto"}`}>
+        <div className={`flex min-w-0 flex-col gap-2 sm:flex-row sm:gap-2 ${isHero ? "flex-[1.2]" : "w-full sm:w-auto"}`}>
+          <label className="flex min-h-[52px] min-w-0 flex-1 flex-col justify-center rounded-xl border border-gray-200 bg-[#f8fafc] px-3 py-2 sm:hidden">
+            <span className="text-[10px] font-medium uppercase tracking-wide text-gray-500">{m.common.checkIn}</span>
+            <input
+              type="date"
+              value={checkIn}
+              onChange={(e) => setCheckIn(e.target.value)}
+              className="mt-1 w-full bg-transparent text-base font-semibold text-[#1a1a1a] outline-none"
+            />
+          </label>
           <button
             type="button"
             onClick={() => checkInRef.current?.showPicker?.() ?? checkInRef.current?.focus()}
-            className="flex min-w-0 flex-1 items-center gap-2 rounded-lg bg-[#f2f5f9] px-3 py-2 text-left lg:bg-transparent lg:px-2"
+            className="hidden min-w-0 flex-1 items-center gap-2 rounded-lg bg-[#f2f5f9] px-3 py-2 text-left sm:flex lg:bg-transparent lg:px-2"
           >
             {isHero && (
               <Image src={ASSETS.datepickerIcon} alt="" width={24} height={24} className="shrink-0" unoptimized />
             )}
             <div>
-              <div className="text-[10px] text-gray-500">Check-in</div>
+              <div className="text-[10px] text-gray-500">{m.common.checkIn}</div>
               <div className="text-sm font-semibold text-[#1a1a1a]">{checkInFmt.full}</div>
               {isHero && checkInFmt.day && <div className="text-xs text-gray-500">{checkInFmt.day}</div>}
             </div>
@@ -298,16 +304,26 @@ export default function SearchForm({
               tabIndex={-1}
             />
           </button>
+          <label className="flex min-h-[52px] min-w-0 flex-1 flex-col justify-center rounded-xl border border-gray-200 bg-[#f8fafc] px-3 py-2 sm:hidden">
+            <span className="text-[10px] font-medium uppercase tracking-wide text-gray-500">{m.common.checkOut}</span>
+            <input
+              type="date"
+              value={checkOut}
+              min={checkIn}
+              onChange={(e) => setCheckOut(e.target.value)}
+              className="mt-1 w-full bg-transparent text-base font-semibold text-[#1a1a1a] outline-none"
+            />
+          </label>
           <button
             type="button"
             onClick={() => checkOutRef.current?.showPicker?.() ?? checkOutRef.current?.focus()}
-            className="flex min-w-0 flex-1 items-center gap-2 rounded-lg bg-[#f2f5f9] px-3 py-2 text-left lg:bg-transparent lg:px-2"
+            className="hidden min-w-0 flex-1 items-center gap-2 rounded-lg bg-[#f2f5f9] px-3 py-2 text-left sm:flex lg:bg-transparent lg:px-2"
           >
             {isHero && (
               <Image src={ASSETS.datepickerIcon} alt="" width={24} height={24} className="shrink-0" unoptimized />
             )}
             <div>
-              <div className="text-[10px] text-gray-500">Check-out</div>
+              <div className="text-[10px] text-gray-500">{m.common.checkOut}</div>
               <div className="text-sm font-semibold text-[#1a1a1a]">{checkOutFmt.full}</div>
               {isHero && checkOutFmt.day && <div className="text-xs text-gray-500">{checkOutFmt.day}</div>}
             </div>
@@ -324,17 +340,17 @@ export default function SearchForm({
       )}
 
       {showRooms && (
-        <div ref={roomRef} className={`relative ${isHero ? "min-w-[150px]" : ""}`}>
+        <div ref={roomRef} className={`relative ${isHero ? "min-w-[150px]" : "w-full sm:w-auto"}`}>
           <button
             type="button"
             onClick={() => setRoomOpen((v) => !v)}
-            className="flex h-full w-full items-center gap-2 rounded-lg bg-[#f2f5f9] px-3 py-2 text-left lg:bg-transparent lg:px-2"
+            className="flex min-h-[52px] w-full items-center gap-2 rounded-xl border border-gray-200 bg-[#f8fafc] px-3 py-2.5 text-left sm:min-h-0 sm:rounded-lg sm:border-0 sm:bg-[#f2f5f9] lg:bg-transparent lg:px-2"
           >
             {isHero && (
               <Image src={ASSETS.userIcon} alt="" width={24} height={24} className="shrink-0" unoptimized />
             )}
             <div>
-              <div className="text-sm font-semibold text-[#1a1a1a]">
+              <div className="text-base font-semibold text-[#1a1a1a] sm:text-sm">
                 {guests} Adult{guests !== 1 ? "s" : ""} - {children} Child{children !== 1 ? "ren" : ""}
               </div>
               <div className="text-xs text-gray-500">
@@ -343,7 +359,14 @@ export default function SearchForm({
             </div>
           </button>
           {roomOpen && (
-            <div className="absolute left-0 top-full z-50 mt-2 w-64 rounded-lg border border-gray-200 bg-white p-4 shadow-xl">
+            <>
+            <button
+              type="button"
+              aria-label="Close guest selector"
+              className="fixed inset-0 z-40 bg-black/30 sm:hidden"
+              onClick={() => setRoomOpen(false)}
+            />
+            <div className="fixed inset-x-4 bottom-4 z-50 max-h-[70vh] overflow-y-auto rounded-2xl border border-gray-200 bg-white p-4 shadow-xl sm:absolute sm:inset-x-auto sm:bottom-auto sm:left-0 sm:top-full sm:mt-2 sm:w-64 sm:max-h-none sm:rounded-lg">
               {[
                 { label: "Rooms", value: rooms, set: setRooms, max: 8 },
                 { label: "Adults", value: guests, set: setGuests, max: 20 },
@@ -354,7 +377,7 @@ export default function SearchForm({
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
-                      className="h-8 w-8 rounded border border-gray-200 text-lg leading-none"
+                      className="flex h-11 w-11 items-center justify-center rounded-lg border border-gray-200 text-lg leading-none sm:h-8 sm:w-8 sm:rounded"
                       onClick={() => row.set(Math.max(row.label === "Adults" ? 1 : 0, row.value - 1))}
                     >
                       −
@@ -362,7 +385,7 @@ export default function SearchForm({
                     <span className="w-6 text-center text-sm">{row.value}</span>
                     <button
                       type="button"
-                      className="h-8 w-8 rounded border border-gray-200 text-lg leading-none"
+                      className="flex h-11 w-11 items-center justify-center rounded-lg border border-gray-200 text-lg leading-none sm:h-8 sm:w-8 sm:rounded"
                       onClick={() => row.set(Math.min(row.max, row.value + 1))}
                     >
                       +
@@ -370,18 +393,26 @@ export default function SearchForm({
                   </div>
                 </div>
               ))}
+            <button
+              type="button"
+              onClick={() => setRoomOpen(false)}
+              className="mt-4 w-full rounded-xl bg-[#2577be] py-3 text-sm font-semibold text-white sm:hidden"
+            >
+              Done
+            </button>
             </div>
+            </>
           )}
         </div>
       )}
 
       <button
         type="submit"
-        className={`shrink-0 rounded-lg bg-[#2577be] font-semibold uppercase tracking-wide text-white transition hover:bg-[#1e2e5e] ${
-          isHero ? "min-w-[140px] px-6 py-3 lg:min-w-[168px] lg:self-center" : "w-full px-6 py-3 sm:w-auto"
+        className={`shrink-0 rounded-xl bg-[#2577be] font-semibold uppercase tracking-wide text-white transition hover:bg-[#1e2e5e] ${
+          isHero ? "min-h-12 min-w-[140px] px-6 py-3 lg:min-w-[168px] lg:self-center" : "min-h-12 w-full px-6 py-3.5 sm:w-auto"
         }`}
       >
-        Search
+        {m.common.search}
       </button>
     </div>
   );

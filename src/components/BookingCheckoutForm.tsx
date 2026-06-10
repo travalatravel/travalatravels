@@ -50,6 +50,12 @@ export default function BookingCheckoutForm({
   trip,
   liveFlightToken,
   liveFlightTotal,
+  bundleHotelOfferId,
+  bundleHotelTotal,
+  bundleHotelCheckIn,
+  bundleHotelCheckOut,
+  bundleHotelRooms,
+  bundleTotal,
 }: {
   offer: Offer;
   checkIn: string;
@@ -63,6 +69,12 @@ export default function BookingCheckoutForm({
   trip?: TripType;
   liveFlightToken?: string;
   liveFlightTotal?: number;
+  bundleHotelOfferId?: string;
+  bundleHotelTotal?: number;
+  bundleHotelCheckIn?: string;
+  bundleHotelCheckOut?: string;
+  bundleHotelRooms?: number;
+  bundleTotal?: number;
 }) {
   const router = useRouter();
   const { user } = useAuth();
@@ -179,6 +191,11 @@ export default function BookingCheckoutForm({
         trip,
         liveFlightToken,
         liveFlightTotal,
+        bundleHotelOfferId,
+        bundleHotelTotal,
+        bundleHotelCheckIn,
+        bundleHotelCheckOut,
+        bundleHotelRooms,
       }),
     });
 
@@ -190,7 +207,9 @@ export default function BookingCheckoutForm({
       return;
     }
 
-    router.push(`/offers/${offer.id}/payment?bookingId=${data.booking.id}`);
+    const payQs = new URLSearchParams({ bookingId: data.booking.id });
+    if (data.bundleBookingId) payQs.set("bundleId", data.bundleBookingId);
+    router.push(`/offers/${offer.id}/payment?${payQs.toString()}`);
   };
 
   return (

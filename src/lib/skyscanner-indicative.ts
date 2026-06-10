@@ -140,6 +140,20 @@ function buildOffer(
     duration,
   };
 
+  const outbound = {
+    airline: carrier.name,
+    airlineCode: carrier.code,
+    flightNumber: segment.flightNumber,
+    from,
+    fromCode,
+    to,
+    toCode,
+    departAt,
+    arriveAt,
+    duration,
+    stops,
+  };
+
   const offer: LiveFlightOffer = {
     id: `skyscanner-${quoteId}`,
     airline: carrier.name,
@@ -152,6 +166,7 @@ function buildOffer(
     arriveAt,
     duration,
     stops,
+    outbound,
     sourcePrice: pricing.originalPrice,
     salePrice: pricing.salePrice,
     currency: "USD",
@@ -173,6 +188,7 @@ function buildOffer(
     arriveAt: offer.arriveAt,
     duration: offer.duration,
     stops: offer.stops,
+    outbound: offer.outbound,
     sourcePrice: offer.sourcePrice,
     salePrice: offer.salePrice,
     currency: offer.currency,

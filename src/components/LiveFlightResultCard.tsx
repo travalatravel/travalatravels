@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { Plane, Clock, Luggage } from "lucide-react";
-import type { LiveFlightOffer } from "@/lib/live-flight-types";
+import { Luggage } from "lucide-react";
+import type { FlightLeg, LiveFlightOffer } from "@/lib/live-flight-types";
 import { CABIN_LABELS } from "@/lib/flight-types";
 import { getFlightPricing } from "@/lib/flight-pricing";
+import { buildFlightOfferHref, type FlightOfferSearchContext } from "@/lib/flight-offer-link";
 import { formatUsd } from "@/lib/pricing";
+import { useTranslations } from "@/i18n/useTranslations";
 
 function formatTime(iso: string) {
   try {
@@ -15,60 +17,171 @@ function formatTime(iso: string) {
   }
 }
 
-export default function LiveFlightResultCard({ flight }: { flight: LiveFlightOffer }) {
-  const pricing = getFlightPricing(flight.sourcePrice);
+function formatLegDate(iso: string) {
+  try {
+    return new Date(iso).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+  } catch {
+    return "";
+  }
+}
 
+function airlineLogoUrl(code: string) {
+  return `https://images.kiwi.com/airlines/64/${code}.png`;
+}
+
+function resolveOutbound(flight: LiveFlightOffer): FlightLeg {
+  if (flight.outbound) return flight.outbound;
+  return {
+    airline: flight.airline,
+    airlineCode: flight.airlineCode,
+    from: flight.from,
+    to: flight.to,
+    fromCode: flight.fromCode,
+    toCode: flight.toCode,
+    departAt: flight.departAt,
+    arriveAt: flight.arriveAt,
+    duration: flight.duration,
+    stops: flight.stops,
+  };
+}
+
+function stopsLabel(stops: number, direct: string, stop: string, stopsPlural: string) {
+  if (stops === 0) return direct;
+  if (stops === 1) return `1 ${stop}`;
+  return `${stops} ${stopsPlural}`;
+}
+
+function FlightLegRow({
+  label,
+  leg,
+  direct,
+  stop,
+  stopsPlural,
+}: {
+  label: string;
+  leg: FlightLeg;
+  direct: string;
+  stop: string;
+  stopsPlural: string;
+}) {
   return (
-    <Link
-      href={`/flights/offer?token=${encodeURIComponent(flight.offerToken)}`}
-      className="group block overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:border-[#2577be]/40 hover:shadow-md"
-    >
-      <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
-        <div className="flex min-w-0 flex-1 items-start gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#eef5fc] text-[#2577be]">
-            <Plane size={22} />
+    <div className="flex gap-3 border-t border-gray-100 py-3 first:border-t-0 first:pt-0 sm:gap-4">
+      <div className="hidden w-12 shrink-0 sm:block">
+        <img
+          src={airlineLogoUrl(leg.airlineCode)}
+          alt={leg.airline}
+          width={48}
+          height={48}
+          className="h-10 w-10 rounded object-contain"
+          onError={(e) => {
+            const img = e.currentTarget;
+            img.style.display = "none";
+            const fallback = img.nextElementSibling as HTMLElement | null;
+            if (fallback) fallback.style.display = "flex";
+          }}
+        />
+        <div
+          className="hidden h-10 w-10 items-center justify-center rounded bg-gray-100 text-[10px] font-bold text-gray-600"
+          style={{ display: "none" }}
+        >
+          {leg.airlineCode}
+        </div>
+      </div>
+
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+          <span className="text-[10px] font-bold uppercase tracking-wide text-[#2577be]">{label}</span>
+          <span className="text-[10px] text-gray-400">·</span>
+          <span className="text-[10px] font-medium text-gray-500">{formatLegDate(leg.departAt)}</span>
+          <span className="text-[10px] text-gray-400 sm:hidden">·</span>
+          <span className="text-[10px] font-medium text-gray-600 sm:hidden">{leg.airline}</span>
+        </div>
+
+        <div className="mt-2 grid grid-cols-[auto_1fr_auto] items-center gap-2 sm:gap-3">
+          <div className="text-center sm:text-left">
+            <p className="text-base font-bold text-[#1e2e5e] sm:text-lg">{formatTime(leg.departAt)}</p>
+            <p className="text-[10px] font-semibold text-gray-500 sm:text-xs">{leg.fromCode}</p>
           </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="text-sm font-bold text-[#1e2e5e]">{flight.airline}</p>
-              <span className="rounded bg-[#2dd4bf]/25 px-1.5 py-0.5 text-[10px] font-bold text-[#1e2e5e]">
-                -{pricing.discountPct}%
-              </span>
+
+          <div className="flex min-w-0 flex-col items-center px-1">
+            <p className="text-[10px] font-medium text-gray-500">{leg.duration}</p>
+            <div className="relative mt-1 flex w-full max-w-[140px] items-center sm:max-w-[180px]">
+              <div className="h-px flex-1 bg-gray-300" />
+              <div className="mx-1 h-1.5 w-1.5 shrink-0 rounded-full bg-gray-400" />
+              <div className="h-px flex-1 bg-gray-300" />
             </div>
-            <p className="mt-0.5 text-xs text-gray-500">
-              {flight.fromCode || flight.from} → {flight.toCode || flight.to}
+            <p className="mt-1 text-[10px] font-semibold text-gray-500">
+              {stopsLabel(leg.stops, direct, stop, stopsPlural)}
             </p>
-            <div className="mt-3 flex flex-wrap items-center gap-4 text-sm">
-              <div>
-                <span className="text-lg font-bold text-[#1e2e5e]">{formatTime(flight.departAt)}</span>
-                <span className="mx-2 text-gray-300">→</span>
-                <span className="text-lg font-bold text-[#1e2e5e]">{formatTime(flight.arriveAt)}</span>
-              </div>
-              <span className="flex items-center gap-1 text-xs text-gray-500">
-                <Clock size={12} />
-                {flight.duration}
-              </span>
-              <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600">
-                {flight.stops === 0 ? "Direct" : `${flight.stops} stop${flight.stops > 1 ? "s" : ""}`}
-              </span>
-            </div>
-            <div className="mt-2 flex flex-wrap gap-2 text-[10px] text-gray-500">
-              <span className="flex items-center gap-1">
-                <Luggage size={11} /> 1 carry-on included
-              </span>
-              <span>{CABIN_LABELS[flight.cabin]}</span>
-            </div>
+          </div>
+
+          <div className="text-center sm:text-right">
+            <p className="text-base font-bold text-[#1e2e5e] sm:text-lg">{formatTime(leg.arriveAt)}</p>
+            <p className="text-[10px] font-semibold text-gray-500 sm:text-xs">{leg.toCode}</p>
           </div>
         </div>
 
-        <div className="flex shrink-0 flex-row items-center justify-between gap-4 border-t border-gray-100 pt-3 sm:flex-col sm:items-end sm:border-t-0 sm:pt-0">
-          <div className="text-right">
-            <p className="text-2xl font-bold text-[#1e2e5e]">{formatUsd(pricing.salePrice)}</p>
+        <p className="mt-1 hidden text-xs text-gray-500 sm:block">
+          {leg.airline}
+          {leg.flightNumber ? ` · ${leg.flightNumber}` : ""}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export default function LiveFlightResultCard({
+  flight,
+  searchContext,
+}: {
+  flight: LiveFlightOffer;
+  searchContext: FlightOfferSearchContext;
+}) {
+  const { messages: m } = useTranslations();
+  const pricing = getFlightPricing(flight.sourcePrice);
+  const href = buildFlightOfferHref(flight, searchContext);
+  const outbound = resolveOutbound(flight);
+  const c = m.common;
+
+  return (
+    <Link
+      href={href}
+      className="group block border border-gray-200 bg-white transition hover:border-[#2577be]/50 hover:shadow-sm"
+    >
+      <div className="flex flex-col lg:flex-row">
+        <div className="min-w-0 flex-1 px-4 py-3 sm:px-5 sm:py-4">
+          <FlightLegRow
+            label={c.departure}
+            leg={outbound}
+            direct={c.direct}
+            stop={c.stop}
+            stopsPlural={c.stops}
+          />
+          {flight.returnLeg && (
+            <FlightLegRow
+              label={c.returnFlight}
+              leg={flight.returnLeg}
+              direct={c.direct}
+              stop={c.stop}
+              stopsPlural={c.stops}
+            />
+          )}
+          <div className="flex flex-wrap gap-3 border-t border-gray-100 pt-2 text-[10px] text-gray-500">
+            <span className="flex items-center gap-1">
+              <Luggage size={11} /> {c.carryOnIncluded}
+            </span>
+            <span>{CABIN_LABELS[flight.cabin]}</span>
+          </div>
+        </div>
+
+        <div className="flex shrink-0 flex-row items-center justify-between gap-4 border-t border-gray-100 bg-[#f8fafc] px-4 py-3 sm:px-5 lg:w-52 lg:flex-col lg:items-end lg:justify-center lg:border-l lg:border-t-0 lg:py-4">
+          <div className="text-left lg:text-right">
+            <p className="text-xl font-bold text-[#1e2e5e] sm:text-2xl">{formatUsd(pricing.salePrice)}</p>
             <p className="text-xs text-gray-400 line-through">{formatUsd(pricing.originalPrice)}</p>
-            <p className="text-[10px] text-[#2577be]">Save {formatUsd(pricing.savings)}</p>
+            <p className="text-[10px] font-semibold text-emerald-600">-{pricing.discountPct}%</p>
           </div>
           <span className="rounded-lg bg-[#2577be] px-5 py-2.5 text-sm font-semibold text-white transition group-hover:bg-[#1e2e5e]">
-            Select
+            {c.select}
           </span>
         </div>
       </div>

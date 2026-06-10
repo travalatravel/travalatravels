@@ -10,19 +10,16 @@ import { ASSETS } from "@/data/site-data";
 import { buildFlightSearchQuery } from "@/lib/flight-display";
 import type { CabinClass, TripType } from "@/lib/flight-types";
 import { CABIN_LABELS } from "@/lib/flight-types";
+import { useTranslations } from "@/i18n/useTranslations";
 
 const TABS = [
-  { key: "stays", label: "Stays", icon: Building2 },
-  { key: "flights", label: "Flights", icon: Plane },
-  { key: "car-rental", label: "Car Rental", badge: "NEW!" as const, icon: Car },
-  { key: "activities", label: "Activities", icon: MapPin },
+  { key: "stays", labelKey: "stays" as const, icon: Building2 },
+  { key: "flights", labelKey: "flights" as const, icon: Plane },
+  { key: "car-rental", labelKey: "carRental" as const, badge: true as const, icon: Car },
+  { key: "activities", labelKey: "activities" as const, icon: MapPin },
 ] as const;
 
-const TRIP_TYPES: { key: TripType; label: string }[] = [
-  { key: "roundtrip", label: "Round trip" },
-  { key: "oneway", label: "One way" },
-  { key: "multicity", label: "Multi-city" },
-];
+const TRIP_KEYS: TripType[] = ["roundtrip", "oneway", "multicity"];
 
 function defaultFlightDates() {
   const d = new Date();
@@ -34,7 +31,7 @@ function defaultFlightDates() {
 }
 
 function formatDisplayDate(iso: string) {
-  if (!iso) return { full: "Select date", day: "" };
+  if (!iso) return { full: "", day: "" };
   const d = new Date(`${iso}T12:00:00`);
   return {
     full: d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
@@ -55,6 +52,7 @@ export default function FlightSearchForm({
 }) {
   const router = useRouter();
   const urlParams = useSearchParams();
+  const { messages: m, fmt } = useTranslations();
   const defaults = defaultFlightDates();
   const isHero = !compact;
 
@@ -207,6 +205,7 @@ export default function FlightSearchForm({
 
   const departFmt = formatDisplayDate(depart);
   const returnFmt = formatDisplayDate(returnDate);
+  const selectDateLabel = m.common.selectDate;
   const paxTotal = adults + children + infants;
 
   const airportInput = (
@@ -216,8 +215,10 @@ export default function FlightSearchForm({
     onChange: (v: string) => void,
     className = "",
   ) => (
-    <div className={`relative min-w-0 ${className}`}>
-      <label className="text-[10px] font-medium text-gray-500">{label}</label>
+    <div
+      className={`relative min-w-0 rounded-xl border border-gray-200 bg-[#f8fafc] px-3 py-2.5 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 ${className}`}
+    >
+      <label className="text-[10px] font-medium uppercase tracking-wide text-gray-500">{label}</label>
       <input
         type="text"
         value={activeField === field ? fieldQuery : value}
@@ -226,9 +227,10 @@ export default function FlightSearchForm({
           setFieldQuery(e.target.value);
         }}
         onFocus={() => openField(field, value)}
-        placeholder="City or airport"
+        placeholder={m.common.cityOrAirport}
         autoComplete="off"
-        className="mt-0.5 w-full min-w-0 bg-transparent text-sm font-semibold text-[#1a1a1a] outline-none placeholder:font-normal placeholder:text-gray-400"
+        enterKeyHint="search"
+        className="mt-1 min-h-[44px] w-full min-w-0 bg-transparent text-base font-semibold text-[#1a1a1a] outline-none placeholder:font-normal placeholder:text-gray-400 sm:mt-0.5 sm:min-h-0 sm:text-sm"
       />
       {activeField === field && (
         <SearchSuggestions
@@ -238,6 +240,7 @@ export default function FlightSearchForm({
           activeIndex={activeIndex}
           onSelect={selectSuggestion}
           onHover={setActiveIndex}
+          mobileSheet
         />
       )}
     </div>
@@ -274,9 +277,9 @@ export default function FlightSearchForm({
             )}
             <span className={`text-[11px] font-medium sm:text-xs ${isHero && active ? "text-[#1a1a1a]" : ""}`}>
               {"badge" in tab && tab.badge && (
-                <span className="mr-1 rounded bg-[#2dd4bf] px-1 py-0.5 text-[8px] font-bold text-[#1e2e5e]">{tab.badge}</span>
+                <span className="mr-1 rounded bg-[#2dd4bf] px-1 py-0.5 text-[8px] font-bold text-[#1e2e5e]">{m.nav.badgeNew}</span>
               )}
-              {tab.label}
+              {m.nav[tab.labelKey]}
             </span>
           </button>
         );
@@ -285,17 +288,22 @@ export default function FlightSearchForm({
   );
 
   const tripRow = (
-    <div className="mb-3 flex flex-wrap gap-4 border-b border-gray-100 pb-3 text-sm">
-      {TRIP_TYPES.map((t) => (
-        <label key={t.key} className="flex cursor-pointer items-center gap-2 text-[#1a1a1a]">
+    <div className="mb-3 flex flex-wrap gap-2 border-b border-gray-100 pb-3 sm:gap-4">
+      {TRIP_KEYS.map((key) => (
+        <label
+          key={key}
+          className={`flex min-h-11 cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm ${
+            trip === key ? "bg-[#eef5fc] font-semibold text-[#2577be]" : "text-[#1a1a1a]"
+          }`}
+        >
           <input
             type="radio"
             name="trip"
-            checked={trip === t.key}
-            onChange={() => setTrip(t.key)}
-            className="accent-[#2577be]"
+            checked={trip === key}
+            onChange={() => setTrip(key)}
+            className="h-4 w-4 accent-[#2577be]"
           />
-          {t.label}
+          {m.search.tripTypes[key]}
         </label>
       ))}
     </div>
@@ -305,17 +313,17 @@ export default function FlightSearchForm({
     <div className={`flex flex-col gap-3 ${isHero ? "lg:flex-row lg:items-stretch lg:flex-wrap" : ""}`}>
       {trip !== "multicity" ? (
         <>
-          <div className={`relative flex min-w-0 flex-1 items-end gap-2 ${isHero ? "lg:min-w-[280px]" : ""}`}>
-            {airportInput("from", "Flying from", from, setFrom, "flex-1")}
+          <div className={`relative flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-end sm:gap-2 ${isHero ? "lg:min-w-[280px]" : ""}`}>
+            {airportInput("from", m.search.flyingFrom, from, setFrom, "flex-1")}
             <button
               type="button"
               onClick={swapAirports}
               aria-label="Swap airports"
-              className="mb-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gray-200 text-[#2577be] hover:bg-[#eef5fc]"
+              className="mx-auto flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gray-200 text-[#2577be] hover:bg-[#eef5fc] sm:mb-0.5 sm:h-9 sm:w-9"
             >
               <ArrowLeftRight size={16} />
             </button>
-            {airportInput("to", "Flying to", to, setTo, "flex-1")}
+            {airportInput("to", m.search.flyingTo, to, setTo, "flex-1")}
           </div>
         </>
       ) : (
@@ -337,34 +345,55 @@ export default function FlightSearchForm({
         </div>
       )}
 
-      <div className={`flex min-w-0 gap-2 ${isHero ? "lg:w-auto" : "w-full"}`}>
+      <div className={`flex min-w-0 flex-col gap-2 sm:flex-row sm:gap-2 ${isHero ? "lg:w-auto" : "w-full"}`}>
+        <label className="flex min-h-[52px] min-w-0 flex-1 flex-col justify-center rounded-xl border border-gray-200 bg-[#f8fafc] px-3 py-2 sm:hidden">
+          <span className="text-[10px] font-medium uppercase tracking-wide text-gray-500">Depart</span>
+          <input
+            type="date"
+            value={depart}
+            onChange={(e) => setDepart(e.target.value)}
+            className="mt-1 w-full bg-transparent text-base font-semibold text-[#1a1a1a] outline-none"
+          />
+        </label>
         <button
           type="button"
           onClick={() => departRef.current?.showPicker?.() ?? departRef.current?.focus()}
-          className="flex min-w-0 flex-1 items-center gap-2 rounded-lg bg-[#f2f5f9] px-3 py-2 text-left lg:bg-transparent lg:px-2"
+          className="hidden min-w-0 flex-1 items-center gap-2 rounded-lg bg-[#f2f5f9] px-3 py-2 text-left sm:flex lg:bg-transparent lg:px-2"
         >
           {isHero && <Image src={ASSETS.datepickerIcon} alt="" width={24} height={24} className="shrink-0" unoptimized />}
           <div>
             <div className="text-[10px] text-gray-500">Depart</div>
-            <div className="text-sm font-semibold text-[#1a1a1a]">{departFmt.full}</div>
+            <div className="text-sm font-semibold text-[#1a1a1a]">{departFmt.full || selectDateLabel}</div>
             {isHero && departFmt.day && <div className="text-xs text-gray-500">{departFmt.day}</div>}
           </div>
           <input ref={departRef} type="date" value={depart} onChange={(e) => setDepart(e.target.value)} className="sr-only" tabIndex={-1} />
         </button>
         {trip === "roundtrip" && (
-          <button
-            type="button"
-            onClick={() => returnRef.current?.showPicker?.() ?? returnRef.current?.focus()}
-            className="flex min-w-0 flex-1 items-center gap-2 rounded-lg bg-[#f2f5f9] px-3 py-2 text-left lg:bg-transparent lg:px-2"
-          >
-            {isHero && <Image src={ASSETS.datepickerIcon} alt="" width={24} height={24} className="shrink-0" unoptimized />}
-            <div>
-              <div className="text-[10px] text-gray-500">Return</div>
-              <div className="text-sm font-semibold text-[#1a1a1a]">{returnFmt.full}</div>
-              {isHero && returnFmt.day && <div className="text-xs text-gray-500">{returnFmt.day}</div>}
-            </div>
-            <input ref={returnRef} type="date" value={returnDate} min={depart} onChange={(e) => setReturnDate(e.target.value)} className="sr-only" tabIndex={-1} />
-          </button>
+          <>
+            <label className="flex min-h-[52px] min-w-0 flex-1 flex-col justify-center rounded-xl border border-gray-200 bg-[#f8fafc] px-3 py-2 sm:hidden">
+              <span className="text-[10px] font-medium uppercase tracking-wide text-gray-500">Return</span>
+              <input
+                type="date"
+                value={returnDate}
+                min={depart}
+                onChange={(e) => setReturnDate(e.target.value)}
+                className="mt-1 w-full bg-transparent text-base font-semibold text-[#1a1a1a] outline-none"
+              />
+            </label>
+            <button
+              type="button"
+              onClick={() => returnRef.current?.showPicker?.() ?? returnRef.current?.focus()}
+              className="hidden min-w-0 flex-1 items-center gap-2 rounded-lg bg-[#f2f5f9] px-3 py-2 text-left sm:flex lg:bg-transparent lg:px-2"
+            >
+              {isHero && <Image src={ASSETS.datepickerIcon} alt="" width={24} height={24} className="shrink-0" unoptimized />}
+              <div>
+                <div className="text-[10px] text-gray-500">Return</div>
+                <div className="text-sm font-semibold text-[#1a1a1a]">{returnFmt.full}</div>
+                {isHero && returnFmt.day && <div className="text-xs text-gray-500">{returnFmt.day}</div>}
+              </div>
+              <input ref={returnRef} type="date" value={returnDate} min={depart} onChange={(e) => setReturnDate(e.target.value)} className="sr-only" tabIndex={-1} />
+            </button>
+          </>
         )}
       </div>
 
@@ -372,18 +401,25 @@ export default function FlightSearchForm({
         <button
           type="button"
           onClick={() => setPaxOpen((v) => !v)}
-          className="flex h-full w-full items-center gap-2 rounded-lg bg-[#f2f5f9] px-3 py-2 text-left lg:bg-transparent lg:px-2"
+          className="flex min-h-[52px] w-full items-center gap-2 rounded-xl border border-gray-200 bg-[#f8fafc] px-3 py-2.5 text-left sm:min-h-0 sm:rounded-lg sm:border-0 sm:bg-[#f2f5f9] lg:bg-transparent lg:px-2"
         >
           {isHero && <Image src={ASSETS.userIcon} alt="" width={24} height={24} className="shrink-0" unoptimized />}
           <div>
-            <div className="text-sm font-semibold text-[#1a1a1a]">
+            <div className="text-base font-semibold text-[#1a1a1a] sm:text-sm">
               {paxTotal} Passenger{paxTotal !== 1 ? "s" : ""}
             </div>
             <div className="text-xs text-gray-500">{CABIN_LABELS[cabin]}</div>
           </div>
         </button>
         {paxOpen && (
-          <div className="absolute left-0 top-full z-50 mt-2 w-72 rounded-xl border border-gray-200 bg-white p-4 shadow-2xl">
+          <>
+            <button
+              type="button"
+              aria-label="Close passenger selector"
+              className="fixed inset-0 z-40 bg-black/30 sm:hidden"
+              onClick={() => setPaxOpen(false)}
+            />
+            <div className="fixed inset-x-4 bottom-4 z-50 max-h-[70vh] overflow-y-auto rounded-2xl border border-gray-200 bg-white p-4 shadow-2xl sm:absolute sm:inset-x-auto sm:bottom-auto sm:left-0 sm:top-full sm:mt-2 sm:w-72 sm:max-h-none sm:rounded-xl">
             {[
               { label: "Adults", sub: "12+ yrs", value: adults, set: setAdults, min: 1, max: 9 },
               { label: "Children", sub: "2–11 yrs", value: children, set: setChildren, min: 0, max: 8 },
@@ -395,9 +431,9 @@ export default function FlightSearchForm({
                   <div className="text-[10px] text-gray-400">{row.sub}</div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button type="button" className="h-8 w-8 rounded border border-gray-200" onClick={() => row.set(Math.max(row.min, row.value - 1))}>−</button>
-                  <span className="w-6 text-center text-sm">{row.value}</span>
-                  <button type="button" className="h-8 w-8 rounded border border-gray-200" onClick={() => row.set(Math.min(row.max, row.value + 1))}>+</button>
+                  <button type="button" className="flex h-11 w-11 items-center justify-center rounded-lg border border-gray-200 text-lg sm:h-8 sm:w-8 sm:rounded sm:text-base" onClick={() => row.set(Math.max(row.min, row.value - 1))}>−</button>
+                  <span className="w-8 text-center text-base sm:w-6 sm:text-sm">{row.value}</span>
+                  <button type="button" className="flex h-11 w-11 items-center justify-center rounded-lg border border-gray-200 text-lg sm:h-8 sm:w-8 sm:rounded sm:text-base" onClick={() => row.set(Math.min(row.max, row.value + 1))}>+</button>
                 </div>
               </div>
             ))}
@@ -406,24 +442,32 @@ export default function FlightSearchForm({
               <select
                 value={cabin}
                 onChange={(e) => setCabin(e.target.value as CabinClass)}
-                className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#2577be]"
+                className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-3 text-base outline-none focus:border-[#2577be] sm:py-2 sm:text-sm"
               >
                 {(Object.keys(CABIN_LABELS) as CabinClass[]).map((c) => (
                   <option key={c} value={c}>{CABIN_LABELS[c]}</option>
                 ))}
               </select>
             </div>
+            <button
+              type="button"
+              onClick={() => setPaxOpen(false)}
+              className="mt-4 w-full rounded-xl bg-[#2577be] py-3 text-sm font-semibold text-white sm:hidden"
+            >
+              Done
+            </button>
           </div>
+          </>
         )}
       </div>
 
       <button
         type="submit"
-        className={`shrink-0 rounded-lg bg-[#2577be] font-semibold uppercase tracking-wide text-white transition hover:bg-[#1e2e5e] ${
-          isHero ? "min-w-[140px] px-6 py-3 lg:min-w-[168px] lg:self-center" : "w-full px-6 py-3 sm:w-auto"
+        className={`shrink-0 rounded-xl bg-[#2577be] font-semibold uppercase tracking-wide text-white transition hover:bg-[#1e2e5e] ${
+          isHero ? "min-h-12 min-w-[140px] px-6 py-3 lg:min-w-[168px] lg:self-center" : "min-h-12 w-full px-6 py-3.5 sm:w-auto"
         }`}
       >
-        Search
+        {m.common.search}
       </button>
     </div>
   );

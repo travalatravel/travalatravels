@@ -5,6 +5,7 @@ import { getSessionFromRequest } from "@/lib/auth";
 
 const schema = z.object({
   txHash: z.string().min(10, "Transaction hash is required"),
+  bundleBookingId: z.string().optional(),
 });
 
 export async function POST(
@@ -18,7 +19,7 @@ export async function POST(
 
   try {
     const body = await request.json();
-    const { txHash } = schema.parse(body);
+    const { txHash, bundleBookingId } = schema.parse(body);
 
     const booking = await prisma.booking.findUnique({ where: { id } });
     if (!booking || booking.userId !== user.id) {
@@ -28,12 +29,25 @@ export async function POST(
       return NextResponse.json({ error: "Already paid" }, { status: 400 });
     }
 
-    const updated = await prisma.booking.update({
-      where: { id },
+    const idsToUpdate = [id];
+    if (bundleBookingId) {
+      const paired = await prisma.booking.findUnique({ where: { id: bundleBookingId } });
+      if (!paired || paired.userId !== user.id) {
+        return NextResponse.json({ error: "Bundle booking not found" }, { status: 404 });
+      }
+      idsToUpdate.push(bundleBookingId);
+    }
+
+    await prisma.booking.updateMany({
+      where: { id: { in: idsToUpdate } },
       data: {
         txHash,
         paymentStatus: "AWAITING_CONFIRMATION",
       },
+    });
+
+    const updated = await prisma.booking.findUnique({
+      where: { id },
       include: { offer: true, wallet: true },
     });
 

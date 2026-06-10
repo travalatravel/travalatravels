@@ -87,9 +87,13 @@ function StepIndicator({ step, current }: { step: number; current: number }) {
 export default function CryptoGatewayPanel({
   booking,
   onPaid,
+  bundleBookingId,
+  bundleTotal,
 }: {
   booking: Booking;
   onPaid: () => void;
+  bundleBookingId?: string;
+  bundleTotal?: number;
 }) {
   const [txHash, setTxHash] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -105,15 +109,17 @@ export default function CryptoGatewayPanel({
         ? 3
         : 2;
 
+  const payUsd = bundleTotal ?? booking.totalPrice;
+
   useEffect(() => {
     if (!wallet) return;
     setQuoteLoading(true);
-    fetch(`/api/crypto/quote?currency=${wallet.currency}&usd=${booking.totalPrice}`)
+    fetch(`/api/crypto/quote?currency=${wallet.currency}&usd=${payUsd}`)
       .then((r) => r.json())
       .then((data) => setQuote(data.quote ?? null))
       .catch(() => setQuote(null))
       .finally(() => setQuoteLoading(false));
-  }, [wallet, booking.totalPrice]);
+  }, [wallet, payUsd]);
 
   const submitTx = async () => {
     setSubmitting(true);
@@ -121,7 +127,10 @@ export default function CryptoGatewayPanel({
     const res = await fetch(`/api/bookings/${booking.id}/pay`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ txHash: txHash.trim() }),
+      body: JSON.stringify({
+        txHash: txHash.trim(),
+        bundleBookingId: bundleBookingId || undefined,
+      }),
     });
     const data = await res.json();
     setSubmitting(false);
@@ -189,7 +198,7 @@ export default function CryptoGatewayPanel({
             <div>
               <p className="text-xs text-slate-400">Amount paid</p>
               <p className="mt-0.5 text-sm font-semibold text-slate-800">
-                ${booking.totalPrice.toFixed(2)} USD
+                ${payUsd.toFixed(2)} USD
               </p>
             </div>
           </div>
@@ -291,7 +300,7 @@ export default function CryptoGatewayPanel({
           <div className="mt-6 rounded-xl border border-slate-200 bg-white p-4">
             <p className="text-xs text-slate-400">Total due</p>
             <p className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">
-              ${booking.totalPrice.toFixed(2)}
+              ${payUsd.toFixed(2)}
               <span className="ml-1 text-base font-normal text-slate-400">USD</span>
             </p>
             {cryptoAmount && !quoteLoading && (

@@ -4,16 +4,19 @@ import Link from "next/link";
 import Carousel from "./Carousel";
 import { TOP_UNIQUE_PROPERTIES } from "@/data/site-data";
 import { Building2 } from "lucide-react";
+import { useTranslations } from "@/i18n/useTranslations";
 
 export default function TopUniqueProperties() {
+  const { messages: m, fmt } = useTranslations();
+
   return (
     <section className="bg-white py-10 sm:py-16">
       <div className="mx-auto max-w-6xl px-3 sm:px-4 lg:px-6">
         <h2 className="font-[family-name:var(--font-display)] text-xl font-bold text-[#1e2e5e] sm:text-2xl md:text-3xl">
-          Top Unique Properties
+          {m.topProperties.title}
         </h2>
         <p className="mt-2 text-sm text-gray-500 sm:text-base">
-          Find the most distinctive places to stay on Travala
+          {m.topProperties.subtitle}
         </p>
 
         <div className="mt-8">
