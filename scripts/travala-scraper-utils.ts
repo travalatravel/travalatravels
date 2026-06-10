@@ -71,13 +71,18 @@ export function parseAddress(address: string): { city: string; country: string; 
   return { city: address || "Unknown", country: "International", countryCode: null };
 }
 
+const BROWSER_UA =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+
 export async function fetchText(url: string, retries = 2): Promise<string> {
   for (let i = 0; i <= retries; i++) {
     try {
       const res = await fetch(url, {
         headers: {
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+          "User-Agent": BROWSER_UA,
           Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+          "Accept-Language": "en-US,en;q=0.9",
+          Referer: "https://www.travala.com/",
         },
         signal: AbortSignal.timeout(45000),
       });
@@ -146,6 +151,40 @@ export async function fetchHotelImageUrl(slug: string): Promise<string | null> {
   } catch {
     return null;
   }
+}
+
+export function hotelFromSitemapUrl(url: string): ScrapedOffer | null {
+  const m = url.match(/\/hotel\/([^/?#]+)$/);
+  if (!m) return null;
+  const slug = m[1];
+  const id = hotelIdFromSlug(slug);
+  const name = slug
+    .replace(/-\d+$/, "")
+    .replace(/-/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+  if (!name) return null;
+
+  const sourceKey = `hotel:${id}`;
+  return {
+    type: "HOTEL",
+    title: name,
+    description: `${name}. Book with crypto and save on your stay.`,
+    location: "International",
+    city: "Unknown",
+    country: "International",
+    region: null,
+    image: "https://static.travala.com/destination/Asia/bangkok.jpg",
+    price: estimatePrice(sourceKey, 3, "HOTEL"),
+    stars: 3 + (hashString(slug) % 3),
+    metadata: {
+      travalaSlug: slug,
+      travalaId: id,
+      source: "travala.com",
+      url: `https://www.travala.com/hotel/${slug}`,
+      propertyType: "Hotel",
+    },
+    sourceKey,
+  };
 }
 
 export function hotelFromProperty(

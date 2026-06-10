@@ -230,14 +230,36 @@ export const PARTNERS = [
 ];
 
 export const PAYMENT_ACCEPT_LOGOS = [
-  { src: "https://static.travala.com/frontend/images/paymentaccept/visa.png", alt: "Visa" },
-  { src: "https://static.travala.com/frontend/images/paymentaccept/master-card.png", alt: "Mastercard" },
-  { src: "https://static.travala.com/frontend/images/paymentaccept/american.png", alt: "American Express" },
-  { src: "https://static.travala.com/frontend/images/paymentaccept/stripe.png", alt: "Stripe" },
   { src: "https://static.travala.com/frontend/images/paymentaccept/binance.png", alt: "Binance Pay" },
   { src: "https://static.travala.com/frontend/images/paymentaccept/crypto-com.png", alt: "Crypto.com" },
   { src: "https://static.travala.com/frontend/images/paymentaccept/utrust.png", alt: "Utrust" },
   { src: "https://static.travala.com/frontend/images/paymentaccept/ava.png", alt: "AVA" },
+];
+
+/** Crypto payment options from travala.com homepage (no credit cards). */
+export const CRYPTO_PAYMENT_OPTIONS = [
+  { key: "AVA", symbol: "https://statics.travala.com/coin-logo/ava20.png", name: "AVA" },
+  { key: "BINANCE", symbol: "https://statics.travala.com/coin-logo/binance-pay.svg", name: "Binance Pay" },
+  { key: "CRYPTO_COM", symbol: "https://statics.travala.com/coin-logo/Crypto.comPay.png", name: "Crypto.com" },
+  { key: "BTC", symbol: "https://static.travala.com/coin-logo/btc.png", name: "Bitcoin" },
+  { key: "ETH", symbol: "https://static.travala.com/coin-logo/eth.png", name: "Ethereum" },
+  { key: "USDT", symbol: "https://statics.travala.com/coin-logo/USDT3.png", name: "USDT" },
+  { key: "BNB", symbol: "https://statics.travala.com/coin-logo/bnb-new.png", name: "BNB" },
+  { key: "XRP", symbol: "https://static.travala.com/coin-logo/ripple.png", name: "XRP" },
+  { key: "SOL", symbol: "https://statics.travala.com/coin-logo/SOL.png", name: "Solana" },
+  { key: "USDC", symbol: "https://static.travala.com/coin-logo/USDC.png", name: "USDC" },
+  { key: "ADA", symbol: "https://static.travala.com/coin-logo/ada.png", name: "Cardano" },
+  { key: "DOGE", symbol: "https://statics.travala.com/coin-logo/dogecoin.png", name: "Dogecoin" },
+  { key: "TRX", symbol: "https://static.travala.com/coin-logo/trx.png", name: "TRON" },
+  { key: "LINK", symbol: "https://statics.travala.com/coin-logo/chainlink.svg", name: "Chainlink" },
+  { key: "DOT", symbol: "https://statics.travala.com/coin-logo/dot.svg", name: "Polkadot" },
+  { key: "LTC", symbol: "https://statics.travala.com/coin-logo/ltc.png", name: "Litecoin" },
+  { key: "DAI", symbol: "https://statics.travala.com/coin-logo/dai-logo.png", name: "DAI" },
+  { key: "SHIB", symbol: "https://statics.travala.com/coin-logo/SHIB.png", name: "SHIB" },
+  { key: "BCH", symbol: "https://static.travala.com/coin-logo/bch.png", name: "Bitcoin Cash" },
+  { key: "SUI", symbol: "https://static.travala.com/coin-logo/sui.png", name: "SUI" },
+  { key: "ACH", symbol: "https://static.travala.com/coin-logo/alchemy-pay.png", name: "Alchemy Pay" },
+  { key: "MTL", symbol: "https://static.travala.com/coin-logo/metal-dao.png", name: "Metal DAO" },
 ];
 
 export const CRYPTO_COINS = ["btc", "eth", "usdc", "ava"] as const;

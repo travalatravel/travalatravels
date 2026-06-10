@@ -1,3 +1,5 @@
+import { travalaApiHeaders } from "./travala-headers";
+
 const TRAVALA_API = "https://api.travala.com";
 
 export type TravalaResponse = {
@@ -26,11 +28,7 @@ export async function travalaGet(path: string, params: Record<string, string | n
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, String(v)));
 
   const res = await fetch(url, {
-    headers: {
-      Accept: "application/json",
-      "User-Agent": "Mozilla/5.0 (compatible; TravalaClone/1.0)",
-      platformVersion: "web",
-    },
+    headers: travalaApiHeaders(),
     next: { revalidate: 300 },
   });
 

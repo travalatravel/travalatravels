@@ -203,7 +203,7 @@ export default function OfferDetailPage() {
                 <div className="flex items-center gap-2 bg-[#2577be] px-3 py-2.5 text-white sm:px-4">
                   <Tag size={14} className="flex-shrink-0" />
                   <span className="text-xs font-semibold sm:text-sm">
-                    Save {pricing.discountPct}% vs travala.com — Best price guarantee
+                    Save {pricing.discountPct}% — Best price guarantee
                   </span>
                 </div>
               )}
@@ -295,7 +295,7 @@ export default function OfferDetailPage() {
                 </div>
                 {totalPricing && totalPricing.savings > 0 && (
                   <p className="mt-1 break-words text-xs text-[#2577be]">
-                    Save {formatUsd(totalPricing.savings)} vs travala.com ({formatUsd(calcBaseTotal())})
+                    You save {formatUsd(totalPricing.savings)} (was {formatUsd(calcBaseTotal())})
                   </p>
                 )}
               </div>

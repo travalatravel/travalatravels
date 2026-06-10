@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { supplementHotelSearch } from "@/lib/travala-live-search";
 
 const TYPE_MAP: Record<string, string> = {
   stays: "HOTEL",
@@ -44,15 +45,25 @@ export async function GET(request: Request) {
   if (city) where.city = { contains: city };
   if (country) where.country = { contains: country };
 
-  const [offers, total] = await Promise.all([
-    prisma.offer.findMany({
-      where,
-      take: limit,
-      skip,
-      orderBy: [{ stars: "desc" }, { price: "asc" }],
-    }),
-    prisma.offer.count({ where }),
-  ]);
+  let total = await prisma.offer.count({ where });
 
-  return NextResponse.json({ offers, total, page, pages: Math.ceil(total / limit), type });
+  if (type === "HOTEL" && q.trim() && total < 30) {
+    await supplementHotelSearch(q, total);
+    total = await prisma.offer.count({ where });
+  }
+
+  const offers = await prisma.offer.findMany({
+    where,
+    take: limit,
+    skip,
+    orderBy: [{ stars: "desc" }, { price: "asc" }],
+  });
+
+  return NextResponse.json({
+    offers,
+    total,
+    page,
+    pages: Math.ceil(total / limit),
+    type,
+  });
 }

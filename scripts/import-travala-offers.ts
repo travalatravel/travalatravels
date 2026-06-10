@@ -12,6 +12,7 @@ import {
   mapPool,
   sleep,
   hotelFromProperty,
+  hotelFromSitemapUrl,
   flightFromRouteUrl,
   hashString,
   estimatePrice,
@@ -32,10 +33,22 @@ const args = Object.fromEntries(
   })
 );
 
-const MAX_CITIES = parseInt(args.cities || "100", 10);
+const MAX_CITIES = parseInt(args.cities || "1200", 10);
 const MAX_FLIGHTS = parseInt(args.flights || "1500", 10);
-const CONCURRENCY = parseInt(args.concurrency || "6", 10);
+const CONCURRENCY = parseInt(args.concurrency || "8", 10);
 const ENRICH_IMAGES = parseInt(args.enrich || "0", 10);
+const SITEMAP_SHARDS = parseInt(args.sitemap || "0", 10);
+const MERGE_EXISTING = args.merge === "true" || args.merge === "1";
+const PRIORITY_COUNTRIES = (args.countries || "TH,SG,ID,MY,JP,KR,AE,US,GB,FR,ES,IT,DE,AU")
+  .split(",")
+  .map((c) => c.trim().toUpperCase())
+  .filter(Boolean);
+
+const THAILAND_SLUG_KEYWORDS = [
+  "bangkok", "phuket", "chiang", "pattaya", "krabi", "samui", "koh-", "hua-hin",
+  "ayutthaya", "kanchanaburi", "hat-yai", "chiang-rai", "surat-thani", "udon",
+  "nakhon", "phang-nga", "rayong", "trat", "koh-samui", "koh-phangan",
+];
 
 const CAR_TYPES = [
   "Economy - Toyota Yaris",
@@ -91,61 +104,90 @@ async function scrapeHomepage(map: Map<string, ScrapedOffer>) {
   console.log(`  ${map.size} hotels from homepage`);
 }
 
+type WorldwideCountry = {
+  country_name: string;
+  country_code: string;
+  regions?: Array<{
+    region_slug?: string;
+    cities?: Array<{ city_slug: string; city_name: string; total_hotel: number }>;
+  }>;
+};
+
+async function loadWorldwideCountries(): Promise<WorldwideCountry[]> {
+  const homepage = await fetchText(BASE);
+  const props = extractNextData(homepage);
+  return (props?.newWorldwideLocations as { countries?: WorldwideCountry[] })?.countries || [];
+}
+
+function cityUrlsFromWorldwide(countries: WorldwideCountry[], countryCodes?: string[]): string[] {
+  const urls: string[] = [];
+  const codeSet = countryCodes?.length ? new Set(countryCodes.map((c) => c.toUpperCase())) : null;
+
+  for (const country of countries) {
+    if (codeSet && !codeSet.has(country.country_code.toUpperCase())) continue;
+    const cslug = country.country_name.toLowerCase().replace(/\s+/g, "-");
+    for (const region of country.regions || []) {
+      const rslug = region.region_slug || "region";
+      const cities = [...(region.cities || [])].sort((a, b) => b.total_hotel - a.total_hotel);
+      for (const city of cities) {
+        urls.push(`${BASE}/hotels/${cslug}/${rslug}/${city.city_slug}`);
+      }
+    }
+  }
+  return urls;
+}
+
 async function collectCityUrls(): Promise<string[]> {
+  const countries = await loadWorldwideCountries();
+  const priorityUrls = cityUrlsFromWorldwide(countries, PRIORITY_COUNTRIES);
+  const allUrls = cityUrlsFromWorldwide(countries);
+
   const indexXml = await fetchText(`${BASE}/cities_index.xml`);
   const shardUrls = parseXmlLocs(indexXml);
-  const hotelUrls: string[] = [];
+  const sitemapCityUrls: string[] = [];
 
-  for (const shard of shardUrls.slice(0, 40)) {
+  for (const shard of shardUrls.slice(0, 80)) {
     try {
       const xml = await fetchText(shard);
       const urls = parseXmlLocs(xml).filter((u) => /\/hotels\//.test(u));
-      hotelUrls.push(...urls);
-      if (hotelUrls.length >= MAX_CITIES * 3) break;
-      await sleep(200);
+      sitemapCityUrls.push(...urls);
+      if (sitemapCityUrls.length >= MAX_CITIES * 2) break;
+      await sleep(150);
     } catch {
       /* skip shard */
     }
   }
 
-  // Prioritize major cities from homepage worldwide locations
-  const homepage = await fetchText(BASE);
-  const props = extractNextData(homepage);
-  const worldwide = props?.newWorldwideLocations as {
-    countries?: Array<{
-      country_name: string;
-      country_code: string;
-      regions?: Array<{ cities?: Array<{ city_slug: string; city_name: string; total_hotel: number }> }>;
-    }>;
-  };
-
-  const priority: string[] = [];
-  for (const country of worldwide?.countries || []) {
-    for (const region of country.regions || []) {
-      const cities = [...(region.cities || [])].sort((a, b) => b.total_hotel - a.total_hotel);
-      for (const city of cities.slice(0, 8)) {
-        priority.push(
-          `${BASE}/hotels/${country.country_name.toLowerCase().replace(/\s+/g, "-")}/${region.cities ? (region as { region_slug?: string }).region_slug || "region" : "region"}/${city.city_slug}`
-        );
-      }
-    }
-  }
-
-  // Fix priority URLs - need region_slug from data
-  const fixedPriority: string[] = [];
-  for (const country of worldwide?.countries || []) {
-    const cslug = country.country_name.toLowerCase().replace(/\s+/g, "-");
-    for (const region of country.regions || []) {
-      const rslug = (region as { region_slug?: string }).region_slug || "region";
-      const cities = [...(region.cities || [])].sort((a, b) => b.total_hotel - a.total_hotel);
-      for (const city of cities.slice(0, 5)) {
-        fixedPriority.push(`${BASE}/hotels/${cslug}/${rslug}/${city.city_slug}`);
-      }
-    }
-  }
-
-  const unique = [...new Set([...fixedPriority, ...hotelUrls])];
+  const unique = [...new Set([...priorityUrls, ...allUrls, ...sitemapCityUrls])];
+  console.log(`  ${priorityUrls.length} priority cities (${PRIORITY_COUNTRIES.join(",")}), ${unique.length} total unique`);
   return unique.slice(0, MAX_CITIES);
+}
+
+async function scrapeHotelSitemap(map: Map<string, ScrapedOffer>) {
+  if (SITEMAP_SHARDS <= 0) return;
+
+  console.log(`→ Hotel sitemap (max ${SITEMAP_SHARDS} shards, Thailand keywords) …`);
+  const indexXml = await fetchText(`${BASE}/hotels_index.xml`);
+  const shards = parseXmlLocs(indexXml).slice(0, SITEMAP_SHARDS);
+  let added = 0;
+
+  for (const shard of shards) {
+    try {
+      const xml = await fetchText(shard);
+      for (const url of parseXmlLocs(xml)) {
+        const slug = url.split("/hotel/")[1] || "";
+        const isThailand = THAILAND_SLUG_KEYWORDS.some((kw) => slug.includes(kw));
+        if (!isThailand) continue;
+        const before = map.size;
+        mergeOffers(map, hotelFromSitemapUrl(url));
+        if (map.size > before) added++;
+      }
+      await sleep(120);
+    } catch {
+      /* skip */
+    }
+  }
+  console.log(`  +${added} hotels from sitemap (${map.size} unique)`);
 }
 
 async function scrapeCityPage(url: string, map: Map<string, ScrapedOffer>): Promise<number> {
@@ -313,12 +355,24 @@ async function enrichMissingImages(map: Map<string, ScrapedOffer>) {
   console.log(`  ${resolved} hotel images loaded from travala.com`);
 }
 
-async function main() {
+function loadExistingOffers(): Map<string, ScrapedOffer> {
   const map = new Map<string, ScrapedOffer>();
+  if (!MERGE_EXISTING || !fs.existsSync(OUT_FILE)) return map;
+  const data = JSON.parse(fs.readFileSync(OUT_FILE, "utf8")) as { offers?: ScrapedOffer[] };
+  for (const offer of data.offers || []) {
+    if (offer.sourceKey) map.set(offer.sourceKey, offer);
+  }
+  console.log(`→ Merged ${map.size} existing offers from ${OUT_FILE}`);
+  return map;
+}
+
+async function main() {
+  const map = loadExistingOffers();
   const start = Date.now();
 
   await scrapeHomepage(map);
   await scrapeCities(map);
+  await scrapeHotelSitemap(map);
   if (ENRICH_IMAGES > 0) await enrichMissingImages(map);
   await scrapeFlights(map);
   generateCarsAndActivities(map);

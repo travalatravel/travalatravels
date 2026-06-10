@@ -1,3 +1,5 @@
+import { travalaApiHeaders } from "./travala-headers";
+
 export type SuggestionKind =
   | "airport"
   | "city"
@@ -172,11 +174,7 @@ export async function fetchTravalaSuggestions(
   });
 
   const res = await fetch(`https://api.travala.com/suggestion/v2/autocomplete?${params}`, {
-    headers: {
-      Accept: "application/json",
-      platformVersion: "web",
-      "User-Agent": "Mozilla/5.0 (compatible; TravalaClone/1.0)",
-    },
+    headers: travalaApiHeaders(),
     next: { revalidate: 3600 },
   });
 

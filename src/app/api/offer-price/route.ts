@@ -56,7 +56,7 @@ export async function GET(request: Request) {
       rooms,
       guests,
       available: true,
-      note: "Live pricing is only available for hotels via travala.com",
+      note: "Live pricing is only available for hotels",
     } satisfies LivePriceResult & { note?: string });
   }
 
@@ -92,6 +92,6 @@ export async function GET(request: Request) {
     rooms,
     guests,
     available: false,
-    note: "Could not fetch live price from travala.com",
+    note: "Could not fetch live price",
   } satisfies LivePriceResult & { note?: string });
 }

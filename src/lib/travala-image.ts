@@ -1,4 +1,5 @@
 import type { OfferType } from "@/lib/types";
+import { travalaHtmlHeaders } from "./travala-headers";
 
 const TRAVALA_BASE = "https://www.travala.com";
 
@@ -42,10 +43,7 @@ async function fetchTravalaHtml(pathOrUrl: string): Promise<string | null> {
     : `${TRAVALA_BASE}${pathOrUrl.startsWith("/") ? pathOrUrl : `/${pathOrUrl}`}`;
 
   const res = await fetch(url, {
-    headers: {
-      "User-Agent": "Mozilla/5.0 (compatible; TravalaClone/1.0)",
-      Accept: "text/html",
-    },
+    headers: travalaHtmlHeaders(),
     next: { revalidate: 86400 },
   });
   if (!res.ok) return null;
