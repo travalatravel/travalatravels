@@ -215,6 +215,8 @@ const de: DeepPartial<Messages> = {
     editGuestDetails: "Gastdaten bearbeiten",
     enterTripDetails: "Reisedaten eingeben",
     continueToPayment: "Weiter zur Zahlung",
+    guestCheckoutHint:
+      "Kein Konto nötig — Passagierdaten eingeben, Kryptowährung wählen und im nächsten Schritt bezahlen.",
     creatingBooking: "Buchung wird erstellt…",
     bookingForTitle: "Für wen ist diese Buchung?",
     bookingForSubtitle: "Privatreise oder Buchung im Namen eines Unternehmens.",

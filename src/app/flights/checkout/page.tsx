@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import SiteChrome from "@/components/SiteChrome";
@@ -10,27 +10,15 @@ import FlightBundleSummary from "@/components/FlightBundleSummary";
 import { useFlightOffer } from "@/hooks/useFlightOffer";
 import { parseBundleHotelFromParams } from "@/lib/flight-hotel-bundle";
 import { normalizeFlightPayload, flightRouteLabel } from "@/lib/flight-route";
-import { useAuth } from "@/context/AuthContext";
 import { useTranslations } from "@/i18n/useTranslations";
-import { CRYPTO_PAYMENT_METHODS } from "@/lib/payments";
 
 function CheckoutContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const { messages: m } = useTranslations();
   const c = m.checkout;
-  const { user, loading: authLoading } = useAuth();
   const { flight, token, loading: offerLoading } = useFlightOffer(searchParams);
-  const paymentMethodParam = searchParams.get("paymentMethod") || "";
   const [systemOfferId, setSystemOfferId] = useState<string | null>(null);
   const bundleHotel = parseBundleHotelFromParams(searchParams);
-
-  useEffect(() => {
-    if (authLoading || offerLoading) return;
-    if (!user && token) {
-      router.push(`/login?redirect=${encodeURIComponent(`/flights/checkout?${searchParams.toString()}`)}`);
-    }
-  }, [user, authLoading, offerLoading, router, token, searchParams]);
 
   useEffect(() => {
     fetch("/api/flights/system-offer")
@@ -39,7 +27,7 @@ function CheckoutContent() {
       .catch(() => setSystemOfferId(null));
   }, []);
 
-  if (authLoading || offerLoading || !flight) {
+  if (offerLoading || !flight) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2D83C2] border-t-transparent" />
@@ -96,6 +84,7 @@ function CheckoutContent() {
         <h1 className="mt-1 text-2xl font-bold text-[#1a1a1a] md:text-3xl">
           {bundleHotel ? c.enterTripDetails : m.common.enterPassengerDetails}
         </h1>
+        <p className="mt-2 text-sm text-slate-500">{c.guestCheckoutHint}</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
@@ -116,13 +105,6 @@ function CheckoutContent() {
             bundleHotelCheckOut={bundleHotel?.checkOut}
             bundleHotelRooms={bundleHotel?.rooms}
             bundleTotal={bundleHotel ? bundleTotal : undefined}
-            initialPaymentMethod={
-              CRYPTO_PAYMENT_METHODS.includes(
-                paymentMethodParam as (typeof CRYPTO_PAYMENT_METHODS)[number],
-              )
-                ? (paymentMethodParam as (typeof CRYPTO_PAYMENT_METHODS)[number])
-                : undefined
-            }
           />
         </div>
         <div className="order-1 lg:order-2 lg:col-span-1">

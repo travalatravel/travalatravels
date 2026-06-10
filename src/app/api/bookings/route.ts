@@ -12,6 +12,7 @@ import { fetchLiveHotelPrice } from "@/lib/travala-price";
 import { travalaSlugFromOffer } from "@/lib/travala-image";
 import { BUNDLE_HOTEL_EXTRA_DISCOUNT_PCT } from "@/lib/flight-hotel-bundle";
 import { guestDetailsSchema } from "@/lib/booking-guest";
+import { createBookingAccessToken, resolveBookingUserId } from "@/lib/booking-access";
 
 const bookingSchema = z
   .object({
@@ -38,13 +39,15 @@ const bookingSchema = z
 
 export async function POST(request: Request) {
   const user = await getSessionFromRequest(request);
-  if (!user) {
-    return NextResponse.json({ error: "Please log in to book" }, { status: 401 });
-  }
 
   try {
     const body = await request.json();
     const data = bookingSchema.parse(body);
+    const userId = await resolveBookingUserId(user, {
+      guestFirstName: data.guestFirstName,
+      guestLastName: data.guestLastName,
+      contactEmail: data.contactEmail,
+    });
 
     if (data.bookingType === "BUSINESS" && !data.companyName?.trim()) {
       return NextResponse.json({ error: "Company name is required for business bookings" }, { status: 400 });
@@ -185,7 +188,7 @@ export async function POST(request: Request) {
       const [flightBooking, hotelBooking] = await prisma.$transaction([
         prisma.booking.create({
           data: {
-            userId: user.id,
+            userId,
             offerId: offer.id,
             walletId: wallet.id,
             checkIn: data.checkIn ? new Date(data.checkIn) : null,
@@ -220,7 +223,7 @@ export async function POST(request: Request) {
         }),
         prisma.booking.create({
           data: {
-            userId: user.id,
+            userId,
             offerId: hotelOffer.id,
             walletId: wallet.id,
             checkIn: new Date(data.bundleHotelCheckIn!),
@@ -266,16 +269,22 @@ export async function POST(request: Request) {
         }),
       ]);
 
+      const accessToken = await createBookingAccessToken([
+        flightBooking.id,
+        hotelBooking.id,
+      ]);
+
       return NextResponse.json({
         booking: flightBooking,
         bundleBookingId: hotelBooking.id,
         bundleTotal: flightTotal + hotelTotal,
+        accessToken,
       });
     }
 
     const booking = await prisma.booking.create({
       data: {
-        userId: user.id,
+        userId,
         offerId: offer.id,
         walletId: wallet.id,
         checkIn: data.checkIn ? new Date(data.checkIn) : null,
@@ -295,7 +304,9 @@ export async function POST(request: Request) {
       include: { offer: true, wallet: true },
     });
 
-    return NextResponse.json({ booking });
+    const accessToken = await createBookingAccessToken([booking.id]);
+
+    return NextResponse.json({ booking, accessToken });
   } catch (err) {
     if (err instanceof z.ZodError) {
       return NextResponse.json({ error: err.issues[0].message }, { status: 400 });

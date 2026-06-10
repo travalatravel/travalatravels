@@ -58,7 +58,6 @@ export default function BookingCheckoutForm({
   bundleHotelCheckOut,
   bundleHotelRooms,
   bundleTotal,
-  initialPaymentMethod,
 }: {
   offer: Offer;
   checkIn: string;
@@ -78,7 +77,6 @@ export default function BookingCheckoutForm({
   bundleHotelCheckOut?: string;
   bundleHotelRooms?: number;
   bundleTotal?: number;
-  initialPaymentMethod?: (typeof CRYPTO_PAYMENT_METHODS)[number];
 }) {
   const router = useRouter();
   const { user } = useAuth();
@@ -457,11 +455,9 @@ export default function BookingCheckoutForm({
       </Section>
       )}
 
-      {!isFlight && (
-        <Section title={m.common.paymentMethod} subtitle={m.common.gatewayName}>
-          <CryptoMethodPicker value={paymentMethod} onChange={setPaymentMethod} />
-        </Section>
-      )}
+      <Section title={m.common.paymentMethod} subtitle={m.common.gatewayName}>
+        <CryptoMethodPicker value={paymentMethod} onChange={setPaymentMethod} />
+      </Section>
 
       {error && (
         <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>

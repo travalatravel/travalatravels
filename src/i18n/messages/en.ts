@@ -429,6 +429,8 @@ const en = {
     editGuestDetails: "Edit guest details",
     enterTripDetails: "Enter details for your trip",
     continueToPayment: "Continue to payment",
+    guestCheckoutHint:
+      "No account required — enter passenger details, choose crypto, then pay on the next step.",
     creatingBooking: "Creating booking…",
     bookingForTitle: "Who is this booking for?",
     bookingForSubtitle: "Select whether you are travelling privately or booking on behalf of a company.",

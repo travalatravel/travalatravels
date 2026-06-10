@@ -9,9 +9,6 @@ import FlightHotelBundle from "@/components/FlightHotelBundle";
 import FlightBundleSummary from "@/components/FlightBundleSummary";
 import { getFlightPricing } from "@/lib/flight-pricing";
 import { formatUsd } from "@/lib/pricing";
-import { useAuth } from "@/context/AuthContext";
-import CryptoMethodPicker from "@/components/CryptoMethodPicker";
-import { CRYPTO_PAYMENT_METHODS } from "@/lib/payments";
 import { useFlightOffer } from "@/hooks/useFlightOffer";
 import { appendBundleHotelParams, type BundleHotelSelection } from "@/lib/flight-hotel-bundle";
 import { useTranslations } from "@/i18n/useTranslations";
@@ -52,10 +49,8 @@ function splitFlightSegments(flight: FlightTokenPayload) {
 function FlightOfferContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { user } = useAuth();
   const { messages: m, fmt } = useTranslations();
   const { flight, token, loading } = useFlightOffer(searchParams);
-  const [paymentMethod, setPaymentMethod] = useState<(typeof CRYPTO_PAYMENT_METHODS)[number]>("CRYPTO_BTC");
   const [selectedHotel, setSelectedHotel] = useState<BundleHotelSelection | null>(null);
 
   const addHotel = searchParams.get("addHotel") === "1";
@@ -85,7 +80,7 @@ function FlightOfferContent() {
   const pax = flight.adults + flight.children + flight.infants;
   const { outbound: outboundSegments, return: returnSegments } = splitFlightSegments(flight);
   const buildCheckoutUrl = () => {
-    const qs = new URLSearchParams({ token, paymentMethod });
+    const qs = new URLSearchParams({ token });
     if (selectedHotel) {
       qs.set("hotelTitle", selectedHotel.title);
       appendBundleHotelParams(qs, selectedHotel);
@@ -94,12 +89,7 @@ function FlightOfferContent() {
   };
 
   const handleContinue = () => {
-    const checkoutUrl = buildCheckoutUrl();
-    if (!user) {
-      router.push(`/login?redirect=${encodeURIComponent(checkoutUrl)}`);
-      return;
-    }
-    router.push(checkoutUrl);
+    router.push(buildCheckoutUrl());
   };
 
   const backHref = (() => {
@@ -203,13 +193,6 @@ function FlightOfferContent() {
             ))}
           </section>
 
-          <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
-            <h2 className="text-lg font-bold text-[#1a1a1a]">{m.common.paymentMethod}</h2>
-            <p className="mt-1 text-sm text-gray-500">{m.common.gatewayName}</p>
-            <div className="mt-4">
-              <CryptoMethodPicker value={paymentMethod} onChange={setPaymentMethod} />
-            </div>
-          </section>
         </div>
 
         <div>
@@ -222,7 +205,7 @@ function FlightOfferContent() {
                   onClick={handleContinue}
                   className="w-full min-h-12 rounded-xl bg-[#2D83C2] py-3.5 text-sm font-bold text-white hover:bg-[#1a5f94]"
                 >
-                  {user ? m.common.continuePassengers : m.searchPage.logInToBook}
+                  {m.common.continuePassengers}
                 </button>
               </div>
             </div>
@@ -243,7 +226,7 @@ function FlightOfferContent() {
                   onClick={handleContinue}
                   className="mt-5 w-full min-h-12 rounded-xl bg-[#2D83C2] py-3.5 text-sm font-bold text-white hover:bg-[#1a5f94]"
                 >
-                  {user ? m.common.continuePassengers : m.searchPage.logInToBook}
+                  {m.common.continuePassengers}
                 </button>
                 <p className="mt-2 text-center text-[10px] text-gray-400">{m.common.fareRules}</p>
               </div>
