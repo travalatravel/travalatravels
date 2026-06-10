@@ -7,6 +7,7 @@ import type { CabinClass, TripType } from "./flight-types";
 const HOST = process.env.RAPIDAPI_FLIGHT_HOST || "sky-scrapper.p.rapidapi.com";
 
 type AirportRef = { skyId: string; entityId: string };
+type SkyRecord = Record<string, unknown>;
 const airportCache = new Map<string, AirportRef>();
 
 /** Well-known Skyscanner IDs — avoids extra searchAirport requests */
@@ -23,6 +24,17 @@ const KNOWN_AIRPORTS: Record<string, AirportRef> = {
   AMS: { skyId: "AMSA", entityId: "27534067" },
   BCN: { skyId: "BCNA", entityId: "27548283" },
   SYD: { skyId: "SYDA", entityId: "27546111" },
+  BER: { skyId: "BER", entityId: "95673383" },
+  MUC: { skyId: "MUC", entityId: "95673491" },
+  ROM: { skyId: "ROMA", entityId: "27539793" },
+  MAD: { skyId: "MADR", entityId: "27544856" },
+  IST: { skyId: "ISTA", entityId: "27536470" },
+  VIE: { skyId: "VIE", entityId: "95673577" },
+  ZRH: { skyId: "ZRHA", entityId: "27547066" },
+  CPH: { skyId: "CPHA", entityId: "27534118" },
+  DUB: { skyId: "DUBL", entityId: "27540839" },
+  HKG: { skyId: "HKGA", entityId: "27536566" },
+  SEL: { skyId: "SELA", entityId: "27542089" },
 };
 
 function configured() {
@@ -34,6 +46,24 @@ function headers() {
     "X-RapidAPI-Host": HOST,
     "X-RapidAPI-Key": process.env.RAPIDAPI_KEY!,
   };
+}
+
+function parseAirportSearchResult(item: unknown): AirportRef | null {
+  if (!item || typeof item !== "object") return null;
+  const row = item as SkyRecord;
+
+  const params = (row.navigation as SkyRecord | undefined)?.relevantFlightParams as
+    | SkyRecord
+    | undefined;
+  if (params?.skyId && params?.entityId) {
+    return { skyId: String(params.skyId), entityId: String(params.entityId) };
+  }
+
+  if (row.skyId && row.entityId) {
+    return { skyId: String(row.skyId), entityId: String(row.entityId) };
+  }
+
+  return null;
 }
 
 async function resolveAirport(keyword: string, iataCode: string): Promise<AirportRef | null> {
@@ -56,12 +86,9 @@ async function resolveAirport(keyword: string, iataCode: string): Promise<Airpor
   try {
     const res = await fetch(url, { headers: headers() });
     if (!res.ok) return null;
-    const json = (await res.json()) as {
-      data?: Array<{ skyId?: string; entityId?: string }>;
-    };
-    const first = json.data?.[0];
-    if (!first?.skyId || !first?.entityId) return null;
-    const ref = { skyId: first.skyId, entityId: first.entityId };
+    const json = (await res.json()) as { data?: unknown[] };
+    const ref = parseAirportSearchResult(json.data?.[0]);
+    if (!ref) return null;
     airportCache.set(cacheKey, ref);
     return ref;
   } catch {
@@ -81,8 +108,6 @@ function parseDuration(raw: string | number | undefined): string {
   if (hm) return `${hm[1]}h ${hm[2] || "0"}m`;
   return s;
 }
-
-type SkyRecord = Record<string, unknown>;
 
 function skyTime(value: unknown): string {
   if (typeof value === "string") return value;

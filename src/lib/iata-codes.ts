@@ -25,6 +25,7 @@ const CITY_IATA: Record<string, string> = {
   toronto: "YTO",
   vancouver: "YVR",
   berlin: "BER",
+  münchen: "MUC",
   munich: "MUC",
   vienna: "VIE",
   zurich: "ZRH",
