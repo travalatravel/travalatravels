@@ -63,8 +63,14 @@ function FlightSearchResults() {
   const infants = Math.max(0, parseInt(searchParams.get("infants") || "0", 10));
   const addHotel = searchParams.get("addHotel") === "1";
   const pickReturn = searchParams.get("pickReturn") === "1";
-  const outboundToken =
-    searchParams.get("outboundToken") || (pickReturn ? readOutboundToken() : "");
+  const [storedOutbound, setStoredOutbound] = useState("");
+  useEffect(() => {
+    if (pickReturn) setStoredOutbound(readOutboundToken());
+    else setStoredOutbound("");
+  }, [pickReturn]);
+  const outboundToken = pickReturn
+    ? storedOutbound || searchParams.get("outboundToken") || ""
+    : searchParams.get("outboundToken") || "";
   const isRoundtripSelect = trip === "roundtrip" && Boolean(returnDate);
   const selectionLeg = !isRoundtripSelect
     ? null
@@ -121,7 +127,20 @@ function FlightSearchResults() {
     if (selectionLeg === "outbound") params.set("leg", "outbound");
     if (selectionLeg === "return") params.set("leg", "return");
 
-    fetch(`/api/flights/search?${params}`)
+    const controller = new AbortController();
+
+    fetch(`/api/flights/search?${params}&prefer=market`, { signal: controller.signal })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.flights?.length) {
+          setLiveFlights(data.flights);
+          setFlightSource("market");
+          setLoading(false);
+        }
+      })
+      .catch(() => {});
+
+    fetch(`/api/flights/search?${params}`, { signal: controller.signal })
       .then((r) => r.json())
       .then((data) => {
         if (data.error) setFlightError(data.error);
@@ -129,10 +148,16 @@ function FlightSearchResults() {
         setFlightSource(data.source || null);
       })
       .catch(() => {
-        setLiveFlights([]);
-        setFlightError(m.searchPage.noFlightsFound);
+        if (!controller.signal.aborted) {
+          setLiveFlights([]);
+          setFlightError(m.searchPage.noFlightsFound);
+        }
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+
+    return () => controller.abort();
   }, [
     canLiveSearch,
     from,

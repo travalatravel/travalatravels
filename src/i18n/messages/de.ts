@@ -78,6 +78,7 @@ const de: DeepPartial<Messages> = {
     passengersCabinLine: "{count} {passengerLabel}, {cabin}",
     closeGuestSelector: "Gästeauswahl schließen",
     closePassengerSelector: "Passagierauswahl schließen",
+    topInternationalCities: "Top-Städte international",
     mobileSearch: {
       searchAirport: "Flughafen suchen",
       searchPlaces: "Orte oder Unterkünfte suchen",

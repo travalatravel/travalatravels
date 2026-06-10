@@ -198,6 +198,7 @@ const en = {
     passengersCabinLine: "{count} {passengerLabel}, {cabin}",
     closeGuestSelector: "Close guest selector",
     closePassengerSelector: "Close passenger selector",
+    topInternationalCities: "Top international cities",
     mobileSearch: {
       searchAirport: "Search Airport",
       searchPlaces: "Search for Places or Properties",

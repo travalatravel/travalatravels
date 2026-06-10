@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { filterPopularAirports } from "@/data/popular-airports";
 import { suggestSkyScrapperAirports } from "@/lib/sky-scrapper-airports";
 
 export async function GET(request: Request) {
@@ -8,7 +9,10 @@ export async function GET(request: Request) {
   const locale = searchParams.get("locale") || "en-US";
 
   if (q.trim().length < 2) {
-    return NextResponse.json({ suggestions: [] });
+    return NextResponse.json(
+      { suggestions: filterPopularAirports(q, limit) },
+      { headers: { "Cache-Control": "public, max-age=86400" } },
+    );
   }
 
   try {

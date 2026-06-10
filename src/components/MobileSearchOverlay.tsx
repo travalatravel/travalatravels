@@ -101,11 +101,17 @@ export default function MobileSearchOverlay({
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto">
-        {loading && suggestions.length === 0 && query.trim().length >= 1 && (
+        {!query.trim() && suggestions.length > 0 && (
+          <p className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+            {m.search.topInternationalCities}
+          </p>
+        )}
+
+        {loading && suggestions.length === 0 && query.trim().length >= 2 && (
           <p className="px-4 py-6 text-sm text-gray-500">{m.common.searching}</p>
         )}
 
-        {!loading && suggestions.length === 0 && query.trim().length >= 1 && (
+        {!loading && suggestions.length === 0 && query.trim().length >= 2 && (
           <p className="px-4 py-6 text-sm text-gray-500">{fmt(m.common.noResults, { query })}</p>
         )}
 

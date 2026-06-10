@@ -92,6 +92,6 @@ export function tokenFromOffer(
     adults: pax.adults,
     children: pax.children,
     infants: pax.infants,
-    segments: offer.segments,
+    segments: offer.segments || [],
   });
 }

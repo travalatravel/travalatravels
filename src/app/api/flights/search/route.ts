@@ -30,6 +30,7 @@ export async function GET(request: Request) {
   const infants = Math.max(0, parseInt(searchParams.get("infants") || "0", 10));
   const sort = searchParams.get("sort") || "price-asc";
   const leg = searchParams.get("leg") || "";
+  const prefer = searchParams.get("prefer") || "";
 
   const fromCode = resolveIataCode(from, fromCodeHint);
   const toCode = resolveIataCode(to, toCodeHint);
@@ -85,6 +86,25 @@ export async function GET(request: Request) {
       trip: "oneway",
       returnDate: undefined,
     };
+  }
+
+  if (prefer === "market") {
+    const flights = generateMarketFlights(searchInput);
+    if (sort === "price-desc") {
+      flights.sort((a, b) => b.salePrice - a.salePrice);
+    } else {
+      flights.sort((a, b) => a.salePrice - b.salePrice);
+    }
+    return NextResponse.json({
+      flights,
+      total: flights.length,
+      source: "market",
+      liveConfigured: skyScrapperConfigured(),
+      fromCode,
+      toCode,
+      leg: leg || null,
+      discountPct: 30,
+    });
   }
 
   let flights: LiveFlightOffer[] = [];

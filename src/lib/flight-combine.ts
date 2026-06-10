@@ -50,6 +50,6 @@ export function combineRoundtripTokens(
     adults: out.adults,
     children: out.children,
     infants: out.infants,
-    segments: [...out.segments, ...ret.segments],
+    segments: [...(out.segments || []), ...(ret.segments || [])],
   });
 }

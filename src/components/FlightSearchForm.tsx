@@ -9,7 +9,8 @@ import MobileSearchOverlay from "./MobileSearchOverlay";
 import type { SearchSuggestion } from "@/lib/travala-suggest";
 import { ASSETS } from "@/data/site-data";
 import { buildFlightSearchQuery } from "@/lib/flight-display";
-import { clearOutboundToken } from "@/lib/flight-selection-storage";
+import { clearOutboundToken, clearOfferToken } from "@/lib/flight-selection-storage";
+import { filterPopularAirports } from "@/data/popular-airports";
 import type { CabinClass, TripType } from "@/lib/flight-types";
 import { useTranslations } from "@/i18n/useTranslations";
 import { LOCALE_BCP47 } from "@/i18n/config";
@@ -121,7 +122,7 @@ export default function FlightSearchForm({
   const fetchSuggestions = useCallback(async (value: string) => {
     const trimmed = value.trim();
     if (trimmed.length < 2) {
-      setSuggestions([]);
+      setSuggestions(filterPopularAirports(trimmed, 12));
       setSuggestLoading(false);
       return;
     }
@@ -188,7 +189,8 @@ export default function FlightSearchForm({
   const openField = (field: AirportField, current: string) => {
     setActiveField(field);
     setFieldQuery(current);
-    setSuggestions([]);
+    setSuggestions(filterPopularAirports(current.trim(), 12));
+    setSuggestLoading(false);
   };
 
   const openMobileAirport = (field: AirportField, current: string) => {
@@ -206,6 +208,10 @@ export default function FlightSearchForm({
   const handleFieldQueryChange = (value: string) => {
     setFieldQuery(value);
     if (activeField) clearFieldSky(activeField);
+    if (!value.trim()) {
+      setSuggestions(filterPopularAirports("", 12));
+      setSuggestLoading(false);
+    }
   };
 
   const selectSuggestion = (item: SearchSuggestion) => {

@@ -48,7 +48,7 @@ export default function SearchSuggestions({
   const { messages: m, fmt } = useTranslations();
   const kindLabels = m.suggestionKinds;
 
-  if (!query.trim()) return null;
+  if (!query.trim() && suggestions.length === 0) return null;
 
   return (
     <div
@@ -56,11 +56,17 @@ export default function SearchSuggestions({
       role="listbox"
       aria-label={m.common.search}
     >
-      {loading && suggestions.length === 0 && (
+      {!query.trim() && suggestions.length > 0 && (
+        <p className="px-4 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+          {m.search.topInternationalCities}
+        </p>
+      )}
+
+      {loading && suggestions.length === 0 && query.trim().length >= 2 && (
         <p className="px-4 py-3 text-sm text-gray-500">{m.common.searching}</p>
       )}
 
-      {!loading && suggestions.length === 0 && query.trim().length >= 1 && (
+      {!loading && suggestions.length === 0 && query.trim().length >= 2 && (
         <p className="px-4 py-3 text-sm text-gray-500">{fmt(m.common.noResults, { query })}</p>
       )}
 

@@ -7,7 +7,7 @@ import type { FlightLeg, LiveFlightOffer } from "@/lib/live-flight-types";
 import { getFlightPricing } from "@/lib/flight-pricing";
 import { buildFlightOfferHref, type FlightOfferSearchContext } from "@/lib/flight-offer-link";
 import { combineRoundtripTokens } from "@/lib/flight-combine";
-import { saveOutboundToken, readOutboundToken } from "@/lib/flight-selection-storage";
+import { saveOutboundToken, readOutboundToken, saveOfferToken } from "@/lib/flight-selection-storage";
 import { tokenFromOffer } from "@/lib/flight-token";
 import { formatUsd } from "@/lib/pricing";
 import { useTranslations } from "@/i18n/useTranslations";
@@ -202,8 +202,9 @@ export default function LiveFlightResultCard({
       if (!returnTok) return;
       const combined = combineRoundtripTokens(outTok, returnTok);
       if (!combined) return;
+      saveOfferToken(combined);
       const params = new URLSearchParams({
-        token: combined,
+        tokenRef: "1",
         from: searchContext.from,
         to: searchContext.to,
         fromCode: searchContext.fromCode || outbound.fromCode,
@@ -217,7 +218,11 @@ export default function LiveFlightResultCard({
       });
       if (searchContext.returnDate) params.set("return", searchContext.returnDate);
       if (searchContext.addHotel) params.set("addHotel", "1");
-      router.push(`/flights/offer?${params.toString()}`);
+      const href = `/flights/offer?${params.toString()}`;
+      router.push(href);
+      window.setTimeout(() => {
+        if (window.location.pathname === "/search") window.location.assign(href);
+      }, 400);
     }
   };
 

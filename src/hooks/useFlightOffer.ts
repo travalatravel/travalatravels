@@ -4,18 +4,21 @@ import { useEffect, useState } from "react";
 import type { ReadonlyURLSearchParams } from "next/navigation";
 import { decodeFlightToken, type FlightTokenPayload } from "@/lib/flight-token";
 import { normalizeFlightPayload } from "@/lib/flight-route";
+import { readOfferToken } from "@/lib/flight-selection-storage";
 
 export function useFlightOffer(searchParams: ReadonlyURLSearchParams) {
   const tokenParam = searchParams.get("token") || "";
+  const tokenRef = searchParams.get("tokenRef") === "1";
   const id = searchParams.get("id") || "";
   const [flight, setFlight] = useState<FlightTokenPayload | null>(null);
   const [token, setToken] = useState(tokenParam);
-  const [loading, setLoading] = useState(Boolean(id || tokenParam));
+  const [loading, setLoading] = useState(Boolean(id || tokenParam || tokenRef));
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (tokenParam) {
-      const decoded = decodeFlightToken(tokenParam);
+    const resolvedToken = tokenParam || (tokenRef ? readOfferToken() : "");
+    if (resolvedToken) {
+      const decoded = decodeFlightToken(resolvedToken);
       setFlight(decoded ? normalizeFlightPayload(decoded) : null);
       setToken(tokenParam);
       setError(decoded ? "" : "Invalid flight token");
@@ -48,7 +51,7 @@ export function useFlightOffer(searchParams: ReadonlyURLSearchParams) {
 
     setFlight(null);
     setLoading(false);
-  }, [id, tokenParam, searchParams.toString()]);
+  }, [id, tokenParam, tokenRef, searchParams.toString()]);
 
   return { flight, token, loading, error };
 }
