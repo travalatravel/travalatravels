@@ -1,6 +1,7 @@
 import type { Messages } from "./en";
+import type { DeepPartial } from "../merge";
 
-const es: Partial<Messages> = {
+const es: DeepPartial<Messages> = {
   nav: { stays: "Alojamientos", flights: "Vuelos", carRental: "Alquiler de coches", activities: "Actividades", badgeNew: "¡NUEVO!" },
   auth: {
     login: "Iniciar sesión", register: "Registrarse", logout: "Cerrar sesión", myTrips: "Mis viajes",

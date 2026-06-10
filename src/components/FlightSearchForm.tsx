@@ -14,7 +14,10 @@ import { useTranslations } from "@/i18n/useTranslations";
 import { LOCALE_BCP47 } from "@/i18n/config";
 import {
   formatDesktopDate,
-  MobileDateRange,
+  MobileDateCards,
+  MobileSearchCard,
+  MobileSearchIcon,
+  MobileUserIcon,
   DesktopDateButton,
   SearchFormPanel,
   SearchFormShell,
@@ -241,22 +244,15 @@ export default function FlightSearchForm({
     className = "",
   ) => (
     <div
-      className={`relative z-20 min-w-0 overflow-visible rounded-xl bg-[#eef3f8] px-4 py-3 lg:border-0 lg:bg-transparent lg:px-0 lg:py-0 ${className}`}
+      className={`relative z-20 min-w-0 overflow-visible lg:border-0 lg:bg-transparent lg:px-0 lg:py-0 ${className}`}
     >
-      <button
-        type="button"
+      <MobileSearchCard
+        icon={<MobileSearchIcon />}
         onClick={() => openMobileAirport(field, value)}
-        className="w-full text-left lg:hidden"
-      >
-        <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">{label}</span>
-        <span
-          className={`mt-1 block min-h-[44px] text-base font-semibold ${
-            value ? "text-[#1a1a1a]" : "font-normal text-gray-400"
-          }`}
-        >
-          {value || m.common.cityOrAirport}
-        </span>
-      </button>
+        label={label}
+        primary={value || undefined}
+        placeholder={m.common.cityOrAirport}
+      />
       <label className="hidden text-[10px] font-semibold uppercase tracking-wide text-gray-500 lg:block">{label}</label>
       <input
         type="text"
@@ -316,13 +312,13 @@ export default function FlightSearchForm({
 
   const flightRow = (
     <div className={`flex flex-col gap-3 ${isHero ? "lg:flex-row lg:items-stretch lg:flex-wrap" : ""}`}>
-      <div className={`relative flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-end sm:gap-2 ${isHero ? "lg:min-w-[280px]" : ""}`}>
+      <div className={`relative flex min-w-0 flex-1 flex-col gap-3 lg:flex-row lg:items-end lg:gap-2 ${isHero ? "lg:min-w-[280px]" : ""}`}>
         {airportInput("from", m.search.flyingFrom, from, setFrom, "flex-1")}
         <button
           type="button"
           onClick={swapAirports}
           aria-label={m.search.swapAirports}
-          className="mx-auto flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gray-200 text-[#2D83C2] hover:bg-[#eef5fc] sm:mb-0.5 sm:h-9 sm:w-9"
+          className="mx-auto flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gray-200 text-[#2D83C2] hover:bg-[#eef5fc] lg:mb-0.5"
         >
           <ArrowLeftRight size={16} />
         </button>
@@ -330,33 +326,24 @@ export default function FlightSearchForm({
       </div>
 
       <div className={`min-w-0 ${isHero ? "w-full lg:w-auto" : "w-full"}`}>
-        {trip === "roundtrip" ? (
-          <MobileDateRange
-            checkIn={depart}
-            checkOut={returnDate}
-            checkInLabel={m.common.depart}
-            checkOutLabel={m.common.return}
-            locale={dateLocale}
-            onCheckInClick={() => departRef.current?.showPicker?.() ?? departRef.current?.focus()}
-            onCheckOutClick={() => returnRef.current?.showPicker?.() ?? returnRef.current?.focus()}
-            checkInInput={
-              <input ref={departRef} type="date" value={depart} onChange={(e) => setDepart(e.target.value)} className="sr-only" tabIndex={-1} />
-            }
-            checkOutInput={
-              <input ref={returnRef} type="date" value={returnDate} min={depart} onChange={(e) => setReturnDate(e.target.value)} className="sr-only" tabIndex={-1} />
-            }
-          />
-        ) : (
-          <label className="flex min-h-[72px] w-full flex-col justify-center rounded-xl bg-[#eef3f8] px-4 py-3 lg:hidden">
-            <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">{m.common.depart}</span>
-            <input
-              type="date"
-              value={depart}
-              onChange={(e) => setDepart(e.target.value)}
-              className="mt-1 w-full bg-transparent text-base font-semibold text-[#1a1a1a] outline-none"
-            />
-          </label>
-        )}
+        <MobileDateCards
+          checkIn={depart}
+          checkOut={returnDate}
+          checkInLabel={m.common.depart}
+          checkOutLabel={m.common.return}
+          locale={dateLocale}
+          showCheckOut={trip === "roundtrip"}
+          checkInFallback={selectDateLabel}
+          checkOutFallback={selectDateLabel}
+          onCheckInClick={() => departRef.current?.showPicker?.() ?? departRef.current?.focus()}
+          onCheckOutClick={() => returnRef.current?.showPicker?.() ?? returnRef.current?.focus()}
+          checkInInput={
+            <input ref={departRef} type="date" value={depart} onChange={(e) => setDepart(e.target.value)} className="sr-only" tabIndex={-1} />
+          }
+          checkOutInput={
+            <input ref={returnRef} type="date" value={returnDate} min={depart} onChange={(e) => setReturnDate(e.target.value)} className="sr-only" tabIndex={-1} />
+          }
+        />
         <div className="hidden lg:flex">
           <DesktopDateButton
             label={m.common.depart}
@@ -441,7 +428,7 @@ export default function FlightSearchForm({
             <button
               type="button"
               onClick={() => setPaxOpen(false)}
-              className="mt-4 w-full rounded-xl bg-[#9eb8f5] py-3 text-sm font-bold uppercase text-[#1E2E5E] lg:hidden"
+              className="mt-4 w-full rounded-lg bg-[#2577be] py-3 text-sm font-semibold text-white lg:hidden"
             >
               {m.common.donePassengers}
             </button>
@@ -455,7 +442,7 @@ export default function FlightSearchForm({
   );
 
   const addHotelRow = (
-    <label className={`flex cursor-pointer items-center gap-2 text-sm text-gray-600 ${isHero ? "mt-4 px-4 pb-4 lg:px-6 lg:pb-5" : "mt-3"}`}>
+    <label className={`flex cursor-pointer items-center gap-2 text-sm text-gray-600 ${isHero ? "px-[15px] pb-[15px] lg:mt-4 lg:px-6 lg:pb-5" : "mt-3"}`}>
       <input type="checkbox" checked={addHotel} onChange={(e) => setAddHotel(e.target.checked)} className="accent-[#2D83C2]" />
       <Building2 size={16} className="text-[#2D83C2]" />
       {m.common.addHotel}
@@ -466,7 +453,7 @@ export default function FlightSearchForm({
     <form onSubmit={handleSearch} className="w-full min-w-0">
       <SearchFormShell isHero={isHero}>
         <SearchFormPanel isHero={isHero} tabRow={tabRow}>
-          <div className={isHero ? "p-4 lg:p-5" : ""}>
+          <div className={isHero ? "p-[15px] lg:p-5" : ""}>
             {tripRow}
             {flightRow}
           </div>

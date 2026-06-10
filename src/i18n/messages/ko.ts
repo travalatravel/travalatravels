@@ -1,6 +1,7 @@
 import type { Messages } from "./en";
+import type { DeepPartial } from "../merge";
 
-const ko: Partial<Messages> = {
+const ko: DeepPartial<Messages> = {
   nav: { stays: "숙소", flights: "항공", carRental: "렌터카", activities: "액티비티", badgeNew: "신규!" },
   auth: {
     login: "로그인", register: "가입", logout: "로그아웃", myTrips: "내 여행",

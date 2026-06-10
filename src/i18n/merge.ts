@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export function deepMerge<T>(base: T, override: Partial<T>): T {
+
+export type DeepPartial<T> = T extends object
+  ? { [K in keyof T]?: DeepPartial<T[K]> }
+  : T;
+
+export function deepMerge<T>(base: T, override: DeepPartial<T>): T {
   if (!override || typeof override !== "object") return base;
   const out = Array.isArray(base) ? ([...(base as unknown[])] as T) : ({ ...(base as object) } as T);
 

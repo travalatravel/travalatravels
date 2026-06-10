@@ -1,5 +1,5 @@
 import type { Locale } from "../config";
-import { deepMerge } from "../merge";
+import { deepMerge, type DeepPartial } from "../merge";
 import en, { type Messages } from "./en";
 import deOverrides from "./de";
 import esOverrides from "./es";
@@ -17,7 +17,7 @@ import arOverrides from "./ar";
 
 const CACHE: Partial<Record<Locale, Messages>> = { en };
 
-function build(locale: Locale, overrides: Partial<Messages>): Messages {
+function build(locale: Locale, overrides: DeepPartial<Messages>): Messages {
   return deepMerge(en, overrides);
 }
 

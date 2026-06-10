@@ -1,6 +1,7 @@
 import type { Messages } from "./en";
+import type { DeepPartial } from "../merge";
 
-const zh: Partial<Messages> = {
+const zh: DeepPartial<Messages> = {
   nav: { stays: "住宿", flights: "航班", carRental: "租车", activities: "活动", badgeNew: "新品!" },
   auth: {
     login: "登录", register: "注册", logout: "退出", myTrips: "我的行程",

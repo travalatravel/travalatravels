@@ -14,7 +14,10 @@ import { LOCALE_BCP47 } from "@/i18n/config";
 import { searchStaysPath } from "@/lib/seo-paths";
 import {
   formatDesktopDate,
-  MobileDateRange,
+  MobileDateCards,
+  MobileSearchCard,
+  MobileSearchIcon,
+  MobileUserIcon,
   DesktopDateButton,
   SearchFormPanel,
   SearchFormShell,
@@ -222,35 +225,34 @@ export default function SearchForm({
 
   const guestPicker = (
     <div ref={roomRef} className="relative w-full lg:min-w-[170px] lg:flex-1">
+      <MobileSearchCard
+        icon={<MobileUserIcon />}
+        onClick={() => setRoomOpen((v) => !v)}
+        primary={fmt(m.search.staysGuestDesktop, {
+          adults: guests,
+          adultsLabel: adultsLabel(guests),
+          children,
+          childrenLabel: childrenLabel(children),
+        })}
+        secondary={fmt(m.search.staysRoomsLine, { rooms, roomsLabel: roomsLabel(rooms) })}
+      />
       <button
         type="button"
         onClick={() => setRoomOpen((v) => !v)}
-        className="flex min-h-[52px] w-full items-center gap-3 rounded-xl bg-[#eef3f8] px-4 py-3 text-left lg:min-h-0 lg:rounded-none lg:bg-transparent lg:px-4 lg:py-3.5"
+        className="hidden min-h-0 w-full items-center gap-3 rounded-none bg-transparent px-4 py-3.5 text-left lg:flex"
       >
         <Image src={ASSETS.userIcon} alt="" width={24} height={24} className="shrink-0" unoptimized />
         <div className="min-w-0">
-          <div className="text-sm font-medium text-gray-700 lg:hidden">
-            {fmt(m.search.staysGuestMobile, {
-              rooms,
-              roomsLabel: roomsLabel(rooms),
+          <div className="text-sm font-semibold text-[#1a1a1a]">
+            {fmt(m.search.staysGuestDesktop, {
               adults: guests,
               adultsLabel: adultsLabel(guests),
               children,
               childrenLabel: childrenLabel(children),
             })}
           </div>
-          <div className="hidden lg:block">
-            <div className="text-sm font-semibold text-[#1a1a1a]">
-              {fmt(m.search.staysGuestDesktop, {
-                adults: guests,
-                adultsLabel: adultsLabel(guests),
-                children,
-                childrenLabel: childrenLabel(children),
-              })}
-            </div>
-            <div className="text-xs text-gray-500">
-              {fmt(m.search.staysRoomsLine, { rooms, roomsLabel: roomsLabel(rooms) })}
-            </div>
+          <div className="text-xs text-gray-500">
+            {fmt(m.search.staysRoomsLine, { rooms, roomsLabel: roomsLabel(rooms) })}
           </div>
         </div>
       </button>
@@ -288,7 +290,7 @@ export default function SearchForm({
             <button
               type="button"
               onClick={() => setRoomOpen(false)}
-              className="mt-4 w-full rounded-xl bg-[#9eb8f5] py-3 text-sm font-bold uppercase text-[#1E2E5E] lg:hidden"
+              className="mt-4 w-full rounded-lg bg-[#2577be] py-3 text-sm font-semibold text-white lg:hidden"
             >
               {m.common.done}
             </button>
@@ -303,20 +305,16 @@ export default function SearchForm({
       ref={containerRef}
       className={`relative z-20 min-w-0 overflow-visible ${
         isHero
-          ? "w-full rounded-xl bg-[#eef3f8] px-4 py-3 lg:flex-[1.35] lg:rounded-none lg:bg-transparent lg:px-4 lg:py-3.5"
+          ? "w-full lg:flex-[1.35] lg:rounded-none lg:bg-transparent lg:px-4 lg:py-3.5"
           : "w-full flex-1 rounded-xl border border-gray-200 bg-[#eef3f8] px-3 py-2 sm:min-w-[240px] sm:rounded-none sm:border-0 sm:bg-transparent sm:px-0 sm:py-0"
       }`}
     >
-      <button
-        type="button"
+      <MobileSearchCard
+        icon={<MobileSearchIcon />}
         onClick={() => setMobileOverlayOpen(true)}
-        className="flex min-h-[44px] w-full items-center gap-3 text-left lg:hidden"
-      >
-        <Image src={ASSETS.searchIcon} alt="" width={22} height={22} className="shrink-0" unoptimized />
-        <span className={`min-w-0 flex-1 truncate text-base font-medium ${query ? "text-[#1a1a1a]" : "text-gray-400"}`}>
-          {query || m.search.placeholders.stays}
-        </span>
-      </button>
+        primary={query || undefined}
+        placeholder={m.search.placeholders.stays}
+      />
       <div className="hidden min-h-[44px] items-center gap-3 lg:flex lg:min-h-0">
         <Image src={ASSETS.searchIcon} alt="" width={22} height={22} className="shrink-0" unoptimized />
         <input
@@ -356,14 +354,14 @@ export default function SearchForm({
 
   const heroContent = (
     <>
-      <div className="flex flex-col gap-3 p-4 lg:hidden">
+      <div className="flex flex-col gap-3 p-[15px] lg:hidden">
         {destinationField}
-        <MobileDateRange
+        <MobileDateCards
           checkIn={checkIn}
           checkOut={checkOut}
-          checkInLabel={m.common.checkIn}
-          checkOutLabel={m.common.checkOut}
           locale={dateLocale}
+          checkInFallback={m.common.selectDate}
+          checkOutFallback={m.common.selectDate}
           onCheckInClick={() => checkInRef.current?.showPicker?.() ?? checkInRef.current?.focus()}
           onCheckOutClick={() => checkOutRef.current?.showPicker?.() ?? checkOutRef.current?.focus()}
           checkInInput={
