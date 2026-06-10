@@ -81,6 +81,10 @@ export function buildFlightSearchQuery(params: FlightSearchParams): URLSearchPar
   if (params.to) sp.set("to", params.to);
   if (params.fromCode) sp.set("fromCode", params.fromCode);
   if (params.toCode) sp.set("toCode", params.toCode);
+  if (params.fromSkyId) sp.set("fromSkyId", params.fromSkyId);
+  if (params.fromEntityId) sp.set("fromEntityId", params.fromEntityId);
+  if (params.toSkyId) sp.set("toSkyId", params.toSkyId);
+  if (params.toEntityId) sp.set("toEntityId", params.toEntityId);
   sp.set("depart", params.depart);
   if (params.return && params.trip === "roundtrip") sp.set("return", params.return);
   sp.set("trip", params.trip);

@@ -17,6 +17,10 @@ export async function GET(request: Request) {
   const to = searchParams.get("to") || "";
   const fromCodeHint = searchParams.get("fromCode") || "";
   const toCodeHint = searchParams.get("toCode") || "";
+  const fromSkyId = searchParams.get("fromSkyId") || "";
+  const fromEntityId = searchParams.get("fromEntityId") || "";
+  const toSkyId = searchParams.get("toSkyId") || "";
+  const toEntityId = searchParams.get("toEntityId") || "";
   const depart = searchParams.get("depart") || defaultDepart();
   const returnDate = searchParams.get("return") || "";
   const trip = (searchParams.get("trip") || "roundtrip") as TripType;
@@ -46,6 +50,9 @@ export async function GET(request: Request) {
     toCode,
     fromLabel: from,
     toLabel: to,
+    fromSky:
+      fromSkyId && fromEntityId ? { skyId: fromSkyId, entityId: fromEntityId } : undefined,
+    toSky: toSkyId && toEntityId ? { skyId: toSkyId, entityId: toEntityId } : undefined,
     depart,
     returnDate: trip === "roundtrip" ? returnDate : undefined,
     trip,

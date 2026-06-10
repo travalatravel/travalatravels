@@ -22,6 +22,9 @@ export type SearchSuggestion = {
   searchQuery: string;
   slug?: string;
   iata?: string;
+  /** Sky Scrapper flight place IDs — set when autocomplete uses searchAirport */
+  skyId?: string;
+  entityId?: string;
 };
 
 type TravalaCityItem = {

@@ -37,6 +37,10 @@ export type FlightSearchParams = {
   to: string;
   fromCode?: string;
   toCode?: string;
+  fromSkyId?: string;
+  fromEntityId?: string;
+  toSkyId?: string;
+  toEntityId?: string;
   depart: string;
   return?: string;
   adults: number;

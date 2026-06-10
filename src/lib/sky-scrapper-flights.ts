@@ -3,42 +3,18 @@ import { getFlightPricing } from "./flight-pricing";
 import { encodeFlightToken } from "./flight-token";
 import type { LiveFlightOffer, LiveFlightSegment } from "./live-flight-types";
 import type { CabinClass, TripType } from "./flight-types";
+import {
+  resolveAirport,
+  skyScrapperAirportConfigured,
+  type AirportRef,
+} from "./sky-scrapper-airports";
 
 const HOST = process.env.RAPIDAPI_FLIGHT_HOST || "sky-scrapper.p.rapidapi.com";
 
-type AirportRef = { skyId: string; entityId: string };
 type SkyRecord = Record<string, unknown>;
-const airportCache = new Map<string, AirportRef>();
-
-/** Well-known Skyscanner IDs — avoids extra searchAirport requests */
-const KNOWN_AIRPORTS: Record<string, AirportRef> = {
-  LON: { skyId: "LOND", entityId: "27544008" },
-  PAR: { skyId: "PARI", entityId: "27539733" },
-  NYC: { skyId: "NYCA", entityId: "27537542" },
-  DXB: { skyId: "DXBA", entityId: "27540851" },
-  BKK: { skyId: "BKKT", entityId: "27536671" },
-  SIN: { skyId: "SINS", entityId: "27546111" },
-  TYO: { skyId: "TYOA", entityId: "27542089" },
-  LAX: { skyId: "LAXA", entityId: "27536637" },
-  FRA: { skyId: "FRAA", entityId: "27534206" },
-  AMS: { skyId: "AMSA", entityId: "27534067" },
-  BCN: { skyId: "BCNA", entityId: "27548283" },
-  SYD: { skyId: "SYDA", entityId: "27546111" },
-  BER: { skyId: "BER", entityId: "95673383" },
-  MUC: { skyId: "MUC", entityId: "95673491" },
-  ROM: { skyId: "ROMA", entityId: "27539793" },
-  MAD: { skyId: "MADR", entityId: "27544856" },
-  IST: { skyId: "ISTA", entityId: "27536470" },
-  VIE: { skyId: "VIE", entityId: "95673577" },
-  ZRH: { skyId: "ZRHA", entityId: "27547066" },
-  CPH: { skyId: "CPHA", entityId: "27534118" },
-  DUB: { skyId: "DUBL", entityId: "27540839" },
-  HKG: { skyId: "HKGA", entityId: "27536566" },
-  SEL: { skyId: "SELA", entityId: "27542089" },
-};
 
 function configured() {
-  return Boolean(process.env.RAPIDAPI_KEY?.trim());
+  return skyScrapperAirportConfigured();
 }
 
 function headers() {
@@ -46,54 +22,6 @@ function headers() {
     "X-RapidAPI-Host": HOST,
     "X-RapidAPI-Key": process.env.RAPIDAPI_KEY!,
   };
-}
-
-function parseAirportSearchResult(item: unknown): AirportRef | null {
-  if (!item || typeof item !== "object") return null;
-  const row = item as SkyRecord;
-
-  const params = (row.navigation as SkyRecord | undefined)?.relevantFlightParams as
-    | SkyRecord
-    | undefined;
-  if (params?.skyId && params?.entityId) {
-    return { skyId: String(params.skyId), entityId: String(params.entityId) };
-  }
-
-  if (row.skyId && row.entityId) {
-    return { skyId: String(row.skyId), entityId: String(row.entityId) };
-  }
-
-  return null;
-}
-
-async function resolveAirport(keyword: string, iataCode: string): Promise<AirportRef | null> {
-  const cacheKey = (iataCode || keyword).trim().toUpperCase();
-  if (airportCache.has(cacheKey)) return airportCache.get(cacheKey)!;
-
-  const known = KNOWN_AIRPORTS[cacheKey] || KNOWN_AIRPORTS[iataCode?.toUpperCase()];
-  if (known) {
-    airportCache.set(cacheKey, known);
-    return known;
-  }
-
-  const query = keyword.trim() || iataCode;
-  if (!query) return null;
-
-  const url = new URL(`https://${HOST}/api/v1/flights/searchAirport`);
-  url.searchParams.set("query", query);
-  url.searchParams.set("locale", "en-US");
-
-  try {
-    const res = await fetch(url, { headers: headers() });
-    if (!res.ok) return null;
-    const json = (await res.json()) as { data?: unknown[] };
-    const ref = parseAirportSearchResult(json.data?.[0]);
-    if (!ref) return null;
-    airportCache.set(cacheKey, ref);
-    return ref;
-  } catch {
-    return null;
-  }
 }
 
 function parseDuration(raw: string | number | undefined): string {
@@ -153,6 +81,8 @@ export async function searchSkyScrapperFlights(input: {
   toCode: string;
   fromLabel: string;
   toLabel: string;
+  fromSky?: AirportRef;
+  toSky?: AirportRef;
   depart: string;
   returnDate?: string;
   trip: TripType;
@@ -163,8 +93,8 @@ export async function searchSkyScrapperFlights(input: {
 }): Promise<LiveFlightOffer[] | null> {
   if (!configured()) return null;
 
-  const origin = await resolveAirport(input.fromLabel, input.fromCode);
-  const dest = await resolveAirport(input.toLabel, input.toCode);
+  const origin = input.fromSky ?? (await resolveAirport(input.fromLabel, input.fromCode));
+  const dest = input.toSky ?? (await resolveAirport(input.toLabel, input.toCode));
   if (!origin || !dest) return null;
 
   const url = new URL(`https://${HOST}/api/v2/flights/searchFlights`);

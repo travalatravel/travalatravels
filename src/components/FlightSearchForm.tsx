@@ -59,6 +59,10 @@ export default function FlightSearchForm({
   const [to, setTo] = useState("");
   const [fromCode, setFromCode] = useState("");
   const [toCode, setToCode] = useState("");
+  const [fromSkyId, setFromSkyId] = useState("");
+  const [fromEntityId, setFromEntityId] = useState("");
+  const [toSkyId, setToSkyId] = useState("");
+  const [toEntityId, setToEntityId] = useState("");
   const [leg2From, setLeg2From] = useState("");
   const [leg2To, setLeg2To] = useState("");
   const [depart, setDepart] = useState(defaults.depart);
@@ -83,22 +87,39 @@ export default function FlightSearchForm({
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  const setFieldValue = (field: AirportField, label: string, code?: string) => {
-    if (field === "from") {
+  const clearFieldSky = (field: AirportField) => {
+    if (field === "from" || field === "leg0from") {
+      setFromSkyId("");
+      setFromEntityId("");
+    } else if (field === "to" || field === "leg0to") {
+      setToSkyId("");
+      setToEntityId("");
+    }
+  };
+
+  const setFieldValue = (
+    field: AirportField,
+    label: string,
+    code?: string,
+    sky?: { skyId?: string; entityId?: string },
+  ) => {
+    if (field === "from" || field === "leg0from") {
       setFrom(label);
       setFromCode(code || "");
-    } else if (field === "to") {
+      setFromSkyId(sky?.skyId || "");
+      setFromEntityId(sky?.entityId || "");
+    } else if (field === "to" || field === "leg0to") {
       setTo(label);
       setToCode(code || "");
-    } else if (field === "leg0from") setFrom(label);
-    else if (field === "leg0to") setTo(label);
-    else if (field === "leg1from") setLeg2From(label);
+      setToSkyId(sky?.skyId || "");
+      setToEntityId(sky?.entityId || "");
+    } else if (field === "leg1from") setLeg2From(label);
     else if (field === "leg1to") setLeg2To(label);
   };
 
   const fetchSuggestions = useCallback(async (value: string) => {
     const trimmed = value.trim();
-    if (trimmed.length < 1) {
+    if (trimmed.length < 2) {
       setSuggestions([]);
       setSuggestLoading(false);
       return;
@@ -108,8 +129,12 @@ export default function FlightSearchForm({
     abortRef.current = controller;
     setSuggestLoading(true);
     try {
-      const params = new URLSearchParams({ q: trimmed, type: "flights", limit: "8" });
-      const res = await fetch(`/api/search/suggest?${params}`, { signal: controller.signal });
+      const params = new URLSearchParams({
+        q: trimmed,
+        limit: "8",
+        locale: dateLocale,
+      });
+      const res = await fetch(`/api/flights/suggest?${params}`, { signal: controller.signal });
       const data = (await res.json()) as { suggestions?: SearchSuggestion[] };
       setSuggestions(data.suggestions || []);
       setActiveIndex(-1);
@@ -141,7 +166,7 @@ export default function FlightSearchForm({
   useEffect(() => {
     if (!activeField) return;
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => void fetchSuggestions(fieldQuery), 200);
+    debounceRef.current = setTimeout(() => void fetchSuggestions(fieldQuery), 300);
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
@@ -177,10 +202,18 @@ export default function FlightSearchForm({
     setSuggestions([]);
   };
 
+  const handleFieldQueryChange = (value: string) => {
+    setFieldQuery(value);
+    if (activeField) clearFieldSky(activeField);
+  };
+
   const selectSuggestion = (item: SearchSuggestion) => {
     if (!activeField) return;
     const code = item.iata || item.searchQuery?.slice(0, 3).toUpperCase();
-    setFieldValue(activeField, item.label, code);
+    setFieldValue(activeField, item.label, code, {
+      skyId: item.skyId,
+      entityId: item.entityId,
+    });
     setActiveField(null);
     setFieldQuery("");
     setSuggestions([]);
@@ -204,6 +237,10 @@ export default function FlightSearchForm({
     setTo(from);
     setFromCode(toCode);
     setToCode(fromCode);
+    setFromSkyId(toSkyId);
+    setToSkyId(fromSkyId);
+    setFromEntityId(toEntityId);
+    setToEntityId(fromEntityId);
   };
 
   const handleSearch = (e?: React.FormEvent) => {
@@ -218,6 +255,10 @@ export default function FlightSearchForm({
       to: to.trim(),
       fromCode,
       toCode,
+      fromSkyId: fromSkyId || undefined,
+      fromEntityId: fromEntityId || undefined,
+      toSkyId: toSkyId || undefined,
+      toEntityId: toEntityId || undefined,
       depart,
       return: trip === "roundtrip" ? returnDate : undefined,
       adults,
@@ -260,6 +301,7 @@ export default function FlightSearchForm({
         onChange={(e) => {
           onChange(e.target.value);
           setFieldQuery(e.target.value);
+          clearFieldSky(field);
         }}
         onFocus={() => openField(field, value)}
         placeholder={m.common.cityOrAirport}
@@ -465,7 +507,7 @@ export default function FlightSearchForm({
         title={m.search.mobileSearch.searchAirport}
         placeholder={m.common.cityOrAirport}
         query={fieldQuery}
-        onQueryChange={setFieldQuery}
+        onQueryChange={handleFieldQueryChange}
         suggestions={suggestions}
         loading={suggestLoading}
         onSelect={selectSuggestion}

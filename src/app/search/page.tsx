@@ -37,6 +37,10 @@ function FlightSearchResults() {
   const to = searchParams.get("to") || "";
   const fromCode = searchParams.get("fromCode") || "";
   const toCode = searchParams.get("toCode") || "";
+  const fromSkyId = searchParams.get("fromSkyId") || "";
+  const fromEntityId = searchParams.get("fromEntityId") || "";
+  const toSkyId = searchParams.get("toSkyId") || "";
+  const toEntityId = searchParams.get("toEntityId") || "";
   const depart = searchParams.get("depart") || "";
   const returnDate = searchParams.get("return") || "";
   const trip = (searchParams.get("trip") || "roundtrip") as TripType;
@@ -86,6 +90,10 @@ function FlightSearchResults() {
     });
     if (fromCode) params.set("fromCode", fromCode);
     if (toCode) params.set("toCode", toCode);
+    if (fromSkyId) params.set("fromSkyId", fromSkyId);
+    if (fromEntityId) params.set("fromEntityId", fromEntityId);
+    if (toSkyId) params.set("toSkyId", toSkyId);
+    if (toEntityId) params.set("toEntityId", toEntityId);
     if (returnDate) params.set("return", returnDate);
 
     fetch(`/api/flights/search?${params}`)
@@ -106,6 +114,10 @@ function FlightSearchResults() {
     to,
     fromCode,
     toCode,
+    fromSkyId,
+    fromEntityId,
+    toSkyId,
+    toEntityId,
     depart,
     returnDate,
     trip,
