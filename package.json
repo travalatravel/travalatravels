@@ -4,23 +4,45 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+    "build": "prisma generate && next build && tsx scripts/prepare-standalone.ts",
+    "build:deploy": "tsx scripts/package-deploy.ts",
+    "start": "node scripts/railway-start.mjs",
+    "lint": "eslint",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:setup": "prisma migrate dev --name init && tsx prisma/seed.ts",
+    "import:offers": "tsx scripts/import-travala-offers.ts",
+    "import:full": "tsx scripts/import-travala-offers.ts --cities=200 --flights=3000",
+    "db:import": "npm run import:offers && tsx prisma/seed.ts",
+    "postinstall": "prisma generate && tsx scripts/copy-coin-icons.ts",
+    "copy:coins": "tsx scripts/copy-coin-icons.ts"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "bcryptjs": "^3.0.3",
+    "cryptocurrency-icons": "^0.18.1",
+    "dotenv": "^17.4.2",
+    "jose": "^6.2.3",
+    "lucide-react": "^1.17.0",
     "next": "16.2.9",
+    "prisma": "^5.22.0",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
     "tailwindcss": "^4",
+    "tsx": "^4.22.4",
     "typescript": "^5"
   }
 }

@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Travala.com Clone
 
-## Getting Started
+Full-featured recreation of [Travala.com](https://www.travala.com/) with real search, booking, registration, and login.
 
-First, run the development server:
+## Features
+
+- **Search** – Hotels, Flights, Car Rentals, Activities (64 offers in database)
+- **Book** – Real booking flow with date/guest selection and payment method
+- **Auth** – Register, login, session management (JWT cookies)
+- **My Trips** – View all confirmed bookings
+- **UI** – Travala brand design, responsive layout
+
+## Quick Start
 
 ```bash
+cd travala-clone
+npm install
+npm run db:setup    # First time only: migrate + seed
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Accounts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Role | Email | Password |
+|------|-------|----------|
+| User | `demo@travala.com` | `demo1234` |
+| Admin | `admin@travala.com` | `admin1234` |
 
-## Learn More
+### Admin Dashboard
 
-To learn more about Next.js, take a look at the following resources:
+Login as admin → click **Admin** in header or go to `/admin`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Dashboard** – Stats, revenue, recent bookings
+- **Users** – All registered users
+- **Bookings** – All bookings with payment status (Mark as Paid / Failed)
+- **Crypto Wallets** – Add/edit wallet addresses, see last modified date & by whom
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Crypto Payment Flow
 
-## Deploy on Vercel
+1. User books with BTC/ETH/USDC
+2. Wallet address shown → user sends crypto
+3. User submits transaction hash
+4. Status: `Awaiting Confirmation`
+5. Admin confirms in dashboard → `Paid` → booking confirmed
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## User Flow
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **Search** – Use hero search or navigate to Stays/Flights/Car Rental/Activities
+2. **Browse** – Click any result to view details
+3. **Book** – Log in (or register), select dates/guests, choose payment, click "Book Now"
+4. **My Trips** – View all bookings at `/my-trips`
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | Create account |
+| POST | `/api/auth/login` | Log in |
+| POST | `/api/auth/logout` | Log out |
+| GET | `/api/auth/me` | Current user |
+| GET | `/api/search?type=&q=` | Search offers |
+| GET | `/api/offers/[id]` | Offer details |
+| POST | `/api/bookings` | Create booking (auth required) |
+| GET | `/api/bookings` | List user bookings (auth required) |
+
+## Database
+
+SQLite via Prisma. Seed includes:
+- 25 Hotels
+- 15 Flights
+- 12 Car Rentals
+- 12 Activities
+
+```bash
+npm run db:seed   # Re-seed data
+```
+
+## Tech Stack
+
+- Next.js 16, React 19, TypeScript
+- Prisma 5 + SQLite
+- JWT sessions (jose + bcryptjs)
+- Tailwind CSS v4

@@ -19,6 +19,11 @@
 
 # production
 /build
+/deploy
+
+# database (Railway uses its own volume)
+prisma/*.db
+prisma/*.db-journal
 
 # misc
 .DS_Store
@@ -39,3 +44,5 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/src/generated/prisma
