@@ -25,7 +25,7 @@ function SearchResults() {
   const searchParams = useSearchParams();
   const [offers, setOffers] = useState<Offer[]>([]);
   const [liveFlights, setLiveFlights] = useState<LiveFlightOffer[]>([]);
-  const [flightSource, setFlightSource] = useState<"skyscrapper" | "market" | "catalog" | null>(null);
+  const [flightSource, setFlightSource] = useState<"skyscanner" | "skyscrapper" | "market" | "catalog" | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [total, setTotal] = useState(0);
@@ -154,9 +154,9 @@ function SearchResults() {
                 {adults + children + infants} passenger{adults + children + infants !== 1 ? "s" : ""}
                 {" · "}
                 {CABIN_LABELS[cabin]}
-                {(flightSource === "skyscrapper" || flightSource === "market") && (
+                {(flightSource === "skyscanner" || flightSource === "skyscrapper" || flightSource === "market") && (
                   <span className="ml-2 rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-800">
-                    {flightSource === "skyscrapper" ? "Live rates" : "Best rates"} · 30% off
+                    {flightSource === "market" ? "Best rates" : "Live rates"} · 30% off
                   </span>
                 )}
               </p>

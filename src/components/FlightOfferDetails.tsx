@@ -42,8 +42,11 @@ export default function FlightOfferDetails({
             <p className="mt-1 text-xs text-gray-500">{meta.duration} · {stops === 0 ? "Direct" : `${stops} stop(s)`}</p>
           </div>
         </div>
+        <p className="mt-4 text-sm text-gray-600">
+          Economy fare includes 1 carry-on. Checked baggage may be added at checkout.
+        </p>
         {depart && (
-          <p className="mt-4 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-gray-600">
             <strong>Depart:</strong> {depart}
             {trip === "roundtrip" && returnDate && (
               <>

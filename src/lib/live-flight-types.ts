@@ -35,7 +35,7 @@ export type LiveFlightOffer = {
 };
 
 export type LiveFlightSearchMeta = {
-  source: "skyscrapper" | "market" | "catalog";
+  source: "skyscanner" | "skyscrapper" | "market" | "catalog";
   total: number;
   fromCode: string;
   toCode: string;

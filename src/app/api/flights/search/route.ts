@@ -4,6 +4,7 @@ import { resolveIataCode } from "@/lib/iata-codes";
 import { getFlightPricing } from "@/lib/flight-pricing";
 import { generateMarketFlights } from "@/lib/flight-market-engine";
 import { searchSkyScrapperFlights, skyScrapperConfigured } from "@/lib/sky-scrapper-flights";
+import { searchSkyscannerIndicative, skyscannerConfigured } from "@/lib/skyscanner-indicative";
 import { matchesFlightRoute, parseFlightMetadata, flightTimesForOffer, stopsForOffer } from "@/lib/flight-display";
 import { encodeFlightToken } from "@/lib/flight-token";
 import type { LiveFlightOffer } from "@/lib/live-flight-types";
@@ -196,6 +197,7 @@ export async function GET(request: Request) {
     fromCode,
     toCode,
     discountPct: 30,
+    skyscannerConfigured: skyscannerConfigured(),
     rapidApiOptional: skyScrapperConfigured(),
   });
 }
