@@ -7,6 +7,8 @@ import type { FlightLeg, LiveFlightOffer } from "@/lib/live-flight-types";
 import { getFlightPricing } from "@/lib/flight-pricing";
 import { buildFlightOfferHref, type FlightOfferSearchContext } from "@/lib/flight-offer-link";
 import { combineRoundtripTokens } from "@/lib/flight-combine";
+import { saveOutboundToken, readOutboundToken } from "@/lib/flight-selection-storage";
+import { tokenFromOffer } from "@/lib/flight-token";
 import { formatUsd } from "@/lib/pricing";
 import { useTranslations } from "@/i18n/useTranslations";
 import { LOCALE_BCP47 } from "@/i18n/config";
@@ -173,15 +175,32 @@ export default function LiveFlightResultCard({
 
   const href = buildFlightOfferHref(flight, searchContext);
 
+  const pax = {
+    adults: searchContext.adults,
+    children: searchContext.children,
+    infants: searchContext.infants,
+  };
+
+  const resolveToken = (offer: LiveFlightOffer) =>
+    offer.offerToken || tokenFromOffer(offer, pax);
+
   const handleSelect = () => {
     if (selectionLeg === "outbound") {
+      const token = resolveToken(flight);
+      if (!token) return;
+      saveOutboundToken(token);
       const params = new URLSearchParams(window.location.search);
-      params.set("outboundToken", flight.offerToken);
+      params.delete("outboundToken");
+      params.set("pickReturn", "1");
       router.push(`/search?${params.toString()}`);
       return;
     }
-    if (selectionLeg === "return" && outboundToken) {
-      const combined = combineRoundtripTokens(outboundToken, flight.offerToken);
+    if (selectionLeg === "return") {
+      const outTok = outboundToken || readOutboundToken();
+      if (!outTok) return;
+      const returnTok = resolveToken(flight);
+      if (!returnTok) return;
+      const combined = combineRoundtripTokens(outTok, returnTok);
       if (!combined) return;
       const params = new URLSearchParams({
         token: combined,

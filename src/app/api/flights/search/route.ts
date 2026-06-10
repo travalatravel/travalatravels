@@ -46,14 +46,17 @@ export async function GET(request: Request) {
     );
   }
 
-  const searchInput = {
+  const fromSky =
+    fromSkyId && fromEntityId ? { skyId: fromSkyId, entityId: fromEntityId } : undefined;
+  const toSky = toSkyId && toEntityId ? { skyId: toSkyId, entityId: toEntityId } : undefined;
+
+  let searchInput = {
     fromCode,
     toCode,
     fromLabel: from,
     toLabel: to,
-    fromSky:
-      fromSkyId && fromEntityId ? { skyId: fromSkyId, entityId: fromEntityId } : undefined,
-    toSky: toSkyId && toEntityId ? { skyId: toSkyId, entityId: toEntityId } : undefined,
+    fromSky,
+    toSky,
     depart,
     returnDate: trip === "roundtrip" ? returnDate : undefined,
     trip,
@@ -62,6 +65,27 @@ export async function GET(request: Request) {
     children,
     infants,
   };
+
+  if (leg === "outbound") {
+    searchInput = {
+      ...searchInput,
+      trip: "oneway",
+      returnDate: undefined,
+    };
+  } else if (leg === "return" && returnDate) {
+    searchInput = {
+      ...searchInput,
+      fromCode: toCode,
+      toCode: fromCode,
+      fromLabel: to,
+      toLabel: from,
+      fromSky: toSky,
+      toSky: fromSky,
+      depart: returnDate,
+      trip: "oneway",
+      returnDate: undefined,
+    };
+  }
 
   let flights: LiveFlightOffer[] = [];
   let source: "sky-scrapper" | "market" = "market";

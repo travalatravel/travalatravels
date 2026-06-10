@@ -9,6 +9,7 @@ import MobileSearchOverlay from "./MobileSearchOverlay";
 import type { SearchSuggestion } from "@/lib/travala-suggest";
 import { ASSETS } from "@/data/site-data";
 import { buildFlightSearchQuery } from "@/lib/flight-display";
+import { clearOutboundToken } from "@/lib/flight-selection-storage";
 import type { CabinClass, TripType } from "@/lib/flight-types";
 import { useTranslations } from "@/i18n/useTranslations";
 import { LOCALE_BCP47 } from "@/i18n/config";
@@ -269,6 +270,7 @@ export default function FlightSearchForm({
       legs: trip === "multicity" ? [{ from, to }, { from: leg2From, to: leg2To }] : undefined,
     });
     setActiveField(null);
+    clearOutboundToken();
     router.push(`/search?${params.toString()}`);
   };
 

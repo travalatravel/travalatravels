@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { suggestSkyScrapperAirports, skyScrapperAirportConfigured } from "@/lib/sky-scrapper-airports";
-import { fetchTravalaSuggestions } from "@/lib/travala-suggest";
+import { suggestSkyScrapperAirports } from "@/lib/sky-scrapper-airports";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -13,16 +12,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    let suggestions;
-    if (skyScrapperAirportConfigured()) {
-      suggestions = await suggestSkyScrapperAirports(q, limit, locale);
-      if (!suggestions.length) {
-        suggestions = await fetchTravalaSuggestions(q, "flights", limit);
-      }
-    } else {
-      suggestions = await fetchTravalaSuggestions(q, "flights", limit);
-    }
-
+    const suggestions = await suggestSkyScrapperAirports(q, limit, locale);
     return NextResponse.json(
       { suggestions },
       { headers: { "Cache-Control": "public, max-age=300, stale-while-revalidate=3600" } },

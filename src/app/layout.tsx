@@ -9,6 +9,14 @@ import { LOCALE_META } from "@/i18n/config";
 import { resolveLocale } from "@/i18n/detect";
 import { getMessages } from "@/i18n/messages";
 import "./globals.css";
+import type { Viewport } from "next";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
 
 const inter = Inter({
   subsets: ["latin"],

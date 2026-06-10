@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { decodeFlightToken } from "@/lib/flight-token";
+import { readOutboundToken, clearOutboundToken } from "@/lib/flight-selection-storage";
 import { LOCALE_BCP47 } from "@/i18n/config";
 import SiteChrome from "@/components/SiteChrome";
 import SearchForm from "@/components/SearchForm";
@@ -61,11 +62,13 @@ function FlightSearchResults() {
   const children = Math.max(0, parseInt(searchParams.get("children") || "0", 10));
   const infants = Math.max(0, parseInt(searchParams.get("infants") || "0", 10));
   const addHotel = searchParams.get("addHotel") === "1";
-  const outboundToken = searchParams.get("outboundToken") || "";
+  const pickReturn = searchParams.get("pickReturn") === "1";
+  const outboundToken =
+    searchParams.get("outboundToken") || (pickReturn ? readOutboundToken() : "");
   const isRoundtripSelect = trip === "roundtrip" && Boolean(returnDate);
   const selectionLeg = !isRoundtripSelect
     ? null
-    : !outboundToken
+    : !pickReturn
       ? ("outbound" as const)
       : ("return" as const);
   const selectedOutbound = outboundToken ? decodeFlightToken(outboundToken) : null;
@@ -224,8 +227,10 @@ function FlightSearchResults() {
                 href={(() => {
                   const p = new URLSearchParams(searchParams.toString());
                   p.delete("outboundToken");
+                  p.delete("pickReturn");
                   return `/search?${p.toString()}`;
                 })()}
+                onClick={() => clearOutboundToken()}
                 className="text-sm font-medium text-[#2D83C2] hover:underline"
               >
                 {m.searchPage.changeOutbound}
