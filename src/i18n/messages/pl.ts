@@ -20,7 +20,7 @@ const pl: Partial<Messages> = {
     invalidOffer: "Oferta lotu wygasła lub jest nieprawidłowa. Wyszukaj ponownie.",
     searchFlights: "Szukaj lotów", searchAgain: "Szukaj ponownie", noResults: 'Brak wyników dla "{query}"',
     searching: "Wyszukiwanie...", selectDate: "Wybierz datę", checkIn: "Zameldowanie", checkOut: "Wymeldowanie",
-    rooms: "Pokoje", room: "pokój", adults: "Dorośli", adult: "Dorosły", children: "Dzieci",
+    rooms: "Pokoje", room: "pokój", guests: "guests", adults: "Dorośli", adult: "Dorosły", children: "Dzieci",
     child: "Dziecko", infants: "Niemowlęta", yrs12: "12+ lat", yrs211: "2–11 lat", under2: "Do 2 lat",
     whereTo: "Dokąd?", cityOrAirport: "Miasto lub lotnisko", addHotel: "Dodaj hotel w miejscu docelowym",
     donePassengers: "Gotowe", propertiesFound: "Znaleziono {count} obiektów", noPropertiesFound: "Nie znaleziono obiektów",
@@ -68,7 +68,7 @@ const pl: Partial<Messages> = {
   },
   topProperties: { title: "Wyjątkowe obiekty", subtitle: "Odkryj niezwykłe miejsca na pobyt na całym świecie", properties: "{count} obiektów" },
   partners: { title: "Nasi zaufani partnerzy" },
-  blog: { title: "Najnowsze z bloga" },
+  blog: { title: "Najnowsze z bloga", subtitle: "Get inspired with travel guides and destination ideas from our blog", inspiration: "Inspiration" },
   travelGuides: { title: "Przewodniki turystyczne" },
   faq: {
     title: "FAQ",

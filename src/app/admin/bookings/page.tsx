@@ -46,7 +46,7 @@ export default function AdminBookingsPage() {
             key={f || "all"}
             onClick={() => setFilter(f)}
             className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-              filter === f ? "bg-[#2577be] text-white" : "bg-white text-gray-600 hover:bg-gray-50"
+              filter === f ? "bg-[#2D83C2] text-white" : "bg-white text-gray-600 hover:bg-gray-50"
             }`}
           >
             {f ? PAYMENT_STATUS_LABELS[f as keyof typeof PAYMENT_STATUS_LABELS] : "All"}
@@ -101,7 +101,7 @@ export default function AdminBookingsPage() {
                 )}
               </div>
               <div className="text-right">
-                <p className="text-2xl font-bold text-[#2577be]">${b.totalPrice.toFixed(2)}</p>
+                <p className="text-2xl font-bold text-[#2D83C2]">${b.totalPrice.toFixed(2)}</p>
                 <p className="text-xs text-gray-400">{new Date(b.createdAt).toLocaleString()}</p>
                 {b.paidAt && <p className="text-xs text-green-600">Paid: {new Date(b.paidAt).toLocaleString()}</p>}
               </div>

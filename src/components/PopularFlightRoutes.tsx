@@ -38,9 +38,9 @@ export default function PopularFlightRoutes() {
             <Link
               key={`${route.from}-${route.to}`}
               href={`/search?${qs.toString()}`}
-              className="group flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:border-[#2577be]/40 hover:shadow-md"
+              className="group flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:border-[#2D83C2]/40 hover:shadow-md"
             >
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#eef5fc] text-[#2577be] transition group-hover:bg-[#2577be] group-hover:text-white">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#eef5fc] text-[#2D83C2] transition group-hover:bg-[#2D83C2] group-hover:text-white">
                 <Plane size={18} />
               </span>
               <div className="min-w-0">

@@ -90,14 +90,14 @@ export default function FlightHotelBundle({
     <section
       className={
         compact
-          ? "mt-6 rounded-xl border border-[#2577be]/25 bg-gradient-to-br from-[#eef5fc] to-white p-4 sm:p-5"
-          : "mt-10 rounded-2xl border border-[#2577be]/20 bg-gradient-to-br from-[#eef5fc] to-white p-5 sm:p-6"
+          ? "mt-6 rounded-xl border border-[#2D83C2]/25 bg-gradient-to-br from-[#eef5fc] to-white p-4 sm:p-5"
+          : "mt-10 rounded-2xl border border-[#2D83C2]/20 bg-gradient-to-br from-[#eef5fc] to-white p-5 sm:p-6"
       }
     >
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <Building2 className="text-[#2577be]" size={20} />
+            <Building2 className="text-[#2D83C2]" size={20} />
             <h2 className="text-lg font-bold text-[#1e2e5e]">
               {fmt(b.addHotelIn, { destination })}
             </h2>
@@ -106,7 +106,7 @@ export default function FlightHotelBundle({
             {fmt(b.savingsHint, { pct: BUNDLE_HOTEL_EXTRA_DISCOUNT_PCT })}
           </p>
         </div>
-        <Link href={`/search?${qs.toString()}`} className="text-sm font-semibold text-[#2577be] hover:underline">
+        <Link href={`/search?${qs.toString()}`} className="text-sm font-semibold text-[#2D83C2] hover:underline">
           {b.viewAllHotels} →
         </Link>
       </div>
@@ -120,7 +120,7 @@ export default function FlightHotelBundle({
             <div
               key={hotel.id}
               className={`flex overflow-hidden rounded-xl border bg-white transition ${
-                selected ? "border-[#2577be] ring-2 ring-[#2577be]/20" : "border-gray-200 hover:border-[#2577be]/40"
+                selected ? "border-[#2D83C2] ring-2 ring-[#2D83C2]/20" : "border-gray-200 hover:border-[#2D83C2]/40"
               }`}
             >
               <div className="relative min-h-[88px] w-24 shrink-0 sm:w-28">
@@ -156,8 +156,8 @@ export default function FlightHotelBundle({
                     onClick={() => handleSelect(hotel)}
                     className={`mt-2 flex items-center justify-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
                       selected
-                        ? "bg-[#2577be] text-white"
-                        : "bg-[#eef5fc] text-[#2577be] hover:bg-[#2577be] hover:text-white"
+                        ? "bg-[#2D83C2] text-white"
+                        : "bg-[#eef5fc] text-[#2D83C2] hover:bg-[#2D83C2] hover:text-white"
                     }`}
                   >
                     {selected ? (
@@ -171,7 +171,7 @@ export default function FlightHotelBundle({
                 ) : (
                   <Link
                     href={`/offers/${hotel.id}?checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}&rooms=1`}
-                    className="mt-2 text-center text-xs font-semibold text-[#2577be] hover:underline"
+                    className="mt-2 text-center text-xs font-semibold text-[#2D83C2] hover:underline"
                   >
                     {b.viewHotel}
                   </Link>

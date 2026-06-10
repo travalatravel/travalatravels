@@ -12,7 +12,7 @@ export default function FeatureBar() {
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-3 sm:grid-cols-2 sm:px-4 lg:grid-cols-4 lg:gap-6 lg:px-6">
         {FEATURES.map((feature, i) => (
           <div key={feature.title} className="flex gap-4">
-            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-[#2577be]">
+            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-[#2D83C2]">
               <Image
                 src={feature.image}
                 alt=""

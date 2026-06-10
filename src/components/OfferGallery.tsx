@@ -138,7 +138,7 @@ export default function OfferGallery({
               type="button"
               onClick={() => setActive(i)}
               className={`relative h-12 w-16 shrink-0 overflow-hidden rounded-lg border-2 transition sm:h-16 sm:w-24 md:h-20 md:w-28 ${
-                i === active ? "border-[#2577be] ring-2 ring-[#2577be]/30" : "border-transparent opacity-80 hover:opacity-100"
+                i === active ? "border-[#2D83C2] ring-2 ring-[#2D83C2]/30" : "border-transparent opacity-80 hover:opacity-100"
               }`}
             >
               <Image

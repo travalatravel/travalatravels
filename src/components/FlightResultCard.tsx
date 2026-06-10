@@ -52,11 +52,11 @@ export default function FlightResultCard({
   return (
     <Link
       href={`/offers/${offer.id}?${detailQs.toString()}`}
-      className="group block overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:border-[#2577be]/40 hover:shadow-md"
+      className="group block overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:border-[#2D83C2]/40 hover:shadow-md"
     >
       <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
         <div className="flex min-w-0 flex-1 items-start gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#eef5fc] text-[#2577be]">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#eef5fc] text-[#2D83C2]">
             <Plane size={22} />
           </div>
           <div className="min-w-0 flex-1">
@@ -95,7 +95,7 @@ export default function FlightResultCard({
             )}
             <p className="text-[10px] text-gray-500">total for {pax} passenger{pax !== 1 ? "s" : ""}</p>
           </div>
-          <span className="rounded-lg bg-[#2577be] px-5 py-2.5 text-sm font-semibold text-white transition group-hover:bg-[#1e2e5e]">
+          <span className="rounded-lg bg-[#2D83C2] px-5 py-2.5 text-sm font-semibold text-white transition group-hover:bg-[#1e2e5e]">
             Select
           </span>
         </div>

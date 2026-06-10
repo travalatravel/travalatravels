@@ -49,7 +49,7 @@ function FlightOfferContent() {
   if (loading) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2577be] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2D83C2] border-t-transparent" />
       </div>
     );
   }
@@ -58,7 +58,7 @@ function FlightOfferContent() {
     return (
       <div className="mx-auto max-w-lg px-4 py-16 text-center">
         <p className="text-gray-500">{m.searchPage.flightOfferInvalid}</p>
-        <Link href="/flights" className="mt-4 inline-block text-[#2577be] hover:underline">
+        <Link href="/flights" className="mt-4 inline-block text-[#2D83C2] hover:underline">
           {m.common.searchFlights}
         </Link>
       </div>
@@ -94,13 +94,13 @@ function FlightOfferContent() {
 
   return (
     <main className="mx-auto max-w-6xl px-3 py-6 sm:px-4 sm:py-8 lg:px-6">
-      <Link href={backHref} className="mb-4 inline-flex items-center gap-1 text-sm text-[#2577be] hover:underline">
+      <Link href={backHref} className="mb-4 inline-flex items-center gap-1 text-sm text-[#2D83C2] hover:underline">
         <ArrowLeft size={16} /> {m.common.backToResults}
       </Link>
 
       <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
         <div className="lg:col-span-2">
-          <span className="rounded-full bg-[#2577be]/10 px-3 py-1 text-xs font-semibold text-[#2577be]">{m.common.flightLabel}</span>
+          <span className="rounded-full bg-[#2D83C2]/10 px-3 py-1 text-xs font-semibold text-[#2D83C2]">{m.common.flightLabel}</span>
           <h1 className="mt-3 text-xl font-bold text-[#1e2e5e] sm:text-2xl lg:text-3xl">
             {flight.airline} · {flight.from} → {flight.to}
           </h1>
@@ -158,7 +158,7 @@ function FlightOfferContent() {
               { icon: Shield, title: m.common.flexibility, text: m.common.flexibilityText },
             ].map((item) => (
               <div key={item.title} className="rounded-xl border border-gray-100 bg-gray-50/80 p-4">
-                <item.icon size={18} className="text-[#2577be]" />
+                <item.icon size={18} className="text-[#2D83C2]" />
                 <p className="mt-2 text-sm font-semibold text-[#1e2e5e]">{item.title}</p>
                 <p className="mt-1 text-xs text-gray-500">{item.text}</p>
               </div>
@@ -177,7 +177,7 @@ function FlightOfferContent() {
                 <button
                   type="button"
                   onClick={handleContinue}
-                  className="mt-5 w-full min-h-12 rounded-xl bg-[#2577be] py-3.5 text-sm font-bold text-white hover:bg-[#1e2e5e]"
+                  className="mt-5 w-full min-h-12 rounded-xl bg-[#2D83C2] py-3.5 text-sm font-bold text-white hover:bg-[#1e2e5e]"
                 >
                   {user ? m.common.continuePassengers : m.searchPage.logInToBook}
                 </button>
@@ -185,14 +185,14 @@ function FlightOfferContent() {
             </div>
           ) : (
             <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl lg:sticky lg:top-20">
-              <div className="flex items-center gap-2 bg-[#2577be] px-4 py-2.5 text-white">
+              <div className="flex items-center gap-2 bg-[#2D83C2] px-4 py-2.5 text-white">
                 <Tag size={14} />
                 <span className="text-sm font-semibold">{fmt(m.common.savePctGuarantee, { pct: pricing.discountPct })}</span>
               </div>
               <div className="p-5">
                 <p className="text-3xl font-bold text-[#1e2e5e]">{formatUsd(pricing.salePrice)}</p>
                 <p className="text-sm text-gray-400 line-through">{formatUsd(pricing.originalPrice)}</p>
-              <p className="mt-1 text-xs text-[#2577be]">{fmt(m.common.youSave, { amount: formatUsd(pricing.savings) })}</p>
+              <p className="mt-1 text-xs text-[#2D83C2]">{fmt(m.common.youSave, { amount: formatUsd(pricing.savings) })}</p>
               <p className="mt-2 text-xs text-gray-500">{fmt(m.common.totalForPassengers, { count: pax })}</p>
 
                 <div className="mt-5">
@@ -204,7 +204,7 @@ function FlightOfferContent() {
                 <button
                   type="button"
                   onClick={handleContinue}
-                  className="mt-5 w-full min-h-12 rounded-xl bg-[#2577be] py-3.5 text-sm font-bold text-white hover:bg-[#1e2e5e]"
+                  className="mt-5 w-full min-h-12 rounded-xl bg-[#2D83C2] py-3.5 text-sm font-bold text-white hover:bg-[#1e2e5e]"
                 >
                   {user ? m.common.continuePassengers : m.searchPage.logInToBook}
                 </button>

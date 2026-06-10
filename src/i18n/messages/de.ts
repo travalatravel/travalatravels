@@ -21,7 +21,7 @@ const de: Partial<Messages> = {
     invalidOffer: "Flugangebot abgelaufen oder ungültig. Bitte erneut suchen.",
     searchFlights: "Flüge suchen", searchAgain: "Erneut suchen", noResults: 'Keine Ergebnisse für "{query}"',
     searching: "Suche läuft...", selectDate: "Datum wählen", checkIn: "Check-in", checkOut: "Check-out",
-    rooms: "Zimmer", room: "Zimmer", adults: "Erwachsene", adult: "Erwachsener", children: "Kinder",
+    rooms: "Zimmer", room: "Zimmer", guests: "Gäste", adults: "Erwachsene", adult: "Erwachsener", children: "Kinder",
     child: "Kind", infants: "Kleinkinder", yrs12: "12+ J.", yrs211: "2–11 J.", under2: "Unter 2",
     whereTo: "Wohin?", cityOrAirport: "Stadt oder Flughafen", addHotel: "Hotel am Zielort hinzufügen",
     donePassengers: "Fertig", propertiesFound: "{count} Unterkünfte gefunden", noPropertiesFound: "Keine Unterkünfte gefunden",
@@ -88,7 +88,11 @@ const de: Partial<Messages> = {
     basedOn: "Basierend auf {count} Bewertungen",
     readOnTrustpilot: "Bewertungen auf Trustpilot lesen",
   },
-  blog: { title: "Neuestes aus unserem Blog" },
+  blog: {
+    title: "Wohin & was erleben",
+    subtitle: "Lassen Sie sich von Reiseführern und Reiseziel-Ideen aus unserem Blog inspirieren",
+    inspiration: "Inspiration",
+  },
   travelGuides: { title: "Reiseführer" },
   faq: {
     title: "FAQ",
@@ -126,6 +130,19 @@ const de: Partial<Messages> = {
   payments: {
     usdtNetwork: "USDT-Netzwerk wählen",
     usdtNetworkHint: "Wählen Sie das Blockchain-Netzwerk für Ihre USDT-Überweisung",
+  },
+  searchFilters: {
+    allStars: "Alle Sternebewertungen",
+    stars3: "3+ Sterne",
+    stars4: "4+ Sterne",
+    stars5: "5 Sterne",
+    anyPrice: "Jeder Preis",
+    under100: "Unter 100 $/Nacht",
+    under200: "Unter 200 $/Nacht",
+    under400: "Unter 400 $/Nacht",
+    sortBy: "Sortieren",
+    starsHigh: "Sternebewertung",
+    map: "Karte",
   },
   searchPage: {
     enterRoute: "Bitte Abflug- und Zielflughafen eingeben, um Flüge zu suchen.",

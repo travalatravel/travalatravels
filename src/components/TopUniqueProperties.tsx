@@ -1,9 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import Carousel from "./Carousel";
-import { TOP_UNIQUE_PROPERTIES } from "@/data/site-data";
-import { Building2 } from "lucide-react";
+import { PROPERTY_TYPE_TILES } from "@/data/property-types-data";
+import { propertyTypePath } from "@/lib/seo-paths";
 import { useTranslations } from "@/i18n/useTranslations";
 
 export default function TopUniqueProperties() {
@@ -15,25 +16,30 @@ export default function TopUniqueProperties() {
         <h2 className="font-[family-name:var(--font-display)] text-xl font-bold text-[#1e2e5e] sm:text-2xl md:text-3xl">
           {m.topProperties.title}
         </h2>
-        <p className="mt-2 text-sm text-gray-500 sm:text-base">
-          {m.topProperties.subtitle}
-        </p>
+        <p className="mt-2 text-sm text-gray-500 sm:text-base">{m.topProperties.subtitle}</p>
 
         <div className="mt-8">
           <Carousel>
-            {TOP_UNIQUE_PROPERTIES.map((item) => (
+            {PROPERTY_TYPE_TILES.map((item) => (
               <Link
                 key={item.slug}
-                href={`/search?type=stays&q=${encodeURIComponent(item.name)}`}
-                className="w-44 flex-shrink-0 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:border-[#2577be]/40 hover:shadow-md sm:w-52"
+                href={propertyTypePath(item.slug)}
+                className="w-40 flex-shrink-0 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:border-[#2D83C2]/40 hover:shadow-md sm:w-48"
               >
-                <div className="flex h-28 items-center justify-center bg-gradient-to-br from-[#eef5fc] to-[#dbeafe]">
-                  <Building2 size={36} className="text-[#2577be]" />
+                <div className="relative h-28 overflow-hidden">
+                  <Image
+                    src={item.image}
+                    alt={item.name}
+                    fill
+                    sizes="192px"
+                    className="object-cover"
+                    unoptimized
+                  />
                 </div>
-                <div className="p-4">
+                <div className="p-3 sm:p-4">
                   <p className="text-sm font-semibold text-[#1e2e5e]">{item.name}</p>
                   <p className="mt-1 text-xs text-gray-500">
-                    {item.properties.toLocaleString()} properties
+                    {fmt(m.topProperties.properties, { count: item.properties.toLocaleString() })}
                   </p>
                 </div>
               </Link>

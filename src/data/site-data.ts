@@ -1,5 +1,8 @@
+import { DESTINATION_EXTRA } from "./destination-extra";
+
 export const ASSETS = {
-  logoWhite: "/logo-white.svg",
+  logoWhite: "https://static.travala.com/frontend/logos-v2/logo-white.svg",
+  logoBlack: "https://static.travala.com/frontend/logos-v2/logo-black.svg",
   logoDark: "https://static.travala.com/frontend/logos-v2/logo-dark-purple.svg",
   logoMint: "https://static.travala.com/frontend/logos-v2/logo-mint.svg",
   heroBg: "https://static.travala.com/resources/images-pc/rebranding/rebrand-background-v2.webp?v1",
@@ -174,6 +177,7 @@ export const DESTINATION_DATA: Record<string, {
       { name: "W Dubai - The Palm", country: "Dubai, AE", stars: 5, image: "https://static.travala.com/destination/Middle+East/dubai.jpg" },
     ],
   },
+  ...DESTINATION_EXTRA,
 };
 
 export const PROPERTY_TYPES = [
@@ -263,7 +267,8 @@ export const CRYPTO_PAYMENT_OPTIONS = [
 export const CRYPTO_COINS = ["btc", "eth", "usdc", "ava"] as const;
 export type CryptoCoinId = (typeof CRYPTO_COINS)[number];
 
-export const FOOTER_COINS = CRYPTO_COINS;
+/** Footer displays full Travala CDN coin set (marquee subset). */
+export const FOOTER_COINS = CRYPTO_PAYMENT_OPTIONS;
 
 export const FAQ_ITEMS = [
   {

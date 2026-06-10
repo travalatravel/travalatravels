@@ -28,7 +28,7 @@ export default function FlightOfferDetails({
         <div className="mt-4 flex flex-wrap items-center gap-6">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#eef5fc]">
-              <Plane size={18} className="text-[#2577be]" />
+              <Plane size={18} className="text-[#2D83C2]" />
             </div>
             <div>
               <p className="font-semibold text-[#1e2e5e]">{meta.airline}</p>
@@ -66,7 +66,7 @@ export default function FlightOfferDetails({
           { icon: Shield, title: "Flexibility", text: "Change fees may apply. See fare rules at checkout." },
         ].map((item) => (
           <div key={item.title} className="rounded-xl border border-gray-100 bg-gray-50/80 p-4">
-            <item.icon size={18} className="text-[#2577be]" />
+            <item.icon size={18} className="text-[#2D83C2]" />
             <p className="mt-2 text-sm font-semibold text-[#1e2e5e]">{item.title}</p>
             <p className="mt-1 text-xs text-gray-500">{item.text}</p>
           </div>

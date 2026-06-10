@@ -20,7 +20,7 @@ const ko: Partial<Messages> = {
     invalidOffer: "항공권 제안이 만료되었거나 유효하지 않습니다. 다시 검색하세요.",
     searchFlights: "항공 검색", searchAgain: "다시 검색", noResults: '"{query}"에 대한 결과 없음',
     searching: "검색 중...", selectDate: "날짜 선택", checkIn: "체크인", checkOut: "체크아웃",
-    rooms: "객실", room: "객실", adults: "성인", adult: "성인", children: "어린이",
+    rooms: "객실", room: "객실", guests: "guests", adults: "성인", adult: "성인", children: "어린이",
     child: "어린이", infants: "유아", yrs12: "12세 이상", yrs211: "2–11세", under2: "2세 미만",
     whereTo: "어디로?", cityOrAirport: "도시 또는 공항", addHotel: "목적지에 호텔 추가",
     donePassengers: "완료", propertiesFound: "{count}개 숙소 발견", noPropertiesFound: "숙소를 찾을 수 없음",
@@ -68,7 +68,7 @@ const ko: Partial<Messages> = {
   },
   topProperties: { title: "독특한 숙소", subtitle: "전 세계 특별한 숙박지를 발견하세요", properties: "{count}개 숙소" },
   partners: { title: "신뢰할 수 있는 파트너" },
-  blog: { title: "블로그 최신 글" },
+  blog: { title: "블로그 최신 글", subtitle: "Get inspired with travel guides and destination ideas from our blog", inspiration: "Inspiration" },
   travelGuides: { title: "여행 가이드" },
   faq: {
     title: "자주 묻는 질문",

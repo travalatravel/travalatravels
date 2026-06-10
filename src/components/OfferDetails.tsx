@@ -80,13 +80,13 @@ export default function OfferDetails({
         <div className="mb-4 flex flex-col gap-2 text-sm text-gray-500 sm:flex-row sm:flex-wrap sm:gap-4">
           {details.address && (
             <span className="flex min-w-0 items-start gap-1.5 break-words">
-              <MapPin size={15} className="mt-0.5 flex-shrink-0 text-[#2577be]" />
+              <MapPin size={15} className="mt-0.5 flex-shrink-0 text-[#2D83C2]" />
               {details.address}
             </span>
           )}
           {details.phone && (
             <span className="flex min-w-0 items-center gap-1.5">
-              <Phone size={15} className="flex-shrink-0 text-[#2577be]" />
+              <Phone size={15} className="flex-shrink-0 text-[#2D83C2]" />
               {details.phone}
             </span>
           )}
@@ -102,7 +102,7 @@ export default function OfferDetails({
           <div className="flex flex-wrap gap-6">
             {details.checkIn && (
               <div className="flex items-start gap-2">
-                <Clock size={16} className="mt-0.5 text-[#2577be]" />
+                <Clock size={16} className="mt-0.5 text-[#2D83C2]" />
                 <div>
                   <p className="font-medium text-[#1e2e5e]">Check-in</p>
                   <p>
@@ -114,7 +114,7 @@ export default function OfferDetails({
             )}
             {details.checkOut?.until && (
               <div className="flex items-start gap-2">
-                <Clock size={16} className="mt-0.5 text-[#2577be]" />
+                <Clock size={16} className="mt-0.5 text-[#2D83C2]" />
                 <div>
                   <p className="font-medium text-[#1e2e5e]">Check-out</p>
                   <p>Until {details.checkOut.until}</p>
@@ -130,7 +130,7 @@ export default function OfferDetails({
           <ul className="grid gap-2 sm:grid-cols-2">
             {details.amenities.map((name) => (
               <li key={name} className="flex items-center gap-2">
-                <Wifi size={14} className="shrink-0 text-[#2577be]" />
+                <Wifi size={14} className="shrink-0 text-[#2D83C2]" />
                 {name}
               </li>
             ))}
@@ -155,7 +155,7 @@ export default function OfferDetails({
                 onClick={() => onSelectRoom?.(room)}
                 className={`w-full min-w-0 max-w-full rounded-xl border p-3 text-left transition sm:p-4 ${
                   selected
-                    ? "border-[#2577be] bg-blue-50 ring-2 ring-[#2577be]/20"
+                    ? "border-[#2D83C2] bg-blue-50 ring-2 ring-[#2D83C2]/20"
                     : "border-gray-100 bg-gray-50 hover:border-gray-200 hover:bg-white"
                 }`}
               >
@@ -167,7 +167,7 @@ export default function OfferDetails({
                     )}
                   </div>
                   <div className="flex-shrink-0 sm:text-right">
-                    <p className="text-base font-bold text-[#2577be] sm:text-lg">
+                    <p className="text-base font-bold text-[#2D83C2] sm:text-lg">
                       {formatUsd(nightPricing.salePrice)}
                       <span className="text-xs font-normal text-gray-400"> / night</span>
                     </p>
@@ -194,10 +194,10 @@ export default function OfferDetails({
                   <p className="mt-2 break-words text-xs text-gray-500">{room.amenities.join(" · ")}</p>
                 )}
                 <div className="mt-3 flex items-center justify-between">
-                  <span className={`text-xs font-semibold ${selected ? "text-[#2577be]" : "text-gray-400"}`}>
+                  <span className={`text-xs font-semibold ${selected ? "text-[#2D83C2]" : "text-gray-400"}`}>
                     {selected ? "Selected" : "Select this room"}
                   </span>
-                  {selected && <Check size={18} className="text-[#2577be]" />}
+                  {selected && <Check size={18} className="text-[#2D83C2]" />}
                 </div>
               </button>
             );

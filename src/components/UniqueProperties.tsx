@@ -60,7 +60,7 @@ export default function UniqueProperties() {
             {PROPERTY_TYPES.map((type) => (
               <div
                 key={type}
-                className="flex w-32 flex-shrink-0 cursor-pointer flex-col items-center gap-2 rounded-xl border border-gray-100 p-4 transition hover:border-[#2577be] hover:shadow-md"
+                className="flex w-32 flex-shrink-0 cursor-pointer flex-col items-center gap-2 rounded-xl border border-gray-100 p-4 transition hover:border-[#2D83C2] hover:shadow-md"
               >
                 <span className="text-3xl">{PROPERTY_ICONS[type] || "🏠"}</span>
                 <span className="text-center text-xs font-medium text-[#1e2e5e] leading-tight">{type}</span>

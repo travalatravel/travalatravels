@@ -65,6 +65,7 @@ const en = {
     checkOut: "Check-out",
     rooms: "Rooms",
     room: "room",
+    guests: "guests",
     adults: "Adults",
     adult: "Adult",
     children: "Children",
@@ -206,7 +207,11 @@ const en = {
     basedOn: "Based on {count} reviews",
     readOnTrustpilot: "Read reviews on Trustpilot",
   },
-  blog: { title: "Latest from our blog" },
+  blog: {
+    title: "Where To Go & What To See",
+    subtitle: "Get inspired with travel guides and destination ideas from our blog",
+    inspiration: "Inspiration",
+  },
   travelGuides: { title: "Travel Guides" },
   faq: {
     title: "FAQs",
@@ -312,6 +317,19 @@ const en = {
   payments: {
     usdtNetwork: "Select USDT network",
     usdtNetworkHint: "Choose the blockchain network for your USDT transfer",
+  },
+  searchFilters: {
+    allStars: "All star ratings",
+    stars3: "3+ stars",
+    stars4: "4+ stars",
+    stars5: "5 stars",
+    anyPrice: "Any price",
+    under100: "Under $100/night",
+    under200: "Under $200/night",
+    under400: "Under $400/night",
+    sortBy: "Sort by",
+    starsHigh: "Star rating",
+    map: "Map",
   },
   searchPage: {
     enterRoute: "Enter departure and destination airports to search flights.",

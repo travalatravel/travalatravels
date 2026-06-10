@@ -48,7 +48,7 @@ function SidebarContent({
             onClick={onNavigate}
             className={`mb-1 flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition ${
               pathname === href
-                ? "bg-[#2577be] text-white"
+                ? "bg-[#2D83C2] text-white"
                 : "text-white/70 hover:bg-white/10 hover:text-white"
             }`}
           >
@@ -126,7 +126,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (authState !== "ok") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-100">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2577be] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2D83C2] border-t-transparent" />
       </div>
     );
   }

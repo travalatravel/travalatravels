@@ -44,7 +44,7 @@ export default function PriceDisplay({
           <span className="text-gray-400 line-through">{formatUsd(p.originalPrice)}</span>
         )}
         {p.savings > 0 && (
-          <span className="font-medium text-[#2577be]">Save {formatUsd(p.savings)}</span>
+          <span className="font-medium text-[#2D83C2]">Save {formatUsd(p.savings)}</span>
         )}
       </div>
       {showCrypto && (

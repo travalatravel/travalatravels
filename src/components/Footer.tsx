@@ -1,22 +1,20 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import SafeImage from "./SafeImage";
-import CoinIcon from "./CoinIcon";
-import { FOOTER_CITIES, FOOTER_COUNTRIES, FOOTER_COINS, FOOTER_REGIONS } from "@/data/site-data";
+import PaymentAcceptLogos from "./PaymentAcceptLogos";
+import { ASSETS, FOOTER_COINS } from "@/data/site-data";
+import {
+  FOOTER_CITY_LINKS,
+  FOOTER_COUNTRY_LINKS,
+  FOOTER_NAV,
+  FOOTER_REGION_LINKS,
+} from "@/data/footer-links";
 import { useTranslations } from "@/i18n/useTranslations";
 
-const SOCIAL = ["Twitter", "Facebook", "Telegram", "Instagram", "Reddit", "Linkedin", "Discord"];
-
 export default function Footer() {
-  const { messages: m, fmt } = useTranslations();
-  const year = new Date().getFullYear();
-
-  const footerSections = [
-    { key: "travala" as const, links: ["priceGuarantee", "mobileApp", "businessTravel"] as const },
-    { key: "support" as const, links: ["helpCenter", "myTrip", "terms", "privacy", "cookies", "contact", "concierge", "bugReport"] as const },
-    { key: "resources" as const, links: ["reviews", "careers"] as const },
-  ];
+  const { messages: m } = useTranslations();
 
   return (
     <footer className="bg-[#1e2e5e] text-white">
@@ -25,33 +23,45 @@ export default function Footer() {
           <h3 className="font-[family-name:var(--font-display)] text-xl font-bold">
             {m.footer.exploreHotels}
           </h3>
-          <p className="mt-1 text-sm text-white/70">
-            {m.footer.exploreSubtitle}
-          </p>
+          <p className="mt-1 text-sm text-white/70">{m.footer.exploreSubtitle}</p>
 
           <div className="mt-6 grid gap-6 sm:grid-cols-3">
             <div>
-              <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/60">{m.footer.countries}</h4>
+              <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/60">
+                {m.footer.countries}
+              </h4>
               <div className="flex flex-wrap gap-2">
-                {FOOTER_COUNTRIES.map((c) => (
-                  <Link key={c} href={`/search?type=stays&q=${encodeURIComponent(c)}`} className="text-xs text-white/80 hover:text-[#2dd4bf]">{c}</Link>
+                {FOOTER_COUNTRY_LINKS.map((c) => (
+                  <Link key={c.name} href={c.href} className="text-xs text-white/80 hover:text-[#2dd4bf]">
+                    {c.name}
+                  </Link>
                 ))}
-                <Link href="/search?type=stays" className="text-xs font-semibold text-[#2dd4bf]">{m.common.showMore}</Link>
+                <Link href="/stays" className="text-xs font-semibold text-[#2dd4bf]">
+                  {m.common.showMore}
+                </Link>
               </div>
             </div>
             <div>
-              <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/60">{m.footer.regions}</h4>
+              <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/60">
+                {m.footer.regions}
+              </h4>
               <div className="flex flex-wrap gap-2">
-                {FOOTER_REGIONS.map((r) => (
-                  <Link key={r} href={`/search?type=stays&q=${encodeURIComponent(r)}`} className="text-xs text-white/80 hover:text-[#2dd4bf]">{r}</Link>
+                {FOOTER_REGION_LINKS.map((r) => (
+                  <Link key={r.name} href={r.href} className="text-xs text-white/80 hover:text-[#2dd4bf]">
+                    {r.name}
+                  </Link>
                 ))}
               </div>
             </div>
             <div>
-              <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/60">{m.footer.cities}</h4>
+              <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/60">
+                {m.footer.cities}
+              </h4>
               <div className="flex flex-wrap gap-2">
-                {FOOTER_CITIES.map((c) => (
-                  <Link key={c} href={`/search?type=stays&q=${encodeURIComponent(c)}`} className="text-xs text-white/80 hover:text-[#2dd4bf]">{c}</Link>
+                {FOOTER_CITY_LINKS.map((c) => (
+                  <Link key={c.name} href={c.href} className="text-xs text-white/80 hover:text-[#2dd4bf]">
+                    {c.name}
+                  </Link>
                 ))}
               </div>
             </div>
@@ -60,46 +70,80 @@ export default function Footer() {
 
         <div className="border-t border-white/10 pt-10">
           <SafeImage
-            src="/logo-white.svg"
+            src={ASSETS.logoWhite}
             alt="Travala"
-            width={120}
-            height={32}
+            width={140}
+            height={36}
             className="mb-4 h-8 w-auto"
             fallbackClassName="mb-4 h-8 w-28 rounded bg-white/10"
           />
-          <p className="mb-3 text-xs text-white/60">
-            {m.crypto.footerPay}
-          </p>
-          <div className="mb-8 flex flex-wrap gap-3">
+          <p className="mb-3 text-xs text-white/60">{m.crypto.footerPay}</p>
+
+          <div className="mb-4 flex flex-wrap gap-2">
             {FOOTER_COINS.map((coin) => (
               <div
-                key={coin}
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 p-0.5"
+                key={coin.key}
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 p-1"
+                title={coin.name}
               >
-                <CoinIcon coin={coin} size={36} />
+                <Image src={coin.symbol} alt={coin.name} width={28} height={28} className="h-7 w-7 object-contain" unoptimized />
               </div>
             ))}
           </div>
 
+          <PaymentAcceptLogos className="mb-8 opacity-90" />
+
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {footerSections.map((section) => (
-              <div key={section.key}>
-                <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-[#2dd4bf]">{m.footer.sections[section.key]}</h4>
-                <ul className="space-y-2">
-                  {section.links.map((linkKey) => (
-                    <li key={linkKey}>
-                      <span className="text-xs text-white/70">{m.footer.links[linkKey]}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+            <div>
+              <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-[#2dd4bf]">
+                {m.footer.sections.travala}
+              </h4>
+              <ul className="space-y-2">
+                {FOOTER_NAV.travala.map((link) => (
+                  <li key={link.href}>
+                    <Link href={link.href} className="text-xs text-white/70 hover:text-white" target={link.href.startsWith("http") ? "_blank" : undefined} rel={link.href.startsWith("http") ? "noopener noreferrer" : undefined}>
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-[#2dd4bf]">
+                {m.footer.sections.support}
+              </h4>
+              <ul className="space-y-2">
+                {FOOTER_NAV.support.map((link) => (
+                  <li key={link.href}>
+                    <Link href={link.href} className="text-xs text-white/70 hover:text-white" target={link.href.startsWith("http") ? "_blank" : undefined} rel={link.href.startsWith("http") ? "noopener noreferrer" : undefined}>
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-[#2dd4bf]">
+                {m.footer.sections.resources}
+              </h4>
+              <ul className="space-y-2">
+                {FOOTER_NAV.resources.map((link) => (
+                  <li key={link.href}>
+                    <Link href={link.href} className="text-xs text-white/70 hover:text-white" target={link.href.startsWith("http") ? "_blank" : undefined} rel={link.href.startsWith("http") ? "noopener noreferrer" : undefined}>
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
             <div>
               <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-[#2dd4bf]">COMMUNITY</h4>
               <ul className="space-y-2">
-                {SOCIAL.map((s) => (
-                  <li key={s}>
-                    <span className="text-xs text-white/70">{s}</span>
+                {FOOTER_NAV.community.map((link) => (
+                  <li key={link.href}>
+                    <Link href={link.href} className="text-xs text-white/70 hover:text-white" target="_blank" rel="noopener noreferrer">
+                      {link.label}
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -108,7 +152,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-10 border-t border-white/10 pt-6 text-center text-xs text-white/50">
-          {fmt(m.footer.copyright, { year })}
+          © 2017–2026 Travala.com. All rights reserved.
         </div>
       </div>
     </footer>

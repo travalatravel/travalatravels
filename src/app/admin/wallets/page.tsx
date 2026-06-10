@@ -64,7 +64,7 @@ export default function AdminWalletsPage() {
           <h1 className="text-2xl font-bold text-[#1e2e5e]">Crypto Wallets</h1>
           <p className="mt-1 text-gray-500">Manage payment wallet addresses</p>
         </div>
-        <button onClick={openCreate} className="flex items-center gap-2 rounded-xl bg-[#2577be] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1e2e5e]">
+        <button onClick={openCreate} className="flex items-center gap-2 rounded-xl bg-[#2D83C2] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1e2e5e]">
           <Plus size={16} /> Add Wallet
         </button>
       </div>
@@ -78,24 +78,24 @@ export default function AdminWalletsPage() {
               <div>
                 <label className="text-xs font-medium text-gray-500">Currency</label>
                 <select value={form.currency} onChange={(e) => setForm({ ...form, currency: e.target.value })}
-                  className="mt-1 w-full rounded-xl border px-3 py-2.5 text-sm outline-none focus:border-[#2577be]">
+                  className="mt-1 w-full rounded-xl border px-3 py-2.5 text-sm outline-none focus:border-[#2D83C2]">
                   {CURRENCIES.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
               <div>
                 <label className="text-xs font-medium text-gray-500">Label</label>
                 <input value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} required
-                  className="mt-1 w-full rounded-xl border px-3 py-2.5 text-sm outline-none focus:border-[#2577be]" placeholder="Bitcoin Main Wallet" />
+                  className="mt-1 w-full rounded-xl border px-3 py-2.5 text-sm outline-none focus:border-[#2D83C2]" placeholder="Bitcoin Main Wallet" />
               </div>
               <div>
                 <label className="text-xs font-medium text-gray-500">Address</label>
                 <input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} required
-                  className="mt-1 w-full rounded-xl border px-3 py-2.5 font-mono text-sm outline-none focus:border-[#2577be]" placeholder="bc1q..." />
+                  className="mt-1 w-full rounded-xl border px-3 py-2.5 font-mono text-sm outline-none focus:border-[#2D83C2]" placeholder="bc1q..." />
               </div>
               <div>
                 <label className="text-xs font-medium text-gray-500">Network</label>
                 <input value={form.network} onChange={(e) => setForm({ ...form, network: e.target.value })} required
-                  className="mt-1 w-full rounded-xl border px-3 py-2.5 text-sm outline-none focus:border-[#2577be]" placeholder="Bitcoin / Ethereum ERC-20" />
+                  className="mt-1 w-full rounded-xl border px-3 py-2.5 text-sm outline-none focus:border-[#2D83C2]" placeholder="Bitcoin / Ethereum ERC-20" />
               </div>
               <label className="flex items-center gap-2 text-sm">
                 <input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />

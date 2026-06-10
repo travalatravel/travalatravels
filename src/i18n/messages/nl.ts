@@ -20,7 +20,7 @@ const nl: Partial<Messages> = {
     invalidOffer: "Vluchtaanbieding verlopen of ongeldig. Zoek opnieuw.",
     searchFlights: "Vluchten zoeken", searchAgain: "Opnieuw zoeken", noResults: 'Geen resultaten voor "{query}"',
     searching: "Zoeken...", selectDate: "Datum kiezen", checkIn: "Inchecken", checkOut: "Uitchecken",
-    rooms: "Kamers", room: "kamer", adults: "Volwassenen", adult: "Volwassene", children: "Kinderen",
+    rooms: "Kamers", room: "kamer", guests: "guests", adults: "Volwassenen", adult: "Volwassene", children: "Kinderen",
     child: "Kind", infants: "Baby's", yrs12: "12+ jr", yrs211: "2–11 jr", under2: "Onder 2",
     whereTo: "Waarheen?", cityOrAirport: "Stad of luchthaven", addHotel: "Hotel op bestemming toevoegen",
     donePassengers: "Klaar", propertiesFound: "{count} verblijven gevonden", noPropertiesFound: "Geen verblijven gevonden",
@@ -68,7 +68,7 @@ const nl: Partial<Messages> = {
   },
   topProperties: { title: "Unieke verblijven", subtitle: "Ontdek buitengewone plekken om te overnachten wereldwijd", properties: "{count} verblijven" },
   partners: { title: "Onze vertrouwde partners" },
-  blog: { title: "Laatste van onze blog" },
+  blog: { title: "Laatste van onze blog", subtitle: "Get inspired with travel guides and destination ideas from our blog", inspiration: "Inspiration" },
   travelGuides: { title: "Reisgidsen" },
   faq: {
     title: "Veelgestelde vragen",

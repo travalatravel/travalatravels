@@ -21,7 +21,7 @@ export default function BundlePaymentSummary({
       </div>
       <div className="space-y-3 p-5 text-sm">
         <div className="flex items-start gap-3">
-          <Plane size={16} className="mt-0.5 shrink-0 text-[#2577be]" />
+          <Plane size={16} className="mt-0.5 shrink-0 text-[#2D83C2]" />
           <div className="min-w-0 flex-1">
             <p className="font-semibold text-[#1e2e5e]">{flightBooking.offer.title}</p>
             <p className="text-xs text-gray-500">{flightBooking.offer.location}</p>
@@ -29,7 +29,7 @@ export default function BundlePaymentSummary({
           <p className="font-semibold text-[#1e2e5e]">{formatUsd(flightBooking.totalPrice)}</p>
         </div>
         <div className="flex items-start gap-3 border-t border-slate-100 pt-3">
-          <Building2 size={16} className="mt-0.5 shrink-0 text-[#2577be]" />
+          <Building2 size={16} className="mt-0.5 shrink-0 text-[#2D83C2]" />
           <div className="min-w-0 flex-1">
             <p className="font-semibold text-[#1e2e5e] line-clamp-2">{hotelBooking.offer.title}</p>
             <p className="text-xs text-gray-500">

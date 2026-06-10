@@ -20,7 +20,7 @@ const ar: Partial<Messages> = {
     invalidOffer: "عرض الرحلة منتهٍ أو غير صالح. يرجى البحث مرة أخرى.",
     searchFlights: "البحث عن رحلات", searchAgain: "ابحث مرة أخرى", noResults: 'لا نتائج لـ "{query}"',
     searching: "جاري البحث...", selectDate: "اختر التاريخ", checkIn: "تسجيل الوصول", checkOut: "تسجيل المغادرة",
-    rooms: "الغرف", room: "غرفة", adults: "بالغون", adult: "بالغ", children: "أطفال",
+    rooms: "الغرف", room: "غرفة", guests: "guests", adults: "بالغون", adult: "بالغ", children: "أطفال",
     child: "طفل", infants: "رضع", yrs12: "12+ سنة", yrs211: "2–11 سنة", under2: "أقل من سنتين",
     whereTo: "إلى أين؟", cityOrAirport: "مدينة أو مطار", addHotel: "إضافة فندق في الوجهة",
     donePassengers: "تم", propertiesFound: "تم العثور على {count} عقار", noPropertiesFound: "لم يتم العثور على عقارات",
@@ -68,7 +68,7 @@ const ar: Partial<Messages> = {
   },
   topProperties: { title: "عقارات فريدة", subtitle: "اكتشف أماكن إقامة استثنائية حول العالم", properties: "{count} عقار" },
   partners: { title: "شركاؤنا الموثوقون" },
-  blog: { title: "آخر المقالات" },
+  blog: { title: "آخر المقالات", subtitle: "Get inspired with travel guides and destination ideas from our blog", inspiration: "Inspiration" },
   travelGuides: { title: "أدلة السفر" },
   faq: {
     title: "الأسئلة الشائعة",

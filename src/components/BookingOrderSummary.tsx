@@ -71,7 +71,7 @@ export default function BookingOrderSummary({
         </div>
       )}
       <div className={isFlight ? "p-5" : "p-5"}>
-        <span className="text-xs font-semibold uppercase tracking-wide text-[#2577be]">
+        <span className="text-xs font-semibold uppercase tracking-wide text-[#2D83C2]">
           {m.offerTypes[offer.type]}
         </span>
         <h3 className="mt-1 font-semibold text-[#1e2e5e] leading-snug">{offer.title}</h3>

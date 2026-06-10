@@ -170,7 +170,7 @@ function OfferDetailContent() {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2577be] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2D83C2] border-t-transparent" />
       </div>
     );
   }
@@ -179,7 +179,7 @@ function OfferDetailContent() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4">
         <p className="text-gray-500">Offer not found</p>
-        <Link href="/search" className="text-[#2577be] hover:underline">Back to search</Link>
+        <Link href="/search" className="text-[#2D83C2] hover:underline">Back to search</Link>
       </div>
     );
   }
@@ -192,7 +192,7 @@ function OfferDetailContent() {
       <SiteChrome>
       <div className="w-full min-w-0 overflow-x-hidden">
       <main className="mx-auto w-full min-w-0 max-w-6xl px-3 py-6 pb-28 sm:px-4 sm:py-8 lg:px-6 lg:pb-8">
-        <Link href="/search" className="mb-4 inline-flex items-center gap-1 text-sm text-[#2577be] hover:underline sm:mb-6">
+        <Link href="/search" className="mb-4 inline-flex items-center gap-1 text-sm text-[#2D83C2] hover:underline sm:mb-6">
           <ArrowLeft size={16} /> Back to search
         </Link>
 
@@ -207,7 +207,7 @@ function OfferDetailContent() {
               country={offer.country}
             />
             <div className="mt-4 min-w-0 sm:mt-6">
-              <span className="rounded-full bg-[#2577be]/10 px-3 py-1 text-xs font-semibold text-[#2577be]">
+              <span className="rounded-full bg-[#2D83C2]/10 px-3 py-1 text-xs font-semibold text-[#2D83C2]">
                 {TYPE_LABELS[offer.type]}
               </span>
               <h1 className="mt-3 break-words text-lg font-bold text-[#1e2e5e] sm:text-2xl md:text-3xl">
@@ -252,7 +252,7 @@ function OfferDetailContent() {
           <div className="order-1 min-w-0 lg:order-2 lg:col-span-1">
             <div className="w-full min-w-0 max-w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl sm:rounded-2xl lg:sticky lg:top-20">
               {pricing && pricing.discountPct > 0 && (
-                <div className="flex items-center gap-2 bg-[#2577be] px-3 py-2.5 text-white sm:px-4">
+                <div className="flex items-center gap-2 bg-[#2D83C2] px-3 py-2.5 text-white sm:px-4">
                   <Tag size={14} className="flex-shrink-0" />
                   <span className="text-xs font-semibold sm:text-sm">
                     Save {pricing.discountPct}% — Best price guarantee
@@ -278,8 +278,8 @@ function OfferDetailContent() {
                 )}
               </div>
               {selectedRoom ? (
-                <div className="mt-3 min-w-0 rounded-xl border border-[#2577be]/20 bg-blue-50/50 p-3">
-                  <p className="text-[11px] font-semibold uppercase tracking-wide text-[#2577be]">Selected room</p>
+                <div className="mt-3 min-w-0 rounded-xl border border-[#2D83C2]/20 bg-blue-50/50 p-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-[#2D83C2]">Selected room</p>
                   <p className="mt-1 break-words text-sm font-semibold text-[#1e2e5e]">{selectedRoom.packageName}</p>
                   {selectedRoom.bedDescription && (
                     <p className="text-xs text-gray-500">{selectedRoom.bedDescription}</p>
@@ -293,7 +293,7 @@ function OfferDetailContent() {
                 </div>
               ) : (
                 offer.type === "HOTEL" && (
-                  <p className="mt-2 text-xs text-[#2577be]">Select a room type below to see your rate.</p>
+                  <p className="mt-2 text-xs text-[#2D83C2]">Select a room type below to see your rate.</p>
                 )
               )}
               {!selectedRoom && livePrice?.mealType && (
@@ -302,7 +302,7 @@ function OfferDetailContent() {
 
               <div className="mt-4 min-w-0 space-y-3 sm:mt-5">
                 {isFlight && (
-                  <div className="rounded-xl border border-[#2577be]/15 bg-blue-50/40 p-3 text-sm">
+                  <div className="rounded-xl border border-[#2D83C2]/15 bg-blue-50/40 p-3 text-sm">
                     <p className="font-semibold text-[#1e2e5e]">{CABIN_LABELS[cabin]}</p>
                     <p className="text-xs text-gray-500">
                       {flightPax} passenger{flightPax !== 1 ? "s" : ""} · {trip === "roundtrip" ? "Round trip" : trip === "oneway" ? "One way" : "Multi-city"}
@@ -314,12 +314,12 @@ function OfferDetailContent() {
                     <div className="min-w-0">
                       <label className="text-xs font-medium text-gray-500">Check-in</label>
                       <input type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)}
-                        className="mt-1 w-full min-w-0 max-w-full rounded-xl border border-gray-200 px-2 py-2 text-sm outline-none focus:border-[#2577be] sm:px-3 sm:py-2.5" />
+                        className="mt-1 w-full min-w-0 max-w-full rounded-xl border border-gray-200 px-2 py-2 text-sm outline-none focus:border-[#2D83C2] sm:px-3 sm:py-2.5" />
                     </div>
                     <div className="min-w-0">
                       <label className="text-xs font-medium text-gray-500">Check-out</label>
                       <input type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)}
-                        className="mt-1 w-full min-w-0 max-w-full rounded-xl border border-gray-200 px-2 py-2 text-sm outline-none focus:border-[#2577be] sm:px-3 sm:py-2.5" />
+                        className="mt-1 w-full min-w-0 max-w-full rounded-xl border border-gray-200 px-2 py-2 text-sm outline-none focus:border-[#2D83C2] sm:px-3 sm:py-2.5" />
                     </div>
                   </div>
                 )}
@@ -328,13 +328,13 @@ function OfferDetailContent() {
                     <div className="min-w-0">
                       <label className="text-xs font-medium text-gray-500">Depart</label>
                       <input type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)}
-                        className="mt-1 w-full min-w-0 max-w-full rounded-xl border border-gray-200 px-2 py-2 text-sm outline-none focus:border-[#2577be] sm:px-3 sm:py-2.5" />
+                        className="mt-1 w-full min-w-0 max-w-full rounded-xl border border-gray-200 px-2 py-2 text-sm outline-none focus:border-[#2D83C2] sm:px-3 sm:py-2.5" />
                     </div>
                     {trip === "roundtrip" && (
                       <div className="min-w-0">
                         <label className="text-xs font-medium text-gray-500">Return</label>
                         <input type="date" value={checkOut} min={checkIn} onChange={(e) => setCheckOut(e.target.value)}
-                          className="mt-1 w-full min-w-0 max-w-full rounded-xl border border-gray-200 px-2 py-2 text-sm outline-none focus:border-[#2577be] sm:px-3 sm:py-2.5" />
+                          className="mt-1 w-full min-w-0 max-w-full rounded-xl border border-gray-200 px-2 py-2 text-sm outline-none focus:border-[#2D83C2] sm:px-3 sm:py-2.5" />
                       </div>
                     )}
                   </div>
@@ -344,13 +344,13 @@ function OfferDetailContent() {
                     <label className="text-xs font-medium text-gray-500">{isFlight ? "Passengers" : "Guests"}</label>
                     <input type="number" min={1} max={20} value={isFlight ? flightPax : guests} disabled={isFlight}
                       onChange={(e) => setGuests(+e.target.value)}
-                      className="mt-1 w-full min-w-0 rounded-xl border border-gray-200 px-2 py-2 text-sm outline-none focus:border-[#2577be] disabled:bg-gray-50 sm:px-3 sm:py-2.5" />
+                      className="mt-1 w-full min-w-0 rounded-xl border border-gray-200 px-2 py-2 text-sm outline-none focus:border-[#2D83C2] disabled:bg-gray-50 sm:px-3 sm:py-2.5" />
                   </div>
                   {offer.type === "HOTEL" && (
                     <div className="min-w-0">
                       <label className="text-xs font-medium text-gray-500">Rooms</label>
                       <input type="number" min={1} max={10} value={rooms} onChange={(e) => setRooms(+e.target.value)}
-                        className="mt-1 w-full min-w-0 rounded-xl border border-gray-200 px-2 py-2 text-sm outline-none focus:border-[#2577be] sm:px-3 sm:py-2.5" />
+                        className="mt-1 w-full min-w-0 rounded-xl border border-gray-200 px-2 py-2 text-sm outline-none focus:border-[#2D83C2] sm:px-3 sm:py-2.5" />
                     </div>
                   )}
                 </div>
@@ -361,7 +361,7 @@ function OfferDetailContent() {
                 </div>
               </div>
 
-              <div className="mt-4 min-w-0 rounded-xl border border-[#2577be]/15 bg-[#2577be]/5 p-3 sm:mt-5">
+              <div className="mt-4 min-w-0 rounded-xl border border-[#2D83C2]/15 bg-[#2D83C2]/5 p-3 sm:mt-5">
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                   <span className="text-sm font-semibold text-[#1e2e5e] sm:text-base">
                     Your price{livePrice?.nights ? ` · ${livePrice.nights} nights` : isFlight ? ` · ${flightPax} pax` : ""}
@@ -371,7 +371,7 @@ function OfferDetailContent() {
                   </span>
                 </div>
                 {totalPricing && totalPricing.savings > 0 && (
-                  <p className="mt-1 break-words text-xs text-[#2577be]">
+                  <p className="mt-1 break-words text-xs text-[#2D83C2]">
                     You save {formatUsd(totalPricing.savings)} (was {formatUsd(calcBaseTotal())})
                   </p>
                 )}
@@ -381,7 +381,7 @@ function OfferDetailContent() {
 
               <button
                 onClick={handleContinue}
-                className="mt-4 hidden w-full rounded-xl bg-[#2577be] py-3.5 text-sm font-bold text-white shadow-lg transition hover:bg-[#1e2e5e] sm:block sm:py-4"
+                className="mt-4 hidden w-full rounded-xl bg-[#2D83C2] py-3.5 text-sm font-bold text-white shadow-lg transition hover:bg-[#1e2e5e] sm:block sm:py-4"
               >
                 {user ? (isFlight ? "Continue — passenger details →" : "Continue — enter guest details →") : "Log in to book"}
               </button>
@@ -392,7 +392,7 @@ function OfferDetailContent() {
 
               {!user && (
                 <p className="mt-2 text-center text-xs text-gray-400">
-                  <Link href={`/register?redirect=/offers/${id}`} className="text-[#2577be] hover:underline">
+                  <Link href={`/register?redirect=/offers/${id}`} className="text-[#2D83C2] hover:underline">
                     Create an account
                   </Link>{" "}
                   to book
@@ -414,7 +414,7 @@ function OfferDetailContent() {
           </div>
           <button
             onClick={handleContinue}
-            className="flex-shrink-0 rounded-xl bg-[#2577be] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#1e2e5e] sm:px-5 sm:py-3"
+            className="flex-shrink-0 rounded-xl bg-[#2D83C2] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#1e2e5e] sm:px-5 sm:py-3"
           >
             {user ? "Book →" : "Log in"}
           </button>
@@ -431,7 +431,7 @@ export default function OfferDetailPage() {
     <Suspense
       fallback={
         <div className="flex min-h-screen items-center justify-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2577be] border-t-transparent" />
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2D83C2] border-t-transparent" />
         </div>
       }
     >

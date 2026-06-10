@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { supplementHotelSearch } from "@/lib/travala-live-search";
-import { normalizeSearchQuery, searchTermsForQuery } from "@/lib/search-query";
+import { searchHotelOffers } from "@/lib/hotel-search";
 import { matchesFlightRoute, parseFlightMetadata } from "@/lib/flight-display";
+import { prisma } from "@/lib/prisma";
 
 const TYPE_MAP: Record<string, string> = {
   stays: "HOTEL",
@@ -24,61 +23,65 @@ export async function GET(request: Request) {
   const country = searchParams.get("country") || "";
   const from = searchParams.get("from") || "";
   const to = searchParams.get("to") || "";
-  const page = Math.max(parseInt(searchParams.get("page") || "1"), 1);
-  const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100);
-  const skip = (page - 1) * limit;
+  const page = Math.max(parseInt(searchParams.get("page") || "1", 10), 1);
+  const limit = Math.min(parseInt(searchParams.get("limit") || "50", 10), 100);
   const sort = searchParams.get("sort") || "recommended";
+  const starsMin = parseInt(searchParams.get("starsMin") || "0", 10) || 0;
+  const priceMax = parseFloat(searchParams.get("priceMax") || "0") || 0;
 
   const type = TYPE_MAP[typeParam.toLowerCase()] || "HOTEL";
 
+  if (type === "HOTEL") {
+    const result = await searchHotelOffers({
+      q: q || undefined,
+      country: country || undefined,
+      city: city || undefined,
+      sort,
+      page,
+      limit,
+      starsMin: starsMin > 0 ? starsMin : undefined,
+      priceMax: priceMax > 0 ? priceMax : undefined,
+    });
+
+    return NextResponse.json({
+      offers: result.offers,
+      total: result.total,
+      page: result.page,
+      pages: result.pages,
+      type,
+      source: result.source,
+    });
+  }
+
+  const skip = (page - 1) * limit;
   const orderBy =
     sort === "price-asc"
       ? [{ price: "asc" as const }]
       : sort === "price-desc"
         ? [{ price: "desc" as const }]
-        : sort === "stars-desc"
-          ? [{ stars: "desc" as const }, { price: "asc" as const }]
-          : [{ stars: "desc" as const }, { price: "asc" as const }];
-
-  const where: {
-    type: string;
-    OR?: Array<{ title?: { contains: string }; city?: { contains: string }; country?: { contains: string }; location?: { contains: string } }>;
-    city?: { contains: string };
-    country?: { contains: string };
-  } = { type };
-
-  if (q) {
-    const terms = searchTermsForQuery(q);
-    where.OR = terms.flatMap((term) => [
-      { title: { contains: term } },
-      { city: { contains: term } },
-      { country: { contains: term } },
-      { location: { contains: term } },
-    ]);
-  }
-
-  if (city) where.city = { contains: city };
-  if (country) where.country = { contains: country };
-
-  let total = await prisma.offer.count({ where });
-
-  if (type === "HOTEL" && q.trim() && total < 30) {
-    await supplementHotelSearch(normalizeSearchQuery(q) || q.trim(), total);
-    total = await prisma.offer.count({ where });
-  }
-
-  let offers;
+        : [{ stars: "desc" as const }, { price: "asc" as const }];
 
   if (type === "FLIGHT" && (from || to)) {
     const allFlights = await prisma.offer.findMany({ where: { type: "FLIGHT" }, orderBy });
     const filtered = allFlights.filter((o) =>
       matchesFlightRoute(parseFlightMetadata(o.metadata), o.title, from, to),
     );
-    total = filtered.length;
-    offers = filtered.slice(skip, skip + limit);
-  } else {
-    offers = await prisma.offer.findMany({ where, take: limit, skip, orderBy });
+    return NextResponse.json({
+      offers: filtered.slice(skip, skip + limit),
+      total: filtered.length,
+      page,
+      pages: Math.ceil(filtered.length / limit),
+      type,
+    });
   }
+
+  const offers = await prisma.offer.findMany({
+    where: { type },
+    take: limit,
+    skip,
+    orderBy,
+  });
+  const total = await prisma.offer.count({ where: { type } });
 
   return NextResponse.json({
     offers,

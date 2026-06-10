@@ -3,17 +3,36 @@ import OfferImage from "@/components/OfferImage";
 import OfferLocation from "@/components/OfferLocation";
 import PriceDisplay from "@/components/PriceDisplay";
 import { getOfferPricing } from "@/lib/pricing";
+import { parseTravalaSlug } from "@/lib/hotel-slug";
 import { Star, Tag } from "lucide-react";
 import type { Offer } from "@/lib/types";
 import { TYPE_LABELS } from "@/lib/types";
 
-export default function OfferCard({ offer }: { offer: Offer }) {
+export default function OfferCard({
+  offer,
+  searchContext,
+}: {
+  offer: Offer;
+  searchContext?: { checkIn?: string; checkOut?: string; guests?: string; rooms?: string };
+}) {
   const pricing = getOfferPricing(offer.price, offer.id, offer.stars);
+  const slug = offer.type === "HOTEL" ? parseTravalaSlug(offer.metadata) : null;
+
+  const detailParams = new URLSearchParams();
+  if (searchContext?.checkIn) detailParams.set("checkIn", searchContext.checkIn);
+  if (searchContext?.checkOut) detailParams.set("checkOut", searchContext.checkOut);
+  if (searchContext?.guests) detailParams.set("guests", searchContext.guests);
+  if (searchContext?.rooms) detailParams.set("rooms", searchContext.rooms);
+  const qs = detailParams.toString();
+
+  const href = slug
+    ? `/hotel/${slug}${qs ? `?${qs}` : ""}`
+    : `/offers/${offer.id}${qs ? `?${qs}` : ""}`;
 
   return (
     <Link
-      href={`/offers/${offer.id}`}
-      className="group relative flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-[#2577be]/30 hover:shadow-md"
+      href={href}
+      className="group relative flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-[#2D83C2]/30 hover:shadow-md"
     >
       <div className="relative h-44 overflow-hidden sm:h-48 md:h-52">
         <OfferImage
@@ -28,7 +47,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
         />
 
         {pricing.discountPct > 0 && (
-          <span className="absolute left-3 top-3 flex items-center gap-1 rounded-md bg-[#2577be] px-2.5 py-1 text-[10px] font-bold text-white shadow">
+          <span className="absolute left-3 top-3 flex items-center gap-1 rounded-md bg-[#2D83C2] px-2.5 py-1 text-[10px] font-bold text-white shadow">
             <Tag size={10} />
             Save {pricing.discountPct}%
           </span>
@@ -40,7 +59,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
       </div>
 
       <div className="flex flex-1 flex-col p-4">
-        <h3 className="font-semibold text-[#1e2e5e] line-clamp-2 group-hover:text-[#2577be]">
+        <h3 className="font-semibold text-[#1e2e5e] line-clamp-2 group-hover:text-[#2D83C2]">
           {offer.title}
         </h3>
         <OfferLocation location={offer.location} country={offer.country} />

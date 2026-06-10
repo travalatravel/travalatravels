@@ -222,7 +222,7 @@ export default function CryptoGatewayPanel({
               href={explorerUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-[#2577be] hover:underline"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-[#2D83C2] hover:underline"
             >
               {p.viewExplorer}
               <ExternalLink size={14} />
@@ -330,7 +330,7 @@ export default function CryptoGatewayPanel({
           {booking.paymentStatus === "AWAITING_CONFIRMATION" ? (
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-50">
-                <Clock className="text-[#2577be]" size={28} />
+                <Clock className="text-[#2D83C2]" size={28} />
               </div>
               <h3 className="mt-4 text-lg font-semibold text-slate-900">
                 {p.awaitingConfirmation}
@@ -346,7 +346,7 @@ export default function CryptoGatewayPanel({
                       href={explorerUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-[#2577be] hover:underline"
+                      className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-[#2D83C2] hover:underline"
                     >
                       {p.trackExplorer}
                       <ExternalLink size={14} />
@@ -357,7 +357,7 @@ export default function CryptoGatewayPanel({
               <button
                 type="button"
                 onClick={onPaid}
-                className="mt-6 text-sm font-medium text-[#2577be] hover:underline"
+                className="mt-6 text-sm font-medium text-[#2D83C2] hover:underline"
               >
                 Refresh status
               </button>

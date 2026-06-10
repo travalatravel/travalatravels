@@ -267,7 +267,7 @@ export default function FlightSearchForm({
                     active ? "z-[2] border-[#ccc] border-b-white bg-white" : "border-transparent bg-white/80 text-gray-600"
                   }`
                 : `relative flex-shrink-0 snap-start px-3 py-2.5 text-xs font-semibold sm:px-5 sm:py-3 sm:text-sm ${
-                    active ? "text-[#2577be] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[#2577be]" : "text-gray-500"
+                    active ? "text-[#2D83C2] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[#2D83C2]" : "text-gray-500"
                   }`
             }
           >
@@ -291,7 +291,7 @@ export default function FlightSearchForm({
         <label
           key={key}
           className={`flex min-h-11 cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm ${
-            trip === key ? "bg-[#eef5fc] font-semibold text-[#2577be]" : "text-[#1a1a1a]"
+            trip === key ? "bg-[#eef5fc] font-semibold text-[#2D83C2]" : "text-[#1a1a1a]"
           }`}
         >
           <input
@@ -299,7 +299,7 @@ export default function FlightSearchForm({
             name="trip"
             checked={trip === key}
             onChange={() => setTrip(key)}
-            className="h-4 w-4 accent-[#2577be]"
+            className="h-4 w-4 accent-[#2D83C2]"
           />
           {m.search.tripTypes[key]}
         </label>
@@ -317,7 +317,7 @@ export default function FlightSearchForm({
               type="button"
               onClick={swapAirports}
               aria-label="Swap airports"
-              className="mx-auto flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gray-200 text-[#2577be] hover:bg-[#eef5fc] sm:mb-0.5 sm:h-9 sm:w-9"
+              className="mx-auto flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gray-200 text-[#2D83C2] hover:bg-[#eef5fc] sm:mb-0.5 sm:h-9 sm:w-9"
             >
               <ArrowLeftRight size={16} />
             </button>
@@ -327,14 +327,14 @@ export default function FlightSearchForm({
       ) : (
         <div className="grid w-full gap-3 sm:grid-cols-2">
           <div className="rounded-lg border border-gray-100 p-3">
-            <p className="mb-2 text-xs font-semibold text-[#2577be]">Flight 1</p>
+            <p className="mb-2 text-xs font-semibold text-[#2D83C2]">Flight 1</p>
             <div className="grid gap-2 sm:grid-cols-2">
               {airportInput("leg0from", "From", from, setFrom)}
               {airportInput("leg0to", "To", to, setTo)}
             </div>
           </div>
           <div className="rounded-lg border border-gray-100 p-3">
-            <p className="mb-2 text-xs font-semibold text-[#2577be]">Flight 2</p>
+            <p className="mb-2 text-xs font-semibold text-[#2D83C2]">Flight 2</p>
             <div className="grid gap-2 sm:grid-cols-2">
               {airportInput("leg1from", "From", leg2From, setLeg2From)}
               {airportInput("leg1to", "To", leg2To, setLeg2To)}
@@ -440,7 +440,7 @@ export default function FlightSearchForm({
               <select
                 value={cabin}
                 onChange={(e) => setCabin(e.target.value as CabinClass)}
-                className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-3 text-base outline-none focus:border-[#2577be] sm:py-2 sm:text-sm"
+                className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-3 text-base outline-none focus:border-[#2D83C2] sm:py-2 sm:text-sm"
               >
                 {(Object.keys(CABIN_LABELS) as CabinClass[]).map((c) => (
                   <option key={c} value={c}>{CABIN_LABELS[c]}</option>
@@ -450,7 +450,7 @@ export default function FlightSearchForm({
             <button
               type="button"
               onClick={() => setPaxOpen(false)}
-              className="mt-4 w-full rounded-xl bg-[#2577be] py-3 text-sm font-semibold text-white sm:hidden"
+              className="mt-4 w-full rounded-xl bg-[#2D83C2] py-3 text-sm font-semibold text-white sm:hidden"
             >
               Done
             </button>
@@ -461,7 +461,7 @@ export default function FlightSearchForm({
 
       <button
         type="submit"
-        className={`shrink-0 rounded-xl bg-[#2577be] font-semibold uppercase tracking-wide text-white transition hover:bg-[#1e2e5e] ${
+        className={`shrink-0 rounded-xl bg-[#2D83C2] font-semibold uppercase tracking-wide text-white transition hover:bg-[#1e2e5e] ${
           isHero ? "min-h-12 min-w-[140px] px-6 py-3 lg:min-w-[168px] lg:self-center" : "min-h-12 w-full px-6 py-3.5 sm:w-auto"
         }`}
       >
@@ -479,8 +479,8 @@ export default function FlightSearchForm({
             {tripRow}
             {flightRow}
             <label className="mt-4 flex cursor-pointer items-center gap-2 text-sm text-gray-600">
-              <input type="checkbox" checked={addHotel} onChange={(e) => setAddHotel(e.target.checked)} className="accent-[#2577be]" />
-              <Building2 size={16} className="text-[#2577be]" />
+              <input type="checkbox" checked={addHotel} onChange={(e) => setAddHotel(e.target.checked)} className="accent-[#2D83C2]" />
+              <Building2 size={16} className="text-[#2D83C2]" />
               {m.common.addHotel}
             </label>
           </div>
@@ -492,7 +492,7 @@ export default function FlightSearchForm({
             {tripRow}
             {flightRow}
             <label className="mt-3 flex cursor-pointer items-center gap-2 text-sm text-gray-600">
-              <input type="checkbox" checked={addHotel} onChange={(e) => setAddHotel(e.target.checked)} className="accent-[#2577be]" />
+              <input type="checkbox" checked={addHotel} onChange={(e) => setAddHotel(e.target.checked)} className="accent-[#2D83C2]" />
               {m.common.addHotel}
             </label>
           </div>

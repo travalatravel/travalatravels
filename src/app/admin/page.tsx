@@ -37,7 +37,7 @@ export default function AdminDashboard() {
         { label: "Pending Payments", value: stats.pendingPayments, icon: Clock, color: "bg-yellow-500" },
         { label: "Paid Bookings", value: stats.paidBookings, icon: DollarSign, color: "bg-green-500" },
         { label: "Crypto Wallets", value: stats.wallets, icon: Wallet, color: "bg-teal-500" },
-        { label: "Total Revenue", value: `$${stats.totalRevenue.toFixed(0)}`, icon: DollarSign, color: "bg-[#2577be]" },
+        { label: "Total Revenue", value: `$${stats.totalRevenue.toFixed(0)}`, icon: DollarSign, color: "bg-[#2D83C2]" },
         { label: "Page Views Today", value: stats.viewsToday, icon: Eye, color: "bg-indigo-500" },
         { label: "Total Page Views", value: stats.totalViews, icon: Eye, color: "bg-slate-600" },
       ]
@@ -52,7 +52,7 @@ export default function AdminDashboard() {
         </div>
         <Link
           href="/admin/views"
-          className="rounded-xl bg-[#2577be] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1e2e5e]"
+          className="rounded-xl bg-[#2D83C2] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1e2e5e]"
         >
           View all traffic
         </Link>

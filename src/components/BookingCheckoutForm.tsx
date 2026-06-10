@@ -17,7 +17,7 @@ import { useTranslations } from "@/i18n/useTranslations";
 import { Building2, User, ChevronRight, ShieldCheck, Info, Plus, Trash2 } from "lucide-react";
 
 const inputCls =
-  "mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-[#2577be] focus:ring-2 focus:ring-[#2577be]/10";
+  "mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-[#2D83C2] focus:ring-2 focus:ring-[#2D83C2]/10";
 const labelCls = "text-xs font-medium text-slate-600";
 
 function Section({
@@ -238,7 +238,7 @@ export default function BookingCheckoutForm({
                   : "border-slate-200 hover:border-slate-300"
               }`}
             >
-              <Icon size={20} className={bookingType === id ? "text-[#2577be]" : "text-slate-400"} />
+              <Icon size={20} className={bookingType === id ? "text-[#2D83C2]" : "text-slate-400"} />
               <div>
                 <p className="font-semibold text-[#1e2e5e]">{label}</p>
                 <p className="text-xs text-slate-500">{desc}</p>
@@ -417,7 +417,7 @@ export default function BookingCheckoutForm({
         <button
           type="button"
           onClick={addAdditionalGuest}
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 bg-white py-3 text-sm font-semibold text-[#2577be] transition hover:border-[#2577be] hover:bg-sky-50/50"
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 bg-white py-3 text-sm font-semibold text-[#2D83C2] transition hover:border-[#2D83C2] hover:bg-sky-50/50"
         >
           <Plus size={18} />
           {c.addGuest}
@@ -469,7 +469,7 @@ export default function BookingCheckoutForm({
         <button
           type="submit"
           disabled={submitting}
-          className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#1e2e5e] py-4 text-sm font-bold text-white transition hover:bg-[#2577be] disabled:opacity-50"
+          className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#1e2e5e] py-4 text-sm font-bold text-white transition hover:bg-[#2D83C2] disabled:opacity-50"
         >
           {submitting ? c.creatingBooking : c.continueToPayment}
           {!submitting && <ChevronRight size={18} />}

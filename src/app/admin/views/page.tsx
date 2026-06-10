@@ -85,7 +85,7 @@ export default function AdminViewsPage() {
             {summary.topPages.map((row) => (
               <div key={row.path} className="flex items-center justify-between text-sm">
                 <span className="font-mono text-gray-700">{row.path}</span>
-                <span className="font-semibold text-[#2577be]">{row.count}</span>
+                <span className="font-semibold text-[#2D83C2]">{row.count}</span>
               </div>
             ))}
           </div>
@@ -101,7 +101,7 @@ export default function AdminViewsPage() {
             setPathFilter(e.target.value);
           }}
           placeholder="Filter by path, e.g. /offers"
-          className="min-w-[240px] flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-[#2577be]"
+          className="min-w-[240px] flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-[#2D83C2]"
         />
       </div>
 

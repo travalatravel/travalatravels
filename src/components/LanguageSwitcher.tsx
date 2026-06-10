@@ -84,7 +84,7 @@ export default function LanguageSwitcher({
                 className={`flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm transition ${
                   isHome
                     ? active
-                      ? "bg-[#eef5fc] font-semibold text-[#2577be]"
+                      ? "bg-[#eef5fc] font-semibold text-[#2D83C2]"
                       : "text-gray-800 hover:bg-gray-50"
                     : active
                       ? "bg-white/15 font-semibold text-white"

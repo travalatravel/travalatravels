@@ -6,7 +6,7 @@ export default function StatsStrip() {
   const { messages: m } = useTranslations();
 
   return (
-    <section className="bg-[#2577be] py-6 text-white">
+    <section className="bg-[#2D83C2] py-6 text-white">
       <div className="mx-auto grid max-w-4xl grid-cols-3 gap-4 px-3 text-center sm:px-4">
         {m.stats.map((stat) => (
           <div key={stat.label}>

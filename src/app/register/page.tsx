@@ -52,7 +52,7 @@ function RegisterForm() {
               minLength={2}
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#2577be]"
+              className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#2D83C2]"
               placeholder="John Doe"
             />
           </div>
@@ -63,7 +63,7 @@ function RegisterForm() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#2577be]"
+              className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#2D83C2]"
               placeholder="your@email.com"
             />
           </div>
@@ -75,7 +75,7 @@ function RegisterForm() {
               minLength={6}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#2577be]"
+              className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#2D83C2]"
               placeholder="Min. 6 characters"
             />
           </div>
@@ -90,7 +90,7 @@ function RegisterForm() {
 
         <p className="mt-6 text-center text-sm text-gray-500">
           Already have an account?{" "}
-          <Link href={`/login${redirect !== "/" ? `?redirect=${redirect}` : ""}`} className="font-semibold text-[#2577be] hover:underline">
+          <Link href={`/login${redirect !== "/" ? `?redirect=${redirect}` : ""}`} className="font-semibold text-[#2D83C2] hover:underline">
             Log in
           </Link>
         </p>

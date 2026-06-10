@@ -20,7 +20,7 @@ const ru: Partial<Messages> = {
     invalidOffer: "Предложение истекло или недействительно. Повторите поиск.",
     searchFlights: "Искать рейсы", searchAgain: "Искать снова", noResults: "Нет результатов для «{query}»",
     searching: "Поиск...", selectDate: "Выберите дату", checkIn: "Заезд", checkOut: "Выезд",
-    rooms: "Номера", room: "номер", adults: "Взрослые", adult: "Взрослый", children: "Дети",
+    rooms: "Номера", room: "номер", guests: "guests", adults: "Взрослые", adult: "Взрослый", children: "Дети",
     child: "Ребёнок", infants: "Младенцы", yrs12: "12+ лет", yrs211: "2–11 лет", under2: "До 2 лет",
     whereTo: "Куда?", cityOrAirport: "Город или аэропорт", addHotel: "Добавить отель в пункте назначения",
     donePassengers: "Готово", propertiesFound: "Найдено {count} объектов", noPropertiesFound: "Объекты не найдены",
@@ -68,7 +68,7 @@ const ru: Partial<Messages> = {
   },
   topProperties: { title: "Уникальные объекты", subtitle: "Откройте необычные места для проживания по всему миру", properties: "{count} объектов" },
   partners: { title: "Наши надёжные партнёры" },
-  blog: { title: "Последнее в блоге" },
+  blog: { title: "Последнее в блоге", subtitle: "Get inspired with travel guides and destination ideas from our blog", inspiration: "Inspiration" },
   travelGuides: { title: "Путеводители" },
   faq: {
     title: "Частые вопросы",

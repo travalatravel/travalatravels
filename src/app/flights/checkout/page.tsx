@@ -40,7 +40,7 @@ function CheckoutContent() {
   if (authLoading || offerLoading || !flight) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2577be] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2D83C2] border-t-transparent" />
       </div>
     );
   }
@@ -86,7 +86,7 @@ function CheckoutContent() {
           back.set("id", flight.id);
           return `/flights/offer?${back.toString()}`;
         })()}
-        className="mb-6 inline-flex items-center gap-1 text-sm text-[#2577be] hover:underline"
+        className="mb-6 inline-flex items-center gap-1 text-sm text-[#2D83C2] hover:underline"
       >
         <ArrowLeft size={16} /> {m.common.backToFlight}
       </Link>

@@ -20,7 +20,7 @@ const tr: Partial<Messages> = {
     invalidOffer: "Uçuş teklifi süresi doldu veya geçersiz. Lütfen tekrar arayın.",
     searchFlights: "Uçuş ara", searchAgain: "Tekrar ara", noResults: '"{query}" için sonuç yok',
     searching: "Aranıyor...", selectDate: "Tarih seç", checkIn: "Giriş", checkOut: "Çıkış",
-    rooms: "Odalar", room: "oda", adults: "Yetişkinler", adult: "Yetişkin", children: "Çocuklar",
+    rooms: "Odalar", room: "oda", guests: "guests", adults: "Yetişkinler", adult: "Yetişkin", children: "Çocuklar",
     child: "Çocuk", infants: "Bebekler", yrs12: "12+ yaş", yrs211: "2–11 yaş", under2: "2 yaş altı",
     whereTo: "Nereye?", cityOrAirport: "Şehir veya havalimanı", addHotel: "Varış noktasına otel ekle",
     donePassengers: "Tamam", propertiesFound: "{count} konaklama bulundu", noPropertiesFound: "Konaklama bulunamadı",
@@ -68,7 +68,7 @@ const tr: Partial<Messages> = {
   },
   topProperties: { title: "Benzersiz konaklamalar", subtitle: "Dünya genelinde olağanüstü konaklama yerleri keşfedin", properties: "{count} konaklama" },
   partners: { title: "Güvenilir ortaklarımız" },
-  blog: { title: "Blogumuzdan son yazılar" },
+  blog: { title: "Blogumuzdan son yazılar", subtitle: "Get inspired with travel guides and destination ideas from our blog", inspiration: "Inspiration" },
   travelGuides: { title: "Seyahat rehberleri" },
   faq: {
     title: "SSS",

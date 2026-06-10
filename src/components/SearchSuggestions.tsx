@@ -12,7 +12,7 @@ import type { SearchSuggestion, SuggestionKind } from "@/lib/travala-suggest";
 import { useTranslations } from "@/i18n/useTranslations";
 
 function SuggestionIcon({ kind }: { kind: SuggestionKind }) {
-  const className = "h-4 w-4 flex-shrink-0 text-[#2577be]";
+  const className = "h-4 w-4 flex-shrink-0 text-[#2D83C2]";
   switch (kind) {
     case "airport":
       return <Plane className={className} aria-hidden />;

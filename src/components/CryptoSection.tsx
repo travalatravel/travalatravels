@@ -18,7 +18,7 @@ export default function CryptoSection() {
             </p>
             <Link
               href="/search?type=stays"
-              className="mt-6 inline-block rounded-lg bg-[#2577be] px-8 py-3 text-sm font-semibold text-white hover:bg-[#1e2e5e]"
+              className="mt-6 inline-block rounded-lg bg-[#2D83C2] px-8 py-3 text-sm font-semibold text-white hover:bg-[#1e2e5e]"
             >
               Start booking
             </Link>

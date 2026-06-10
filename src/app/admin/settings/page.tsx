@@ -72,7 +72,7 @@ export default function AdminSettingsPage() {
             required
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
-            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#2577be]"
+            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#2D83C2]"
           />
         </div>
         <div>
@@ -83,7 +83,7 @@ export default function AdminSettingsPage() {
             minLength={8}
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#2577be]"
+            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#2D83C2]"
           />
         </div>
         <div>
@@ -94,14 +94,14 @@ export default function AdminSettingsPage() {
             minLength={8}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#2577be]"
+            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#2D83C2]"
           />
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-xl bg-[#1e2e5e] py-3 text-sm font-semibold text-white hover:bg-[#2577be] disabled:opacity-50"
+          className="w-full rounded-xl bg-[#1e2e5e] py-3 text-sm font-semibold text-white hover:bg-[#2D83C2] disabled:opacity-50"
         >
           {loading ? "Saving…" : "Update password"}
         </button>

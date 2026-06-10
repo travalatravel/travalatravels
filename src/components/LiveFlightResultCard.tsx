@@ -90,7 +90,7 @@ function FlightLegRow({
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-          <span className="text-[10px] font-bold uppercase tracking-wide text-[#2577be]">{label}</span>
+          <span className="text-[10px] font-bold uppercase tracking-wide text-[#2D83C2]">{label}</span>
           <span className="text-[10px] text-gray-400">·</span>
           <span className="text-[10px] font-medium text-gray-500">{formatLegDate(leg.departAt)}</span>
           <span className="text-[10px] text-gray-400 sm:hidden">·</span>
@@ -146,7 +146,7 @@ export default function LiveFlightResultCard({
   return (
     <Link
       href={href}
-      className="group block border border-gray-200 bg-white transition hover:border-[#2577be]/50 hover:shadow-sm"
+      className="group block border border-gray-200 bg-white transition hover:border-[#2D83C2]/50 hover:shadow-sm"
     >
       <div className="flex flex-col lg:flex-row">
         <div className="min-w-0 flex-1 px-4 py-3 sm:px-5 sm:py-4">
@@ -180,7 +180,7 @@ export default function LiveFlightResultCard({
             <p className="text-xs text-gray-400 line-through">{formatUsd(pricing.originalPrice)}</p>
             <p className="text-[10px] font-semibold text-emerald-600">-{pricing.discountPct}%</p>
           </div>
-          <span className="rounded-lg bg-[#2577be] px-5 py-2.5 text-sm font-semibold text-white transition group-hover:bg-[#1e2e5e]">
+          <span className="rounded-lg bg-[#2D83C2] px-5 py-2.5 text-sm font-semibold text-white transition group-hover:bg-[#1e2e5e]">
             {c.select}
           </span>
         </div>

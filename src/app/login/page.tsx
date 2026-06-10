@@ -50,7 +50,7 @@ function LoginForm() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#2577be]"
+              className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#2D83C2]"
               placeholder="your@email.com"
             />
           </div>
@@ -61,14 +61,14 @@ function LoginForm() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#2577be]"
+              className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#2D83C2]"
               placeholder="••••••••"
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-xl bg-[#2577be] py-3 text-sm font-semibold text-white hover:bg-[#1e2e5e] disabled:opacity-50"
+            className="w-full rounded-xl bg-[#2D83C2] py-3 text-sm font-semibold text-white hover:bg-[#1e2e5e] disabled:opacity-50"
           >
             {loading ? "Logging in..." : "Log in"}
           </button>
@@ -76,7 +76,7 @@ function LoginForm() {
 
         <p className="mt-6 text-center text-sm text-gray-500">
           Don&apos;t have an account?{" "}
-          <Link href={`/register${redirect !== "/" ? `?redirect=${redirect}` : ""}`} className="font-semibold text-[#2577be] hover:underline">
+          <Link href={`/register${redirect !== "/" ? `?redirect=${redirect}` : ""}`} className="font-semibold text-[#2D83C2] hover:underline">
             Register
           </Link>
         </p>

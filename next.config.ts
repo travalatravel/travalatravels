@@ -24,6 +24,11 @@ const nextConfig: NextConfig = {
         hostname: "cdn.trustpilot.net",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "cdn1.travala.com",
+        pathname: "/**",
+      },
     ],
   },
 };

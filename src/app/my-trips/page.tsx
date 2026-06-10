@@ -38,7 +38,7 @@ export default function MyTripsPage() {
   if (authLoading || !user) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2577be] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2D83C2] border-t-transparent" />
       </div>
     );
   }
@@ -58,7 +58,7 @@ export default function MyTripsPage() {
         ) : bookings.length === 0 ? (
           <div className="mt-12 rounded-2xl border border-dashed border-gray-200 p-12 text-center">
             <p className="text-gray-500">No bookings yet</p>
-            <Link href="/search" className="mt-4 inline-block rounded-xl bg-[#2577be] px-6 py-3 text-sm font-semibold text-white">
+            <Link href="/stays" className="mt-4 inline-block rounded-xl bg-[#2D83C2] px-6 py-3 text-sm font-semibold text-white">
               Start Searching
             </Link>
           </div>
@@ -101,7 +101,7 @@ export default function MyTripsPage() {
                         )}
                         <p className="text-xs text-gray-500">{TYPE_LABELS[booking.offer.type as keyof typeof TYPE_LABELS]} · {booking.offer.location}</p>
                       </div>
-                      <span className="text-lg font-bold text-[#2577be] sm:flex-shrink-0">${booking.totalPrice.toFixed(2)}</span>
+                      <span className="text-lg font-bold text-[#2D83C2] sm:flex-shrink-0">${booking.totalPrice.toFixed(2)}</span>
                     </div>
                     <div className="mt-2 flex flex-wrap gap-3 text-xs text-gray-500">
                       {booking.checkIn && <span>Check-in: {new Date(booking.checkIn).toLocaleDateString()}</span>}
@@ -119,7 +119,7 @@ export default function MyTripsPage() {
                       <div className="mt-3 flex flex-wrap gap-2">
                         <Link
                           href={`/offers/${booking.offerId}/payment?bookingId=${booking.id}`}
-                          className="rounded-lg bg-[#2577be] px-4 py-2 text-xs font-semibold text-white"
+                          className="rounded-lg bg-[#2D83C2] px-4 py-2 text-xs font-semibold text-white"
                         >
                           Complete Payment
                         </Link>

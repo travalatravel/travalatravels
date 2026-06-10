@@ -55,7 +55,7 @@ function PaymentContent() {
   if (authLoading || loading) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2577be] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2D83C2] border-t-transparent" />
       </div>
     );
   }
@@ -64,7 +64,7 @@ function PaymentContent() {
     return (
       <div className="mx-auto max-w-lg px-4 py-16 text-center">
         <p className="text-gray-500">{c.bookingNotFound}</p>
-        <Link href="/my-trips" className="mt-4 inline-block text-[#2577be] hover:underline">
+        <Link href="/my-trips" className="mt-4 inline-block text-[#2D83C2] hover:underline">
           {m.paymentPage.myTrips}
         </Link>
       </div>
@@ -89,7 +89,7 @@ function PaymentContent() {
     <main className="mx-auto max-w-6xl px-3 py-6 sm:px-4 sm:py-8 lg:px-6">
       <Link
         href={`/offers/${id}/checkout?checkIn=${booking.checkIn?.slice(0, 10)}&checkOut=${booking.checkOut?.slice(0, 10)}&guests=${booking.guests}&rooms=${booking.rooms}`}
-        className="mb-6 inline-flex items-center gap-1 text-sm text-[#2577be] hover:underline"
+        className="mb-6 inline-flex items-center gap-1 text-sm text-[#2D83C2] hover:underline"
       >
         <ArrowLeft size={16} /> {c.editGuestDetails}
       </Link>
@@ -137,7 +137,7 @@ export default function PaymentPage() {
       <Suspense
         fallback={
           <div className="flex min-h-[50vh] items-center justify-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2577be] border-t-transparent" />
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2D83C2] border-t-transparent" />
           </div>
         }
       >

@@ -25,7 +25,7 @@ function Logo({ variant }: { variant: "home" | "default" }) {
           isHome ? "text-[#220a32]" : "text-white"
         }`}
       >
-        Trav<span className="text-[#2dd4bf]">ala</span>
+        <Image src={ASSETS.logoMint} alt="Travala" width={120} height={32} className="h-7 w-auto" unoptimized />
       </span>
     );
   }

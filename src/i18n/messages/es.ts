@@ -20,7 +20,7 @@ const es: Partial<Messages> = {
     invalidOffer: "La oferta de vuelo ha expirado o no es válida. Busca de nuevo.",
     searchFlights: "Buscar vuelos", searchAgain: "Buscar de nuevo", noResults: "Sin resultados para «{query}»",
     searching: "Buscando...", selectDate: "Seleccionar fecha", checkIn: "Entrada", checkOut: "Salida",
-    rooms: "Habitaciones", room: "habitación", adults: "Adultos", adult: "Adulto", children: "Niños",
+    rooms: "Habitaciones", room: "habitación", guests: "guests", adults: "Adultos", adult: "Adulto", children: "Niños",
     child: "Niño", infants: "Bebés", yrs12: "12+ años", yrs211: "2–11 años", under2: "Menor de 2",
     whereTo: "¿A dónde?", cityOrAirport: "Ciudad o aeropuerto", addHotel: "Añadir hotel en el destino",
     donePassengers: "Listo", propertiesFound: "{count} alojamientos encontrados", noPropertiesFound: "No se encontraron alojamientos",
@@ -68,7 +68,7 @@ const es: Partial<Messages> = {
   },
   topProperties: { title: "Alojamientos únicos", subtitle: "Descubre lugares extraordinarios donde alojarte en todo el mundo", properties: "{count} alojamientos" },
   partners: { title: "Nuestros socios de confianza" },
-  blog: { title: "Lo último en nuestro blog" },
+  blog: { title: "Lo último en nuestro blog", subtitle: "Get inspired with travel guides and destination ideas from our blog", inspiration: "Inspiration" },
   travelGuides: { title: "Guías de viaje" },
   faq: {
     title: "Preguntas frecuentes",

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Building2, Plane } from "lucide-react";
 import SearchSuggestions from "./SearchSuggestions";
@@ -10,6 +10,7 @@ import { ASSETS } from "@/data/site-data";
 import { defaultStayDates } from "@/lib/travala-price";
 import FlightSearchForm from "./FlightSearchForm";
 import { useTranslations } from "@/i18n/useTranslations";
+import { searchStaysPath } from "@/lib/seo-paths";
 
 const TABS = [
   { key: "stays", labelKey: "stays" as const, icon: Building2 },
@@ -30,13 +31,16 @@ export default function SearchForm({
   defaultQuery = "",
   compact = false,
   onTypeChange,
+  syncFromUrl = false,
 }: {
   defaultType?: string;
   defaultQuery?: string;
   compact?: boolean;
   onTypeChange?: (type: string) => void;
+  syncFromUrl?: boolean;
 }) {
   const router = useRouter();
+  const urlParams = useSearchParams();
   const { messages: m, fmt } = useTranslations();
   const defaults = defaultStayDates();
   const [type, setType] = useState(defaultType);
@@ -46,6 +50,22 @@ export default function SearchForm({
   const [guests, setGuests] = useState(2);
   const [children, setChildren] = useState(0);
   const [rooms, setRooms] = useState(1);
+
+  useEffect(() => {
+    if (!syncFromUrl) return;
+    const urlQ = urlParams.get("q") || defaultQuery;
+    const urlCheckIn = urlParams.get("checkIn");
+    const urlCheckOut = urlParams.get("checkOut");
+    const urlGuests = urlParams.get("guests");
+    const urlRooms = urlParams.get("rooms");
+    const urlType = urlParams.get("type");
+    if (urlType) setType(urlType);
+    setQuery(urlQ);
+    if (urlCheckIn) setCheckIn(urlCheckIn);
+    if (urlCheckOut) setCheckOut(urlCheckOut);
+    if (urlGuests) setGuests(Math.max(1, parseInt(urlGuests, 10) || 2));
+    if (urlRooms) setRooms(Math.max(1, parseInt(urlRooms, 10) || 1));
+  }, [syncFromUrl, urlParams, defaultQuery]);
   const [roomOpen, setRoomOpen] = useState(false);
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [suggestLoading, setSuggestLoading] = useState(false);
@@ -118,19 +138,31 @@ export default function SearchForm({
   }, []);
 
   const navigateToSearch = (searchQuery: string) => {
-    const params = new URLSearchParams({ type });
-    if (searchQuery.trim()) params.set("q", searchQuery.trim());
-    if (checkIn) params.set("checkIn", checkIn);
-    if (checkOut) params.set("checkOut", checkOut);
-    params.set("guests", String(guests + children));
-    if (showRooms) params.set("rooms", String(rooms));
+    const dateParams = new URLSearchParams();
+    if (checkIn) dateParams.set("checkIn", checkIn);
+    if (checkOut) dateParams.set("checkOut", checkOut);
+    dateParams.set("guests", String(guests + children));
+    if (showRooms) dateParams.set("rooms", String(rooms));
     setSuggestOpen(false);
-    router.push(`/search?${params.toString()}`);
+
+    if (type === "flights") {
+      const params = new URLSearchParams({ type });
+      if (searchQuery.trim()) params.set("q", searchQuery.trim());
+      dateParams.forEach((value, key) => params.set(key, value));
+      router.push(`/search?${params.toString()}`);
+      return;
+    }
+
+    const term = searchQuery.trim();
+    const base = term ? searchStaysPath(term) : "/search?type=stays";
+    const qs = dateParams.toString();
+    router.push(qs ? `${base}${base.includes("?") ? "&" : "?"}${qs}` : base);
   };
 
   const selectSuggestion = (item: SearchSuggestion) => {
-    setQuery(item.label);
-    navigateToSearch(item.searchQuery || item.query);
+    const term = item.searchQuery || item.query || item.label;
+    setQuery(term);
+    navigateToSearch(term);
   };
 
   const handleSearch = (e?: React.FormEvent) => {
@@ -198,7 +230,7 @@ export default function SearchForm({
                   }`
                 : `relative flex-shrink-0 snap-start px-3 py-2.5 text-xs font-semibold sm:px-5 sm:py-3 sm:text-sm ${
                     active
-                      ? "text-[#2577be] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[#2577be]"
+                      ? "text-[#2D83C2] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[#2D83C2]"
                       : "text-gray-500 hover:text-gray-700"
                   }`
             }
@@ -388,7 +420,7 @@ export default function SearchForm({
             <button
               type="button"
               onClick={() => setRoomOpen(false)}
-              className="mt-4 w-full rounded-xl bg-[#2577be] py-3 text-sm font-semibold text-white sm:hidden"
+              className="mt-4 w-full rounded-xl bg-[#2D83C2] py-3 text-sm font-semibold text-white sm:hidden"
             >
               Done
             </button>
@@ -400,7 +432,7 @@ export default function SearchForm({
 
       <button
         type="submit"
-        className={`shrink-0 rounded-xl bg-[#2577be] font-semibold uppercase tracking-wide text-white transition hover:bg-[#1e2e5e] ${
+        className={`shrink-0 rounded-xl bg-[#2D83C2] font-semibold uppercase tracking-wide text-white transition hover:bg-[#1e2e5e] ${
           isHero ? "min-h-12 min-w-[140px] px-6 py-3 lg:min-w-[168px] lg:self-center" : "min-h-12 w-full px-6 py-3.5 sm:w-auto"
         }`}
       >

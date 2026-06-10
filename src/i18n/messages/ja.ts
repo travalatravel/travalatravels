@@ -20,7 +20,7 @@ const ja: Partial<Messages> = {
     invalidOffer: "フライトオファーの有効期限切れまたは無効です。再度検索してください。",
     searchFlights: "フライトを検索", searchAgain: "再検索", noResults: "「{query}」の結果はありません",
     searching: "検索中...", selectDate: "日付を選択", checkIn: "チェックイン", checkOut: "チェックアウト",
-    rooms: "部屋", room: "部屋", adults: "大人", adult: "大人", children: "子供",
+    rooms: "部屋", room: "部屋", guests: "guests", adults: "大人", adult: "大人", children: "子供",
     child: "子供", infants: "幼児", yrs12: "12歳以上", yrs211: "2〜11歳", under2: "2歳未満",
     whereTo: "どこへ？", cityOrAirport: "都市または空港", addHotel: "目的地にホテルを追加",
     donePassengers: "完了", propertiesFound: "{count}件の宿泊施設", noPropertiesFound: "宿泊施設が見つかりません",
@@ -68,7 +68,7 @@ const ja: Partial<Messages> = {
   },
   topProperties: { title: "ユニークな宿泊施設", subtitle: "世界中の特別な宿泊先を発見", properties: "{count}件" },
   partners: { title: "信頼のパートナー" },
-  blog: { title: "ブログ最新記事" },
+  blog: { title: "ブログ最新記事", subtitle: "Get inspired with travel guides and destination ideas from our blog", inspiration: "Inspiration" },
   travelGuides: { title: "旅行ガイド" },
   faq: {
     title: "よくある質問",

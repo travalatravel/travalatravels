@@ -20,7 +20,7 @@ const zh: Partial<Messages> = {
     invalidOffer: "航班优惠已过期或无效。请重新搜索。",
     searchFlights: "搜索航班", searchAgain: "重新搜索", noResults: "没有「{query}」的结果",
     searching: "搜索中...", selectDate: "选择日期", checkIn: "入住", checkOut: "退房",
-    rooms: "房间", room: "房间", adults: "成人", adult: "成人", children: "儿童",
+    rooms: "房间", room: "房间", guests: "guests", adults: "成人", adult: "成人", children: "儿童",
     child: "儿童", infants: "婴儿", yrs12: "12岁以上", yrs211: "2–11岁", under2: "2岁以下",
     whereTo: "去哪里？", cityOrAirport: "城市或机场", addHotel: "在目的地添加酒店",
     donePassengers: "完成", propertiesFound: "找到 {count} 个住宿", noPropertiesFound: "未找到住宿",
@@ -68,7 +68,7 @@ const zh: Partial<Messages> = {
   },
   topProperties: { title: "独特住宿", subtitle: "发现全球非凡的住宿地点", properties: "{count} 个住宿" },
   partners: { title: "我们的可信合作伙伴" },
-  blog: { title: "博客最新文章" },
+  blog: { title: "博客最新文章", subtitle: "Get inspired with travel guides and destination ideas from our blog", inspiration: "Inspiration" },
   travelGuides: { title: "旅行指南" },
   faq: {
     title: "常见问题",
