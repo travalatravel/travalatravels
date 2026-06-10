@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import OfferImage from "@/components/OfferImage";
+import OfferLocation from "@/components/OfferLocation";
 import PriceDisplay from "@/components/PriceDisplay";
 import { getOfferPricing } from "@/lib/pricing";
 import type { Offer } from "@/lib/types";
@@ -98,7 +99,11 @@ export default function LuxuryDealsSection() {
                     <h3 className="line-clamp-2 text-sm font-semibold leading-snug group-hover:text-amber-300">
                       {offer.title}
                     </h3>
-                    <p className="mt-1 text-xs text-white/50">{offer.location}</p>
+                    <OfferLocation
+                      location={offer.location}
+                      country={offer.country}
+                      className="mt-1 flex items-center gap-1.5 text-xs text-white/50"
+                    />
                     <div className="mt-3 [&_span]:text-white [&_.line-through]:text-white/40 [&_.text-emerald-600]:text-emerald-400">
                       <PriceDisplay
                         price={offer.price}

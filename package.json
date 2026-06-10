@@ -23,6 +23,7 @@
   "dependencies": {
     "@prisma/client": "^5.22.0",
     "bcryptjs": "^3.0.3",
+    "country-flag-icons": "^1.6.17",
     "cryptocurrency-icons": "^0.18.1",
     "dotenv": "^17.4.2",
     "jose": "^6.2.3",

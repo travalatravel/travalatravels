@@ -1,5 +1,6 @@
 import Link from "next/link";
 import OfferImage from "@/components/OfferImage";
+import OfferLocation from "@/components/OfferLocation";
 import PriceDisplay from "@/components/PriceDisplay";
 import { getOfferPricing } from "@/lib/pricing";
 import { Star, Crown, Flame } from "lucide-react";
@@ -49,7 +50,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
         <h3 className="font-semibold text-[#1e2e5e] line-clamp-2 group-hover:text-[#2577be]">
           {offer.title}
         </h3>
-        <p className="mt-1 text-xs text-gray-500">{offer.location}</p>
+        <OfferLocation location={offer.location} country={offer.country} />
         {offer.stars && (
           <div className="mt-2 flex gap-0.5">
             {Array.from({ length: offer.stars }).map((_, i) => (

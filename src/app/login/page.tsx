@@ -39,10 +39,6 @@ function LoginForm() {
           <p className="mt-1 text-sm text-gray-500">Log in to your Travala account</p>
         </div>
 
-        <div className="mb-4 rounded-xl bg-blue-50 p-3 text-xs text-blue-700">
-          <p>Sign in with any email — a guest account is created automatically if needed.</p>
-        </div>
-
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</p>}
           <div>
