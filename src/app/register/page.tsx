@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ASSETS } from "@/data/site-data";
 import { useAuth } from "@/context/AuthContext";
+import AuthLayout from "@/components/AuthLayout";
 
 function RegisterForm() {
   const router = useRouter();
@@ -32,8 +33,9 @@ function RegisterForm() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-3 py-6 sm:px-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-lg sm:p-8">
+    <AuthLayout>
+      <div className="mx-auto flex w-full max-w-md justify-center">
+      <div className="w-full rounded-2xl bg-white p-5 shadow-lg sm:p-8">
         <div className="mb-8 text-center">
           <Image src={ASSETS.logoDark} alt="Travala" width={140} height={36} className="mx-auto" />
           <h1 className="mt-6 text-xl font-bold text-[#1e2e5e]">Create your account</h1>
@@ -96,13 +98,14 @@ function RegisterForm() {
           ← Back to home
         </Link>
       </div>
-    </div>
+      </div>
+    </AuthLayout>
   );
 }
 
 export default function RegisterPage() {
   return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+    <Suspense fallback={<AuthLayout><div className="py-20 text-center">Loading...</div></AuthLayout>}>
       <RegisterForm />
     </Suspense>
   );

@@ -84,9 +84,9 @@ export default function BookingOrderSummary({
 
         <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4">
           <span className="font-semibold text-[#1e2e5e]">Total</span>
-          <span className="text-2xl font-bold text-emerald-700">{formatUsd(totalPrice)}</span>
+          <span className="text-2xl font-bold text-[#1e2e5e]">{formatUsd(totalPrice)}</span>
         </div>
-        <p className="mt-1 text-[10px] text-gray-400">Includes crypto discount · Taxes included</p>
+        <p className="mt-1 text-[10px] text-gray-400">Best price guarantee · Taxes included</p>
       </div>
     </div>
   );

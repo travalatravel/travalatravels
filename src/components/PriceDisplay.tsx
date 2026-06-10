@@ -16,7 +16,8 @@ export default function PriceDisplay({
   perNight?: boolean;
 }) {
   const p = getOfferPricing(price, offerId, stars);
-  const suffix = perNight ? "/night" : "";
+  const displayPrice = showCrypto ? p.cryptoPrice : p.salePrice;
+  const suffix = perNight ? " / night" : "";
 
   const priceCls =
     size === "lg"
@@ -27,22 +28,29 @@ export default function PriceDisplay({
 
   return (
     <div className="min-w-0 max-w-full">
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-baseline gap-2">
         <span className={`${priceCls} text-[#1e2e5e]`}>
-          {formatUsd(showCrypto ? p.cryptoPrice : p.salePrice)}
-          {suffix && <span className="text-sm font-normal text-gray-400">{suffix}</span>}
+          {formatUsd(displayPrice)}
+          {suffix && <span className="text-sm font-normal text-gray-500">{suffix}</span>}
         </span>
-        <span className="rounded-md bg-red-600 px-2 py-0.5 text-[11px] font-bold text-white">
-          -{p.discountPct}%
-        </span>
+        {p.discountPct > 0 && (
+          <span className="rounded bg-[#2dd4bf]/20 px-2 py-0.5 text-[11px] font-semibold text-[#1e2e5e]">
+            -{p.discountPct}%
+          </span>
+        )}
       </div>
       <div className="mt-0.5 flex flex-wrap items-center gap-2 text-sm">
-        <span className="text-gray-400 line-through">{formatUsd(p.originalPrice)}</span>
-        <span className="font-semibold text-emerald-600">Save {formatUsd(p.savings)}</span>
+        {p.originalPrice > displayPrice && (
+          <span className="text-gray-400 line-through">{formatUsd(p.originalPrice)}</span>
+        )}
+        {p.savings > 0 && (
+          <span className="font-medium text-[#2577be]">Save {formatUsd(p.savings)}</span>
+        )}
       </div>
       {showCrypto && (
-        <p className="mt-1 text-xs font-medium text-[#2577be]">
-          Extra {p.cryptoExtraPct}% off with crypto
+        <p className="mt-1 text-xs text-gray-500">
+          or {formatUsd(p.cryptoPrice)}
+          {perNight ? "/night" : ""} with crypto
         </p>
       )}
     </div>

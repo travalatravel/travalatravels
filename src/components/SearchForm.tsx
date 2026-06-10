@@ -35,6 +35,7 @@ export default function SearchForm({
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [guests, setGuests] = useState(2);
+  const [rooms, setRooms] = useState(1);
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [suggestLoading, setSuggestLoading] = useState(false);
   const [suggestOpen, setSuggestOpen] = useState(false);
@@ -114,6 +115,7 @@ export default function SearchForm({
     if (checkIn) params.set("checkIn", checkIn);
     if (checkOut) params.set("checkOut", checkOut);
     params.set("guests", String(guests));
+    if (type === "stays") params.set("rooms", String(rooms));
     setSuggestOpen(false);
     router.push(`/search?${params.toString()}`);
   };
@@ -232,17 +234,34 @@ export default function SearchForm({
           </div>
         )}
 
-        <div className="flex min-w-0 items-center gap-2 rounded-xl border border-gray-200 px-3 py-2.5 sm:px-4 sm:py-3 md:w-28 lg:w-32">
-          <Users size={16} className="flex-shrink-0 text-gray-400" />
-          <input
-            type="number"
-            min={1}
-            max={20}
-            value={guests}
-            onChange={(e) => setGuests(parseInt(e.target.value) || 1)}
-            className="min-w-0 w-full text-sm outline-none"
-            aria-label="Guests"
-          />
+        <div className="flex min-w-0 gap-2 md:contents">
+          {type === "stays" && (
+            <div className="flex min-w-0 items-center gap-2 rounded-xl border border-gray-200 px-3 py-2.5 sm:px-4 sm:py-3 md:w-24">
+              <span className="text-xs text-gray-500">Rooms</span>
+              <input
+                type="number"
+                min={1}
+                max={8}
+                value={rooms}
+                onChange={(e) => setRooms(parseInt(e.target.value) || 1)}
+                className="min-w-0 w-full text-sm outline-none"
+                aria-label="Rooms"
+              />
+            </div>
+          )}
+          <div className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-gray-200 px-3 py-2.5 sm:px-4 sm:py-3 md:w-32 lg:w-36">
+            <Users size={16} className="flex-shrink-0 text-gray-400" />
+            <input
+              type="number"
+              min={1}
+              max={20}
+              value={guests}
+              onChange={(e) => setGuests(parseInt(e.target.value) || 1)}
+              className="min-w-0 w-full text-sm outline-none"
+              aria-label="Guests"
+            />
+            <span className="hidden text-xs text-gray-400 lg:inline">adults</span>
+          </div>
         </div>
 
         <button

@@ -238,7 +238,7 @@ export default function OfferDetailPage() {
                 </div>
               ) : (
                 offer.type === "HOTEL" && (
-                  <p className="mt-2 text-xs text-amber-600">Select a room type below to see your rate.</p>
+                  <p className="mt-2 text-xs text-[#2577be]">Select a room type below to see your rate.</p>
                 )
               )}
               {!selectedRoom && livePrice?.mealType && (
@@ -281,18 +281,18 @@ export default function OfferDetailPage() {
                 </div>
               </div>
 
-              <div className="mt-4 min-w-0 rounded-xl border border-emerald-100 bg-emerald-50/50 p-3 sm:mt-5">
+              <div className="mt-4 min-w-0 rounded-xl border border-[#2577be]/15 bg-[#2577be]/5 p-3 sm:mt-5">
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                   <span className="text-sm font-semibold text-[#1e2e5e] sm:text-base">
                     Your price{livePrice?.nights ? ` · ${livePrice.nights} nights` : ""}
                   </span>
-                  <span className={`text-xl font-bold text-emerald-700 sm:text-2xl ${priceLoading ? "opacity-50" : ""}`}>
+                  <span className={`text-xl font-bold text-[#1e2e5e] sm:text-2xl ${priceLoading ? "opacity-50" : ""}`}>
                     {priceLoading ? "…" : formatUsd(calcTotal())}
                   </span>
                 </div>
-                {pricing && (
-                  <p className="mt-1 break-words text-xs text-emerald-600">
-                    Includes crypto discount · You save {formatUsd(pricing.savings)}+ vs public rate
+                {pricing && pricing.savings > 0 && (
+                  <p className="mt-1 break-words text-xs text-[#2577be]">
+                    Save {formatUsd(pricing.savings)} vs public rate · Pay with crypto for extra rewards
                   </p>
                 )}
               </div>
@@ -301,7 +301,7 @@ export default function OfferDetailPage() {
 
               <button
                 onClick={handleContinue}
-                className="mt-4 hidden w-full rounded-xl bg-[#1e2e5e] py-3.5 text-sm font-bold text-white shadow-lg transition hover:bg-amber-500 hover:text-slate-900 sm:block sm:py-4"
+                className="mt-4 hidden w-full rounded-xl bg-[#2577be] py-3.5 text-sm font-bold text-white shadow-lg transition hover:bg-[#1e2e5e] sm:block sm:py-4"
               >
                 {user ? "Continue — enter guest details →" : "Log in to book"}
               </button>
@@ -328,13 +328,13 @@ export default function OfferDetailPage() {
         <div className="mx-auto flex w-full min-w-0 max-w-6xl items-center gap-2 sm:gap-3">
           <div className="min-w-0 flex-1">
             <p className="truncate text-xs text-gray-500">Your price</p>
-            <p className="text-lg font-bold text-emerald-700">
+            <p className="text-lg font-bold text-[#1e2e5e]">
               {priceLoading ? "…" : formatUsd(calcTotal())}
             </p>
           </div>
           <button
             onClick={handleContinue}
-            className="flex-shrink-0 rounded-xl bg-[#1e2e5e] px-4 py-2.5 text-sm font-bold text-white sm:px-5 sm:py-3"
+            className="flex-shrink-0 rounded-xl bg-[#2577be] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#1e2e5e] sm:px-5 sm:py-3"
           >
             {user ? "Book →" : "Log in"}
           </button>

@@ -25,14 +25,13 @@ export function getOfferPricing(
   const h = hashId(offerId);
   const isLuxury = (stars ?? 0) >= 5;
 
-  const discountPct = isLuxury
-    ? 48 + (h % 14)
-    : (stars ?? 0) >= 4
-      ? 38 + (h % 12)
-      : 30 + (h % 15);
+  const discountPct = Math.min(
+    60,
+    isLuxury ? 45 + (h % 16) : (stars ?? 0) >= 4 ? 35 + (h % 13) : 25 + (h % 16),
+  );
 
   const salePrice = round2(basePrice * (1 - discountPct / 100));
-  const markup = isLuxury ? 1.62 : (stars ?? 0) >= 4 ? 1.48 : 1.35;
+  const markup = isLuxury ? 1.55 : (stars ?? 0) >= 4 ? 1.45 : 1.32;
   const originalPrice = round2(Math.max(basePrice * markup, salePrice * 1.12));
   const savings = round2(originalPrice - salePrice);
   const cryptoExtraPct = 20;

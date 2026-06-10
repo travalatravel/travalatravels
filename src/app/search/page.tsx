@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useMemo, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import SiteChrome from "@/components/SiteChrome";
 import SearchForm from "@/components/SearchForm";
 import OfferCard from "@/components/OfferCard";
+import SearchFilters, { type SortOption } from "@/components/SearchFilters";
 import type { Offer } from "@/lib/types";
 import { TYPE_LABELS } from "@/lib/types";
 
@@ -23,6 +24,7 @@ function SearchResults() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
+  const [sort, setSort] = useState<SortOption>("recommended");
 
   const q = searchParams.get("q") || "";
   const type = searchParams.get("type") || "stays";
@@ -42,6 +44,20 @@ function SearchResults() {
       })
       .finally(() => setLoading(false));
   }, [q, type]);
+
+  const sortedOffers = useMemo(() => {
+    const list = [...offers];
+    switch (sort) {
+      case "price-asc":
+        return list.sort((a, b) => a.price - b.price);
+      case "price-desc":
+        return list.sort((a, b) => b.price - a.price);
+      case "stars-desc":
+        return list.sort((a, b) => (b.stars ?? 0) - (a.stars ?? 0));
+      default:
+        return list;
+    }
+  }, [offers, sort]);
 
   const loadMore = async () => {
     if (page >= pages || loadingMore) return;
@@ -79,6 +95,12 @@ function SearchResults() {
           )}
         </div>
 
+        {!loading && offers.length > 0 && (
+          <div className="mt-6">
+            <SearchFilters sort={sort} onSortChange={setSort} total={total} />
+          </div>
+        )}
+
         {loading ? (
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
@@ -95,7 +117,7 @@ function SearchResults() {
         ) : (
           <>
             <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {offers.map((offer) => (
+              {sortedOffers.map((offer) => (
                 <OfferCard key={offer.id} offer={offer} />
               ))}
             </div>
