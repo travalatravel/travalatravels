@@ -14,6 +14,7 @@ const PUBLIC_API_PREFIXES = [
   "/api/offer-image",
   "/api/offer-images",
   "/api/offer-price",
+  "/api/hotel-live-prices",
   "/api/offer-details",
   "/api/crypto/wallets",
   "/api/crypto/quote",

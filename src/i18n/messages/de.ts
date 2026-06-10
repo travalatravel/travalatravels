@@ -145,6 +145,8 @@ const de: Partial<Messages> = {
     map: "Karte",
   },
   searchPage: {
+    enterDestination: "Bitte ein Reiseziel eingeben, um Hotels zu suchen.",
+    loadingLiveRates: "Live-Preise für Ihre Daten werden geladen…",
     enterRoute: "Bitte Abflug- und Zielflughafen eingeben, um Flüge zu suchen.",
     noFlightsFound: "Keine Flüge für diese Route gefunden. Andere Flughäfen oder Daten versuchen.",
     noResultsFound: "Keine Ergebnisse gefunden. Anderen Suchbegriff versuchen.",

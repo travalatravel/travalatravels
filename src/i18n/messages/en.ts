@@ -332,6 +332,8 @@ const en = {
     map: "Map",
   },
   searchPage: {
+    enterDestination: "Enter a destination to search for hotels.",
+    loadingLiveRates: "Loading live rates for your dates…",
     enterRoute: "Enter departure and destination airports to search flights.",
     noFlightsFound: "No flights found for this route. Try different airports or dates.",
     noResultsFound: "No results found. Try a different search term.",

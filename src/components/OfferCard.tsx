@@ -7,13 +7,18 @@ import { parseTravalaSlug } from "@/lib/hotel-slug";
 import { Star, Tag } from "lucide-react";
 import type { Offer } from "@/lib/types";
 import { TYPE_LABELS } from "@/lib/types";
+import type { LivePriceResult } from "@/lib/travala-price";
 
 export default function OfferCard({
   offer,
   searchContext,
+  livePrice,
+  priceLoading = false,
 }: {
   offer: Offer;
   searchContext?: { checkIn?: string; checkOut?: string; guests?: string; rooms?: string };
+  livePrice?: LivePriceResult | null;
+  priceLoading?: boolean;
 }) {
   const pricing = getOfferPricing(offer.price, offer.id, offer.stars);
   const slug = offer.type === "HOTEL" ? parseTravalaSlug(offer.metadata) : null;
@@ -77,6 +82,9 @@ export default function OfferCard({
             stars={offer.stars}
             perNight={offer.type === "HOTEL"}
             showCrypto
+            livePricePerNight={livePrice?.pricePerNight}
+            priceLoading={priceLoading}
+            isLive={livePrice?.source === "travala"}
           />
         </div>
       </div>

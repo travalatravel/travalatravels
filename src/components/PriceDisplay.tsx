@@ -7,6 +7,9 @@ export default function PriceDisplay({
   size = "md",
   showCrypto = false,
   perNight = false,
+  livePricePerNight,
+  priceLoading = false,
+  isLive = false,
 }: {
   price: number;
   offerId: string;
@@ -14,10 +17,23 @@ export default function PriceDisplay({
   size?: "sm" | "md" | "lg";
   showCrypto?: boolean;
   perNight?: boolean;
+  livePricePerNight?: number | null;
+  priceLoading?: boolean;
+  isLive?: boolean;
 }) {
-  const p = getOfferPricing(price, offerId, stars);
+  const basePrice = livePricePerNight != null && livePricePerNight > 0 ? livePricePerNight : price;
+  const p = getOfferPricing(basePrice, offerId, stars);
   const displayPrice = showCrypto ? p.cryptoPrice : p.salePrice;
   const suffix = perNight ? " / night" : "";
+
+  if (priceLoading) {
+    return (
+      <div className="min-w-0 max-w-full">
+        <div className="h-7 w-28 animate-pulse rounded bg-gray-200" />
+        <div className="mt-1.5 h-3 w-36 animate-pulse rounded bg-gray-100" />
+      </div>
+    );
+  }
 
   const priceCls =
     size === "lg"
@@ -47,6 +63,9 @@ export default function PriceDisplay({
           <span className="font-medium text-[#2D83C2]">Save {formatUsd(p.savings)}</span>
         )}
       </div>
+      {isLive && (
+        <p className="mt-1 text-xs font-medium text-emerald-700">Live rate for your dates</p>
+      )}
       {showCrypto && (
         <p className="mt-1 text-xs text-gray-500">Crypto payment accepted at this rate</p>
       )}

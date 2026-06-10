@@ -8,6 +8,7 @@ import OfferCard from "@/components/OfferCard";
 import SearchFilters, { type SortOption, type StarFilter } from "@/components/SearchFilters";
 import HotelsMapPanel from "@/components/HotelsMapPanel";
 import type { Offer } from "@/lib/types";
+import type { LivePriceResult } from "@/lib/travala-price";
 import { useTranslations } from "@/i18n/useTranslations";
 
 export type StaysSearchContext = {
@@ -37,8 +38,11 @@ export default function StaysSearchResults({ context }: { context?: StaysSearchC
   const country = context?.country ?? searchParams.get("country") ?? "";
   const city = context?.city ?? searchParams.get("city") ?? "";
 
+  const displayQuery = q || city || country || "";
+  const canSearch = displayQuery.trim().length > 0;
+
   const [offers, setOffers] = useState<Offer[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(canSearch);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
   const [total, setTotal] = useState(0);
@@ -49,8 +53,10 @@ export default function StaysSearchResults({ context }: { context?: StaysSearchC
   const [priceMax, setPriceMax] = useState(0);
   const [showMap, setShowMap] = useState(false);
   const [source, setSource] = useState<string | null>(null);
+  const [livePrices, setLivePrices] = useState<Record<string, LivePriceResult>>({});
+  const [livePricesLoading, setLivePricesLoading] = useState(false);
 
-  const displayQuery = q || city || country || "";
+  const canFetchLivePrices = canSearch && Boolean(checkIn && checkOut);
 
   const buildParams = useCallback(
     (pageNum: number) => {
@@ -73,9 +79,21 @@ export default function StaysSearchResults({ context }: { context?: StaysSearchC
   const cardContext = { checkIn, checkOut, guests, rooms };
 
   useEffect(() => {
+    if (!canSearch) {
+      setLoading(false);
+      setOffers([]);
+      setTotal(0);
+      setPages(1);
+      setError("");
+      setSource(null);
+      setLivePrices({});
+      return;
+    }
+
     setLoading(true);
     setError("");
     setPage(1);
+    setLivePrices({});
 
     fetchWithTimeout(`/api/search?${buildParams(1)}`)
       .then((r) => {
@@ -95,7 +113,38 @@ export default function StaysSearchResults({ context }: { context?: StaysSearchC
         setError(m.searchPage.noResultsFound);
       })
       .finally(() => setLoading(false));
-  }, [buildParams, m.searchPage.noResultsFound]);
+  }, [buildParams, canSearch, m.searchPage.noResultsFound]);
+
+  useEffect(() => {
+    if (!canFetchLivePrices || loading || offers.length === 0) {
+      setLivePricesLoading(false);
+      return;
+    }
+
+    const offerIds = offers.slice(0, 24).map((o) => o.id);
+    setLivePricesLoading(true);
+
+    fetch("/api/hotel-live-prices", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        offerIds,
+        checkIn,
+        checkOut,
+        guests: Math.max(1, parseInt(guests, 10) || 2),
+        rooms: Math.max(1, parseInt(rooms, 10) || 1),
+      }),
+    })
+      .then((r) => (r.ok ? r.json() : { prices: {} }))
+      .then((data) =>
+        setLivePrices((prev) => ({
+          ...prev,
+          ...(data.prices || {}),
+        })),
+      )
+      .catch(() => {})
+      .finally(() => setLivePricesLoading(false));
+  }, [offers, checkIn, checkOut, guests, rooms, canFetchLivePrices, loading]);
 
   const loadMore = async () => {
     if (page >= pages || loadingMore) return;
@@ -135,9 +184,11 @@ export default function StaysSearchResults({ context }: { context?: StaysSearchC
           <div>
             <p className="text-sm font-semibold text-[#2D83C2]">{m.offerTypes.HOTEL}</p>
             <h1 className="text-2xl font-bold text-[#1e2e5e]">
-              {loading
-                ? m.common.searching
-                : fmt(m.common.resultCount, { count: total.toLocaleString() })}
+              {!canSearch
+                ? m.searchPage.enterDestination
+                : loading
+                  ? m.common.searching
+                  : fmt(m.common.resultCount, { count: total.toLocaleString() })}
               {!loading && displayQuery && (
                 <span className="font-normal text-gray-500"> · {heading}</span>
               )}
@@ -149,7 +200,12 @@ export default function StaysSearchResults({ context }: { context?: StaysSearchC
                 {` · ${guests} ${m.common.guests} · ${rooms} ${m.common.rooms}`}
               </p>
             )}
-            {source === "live" && !loading && (
+            {canFetchLivePrices && !loading && (livePricesLoading || Object.keys(livePrices).length > 0) && (
+              <p className="mt-1 text-xs font-medium text-emerald-700">
+                {livePricesLoading ? m.searchPage.loadingLiveRates : m.common.liveRatesOff}
+              </p>
+            )}
+            {source === "live" && !loading && !canFetchLivePrices && (
               <p className="mt-1 text-xs font-medium text-emerald-700">{m.common.liveRatesOff}</p>
             )}
           </div>
@@ -160,7 +216,7 @@ export default function StaysSearchResults({ context }: { context?: StaysSearchC
           )}
         </div>
 
-        {!loading && (
+        {canSearch && !loading && (
           <div className="mt-6">
             <SearchFilters
               sort={sort}
@@ -176,7 +232,12 @@ export default function StaysSearchResults({ context }: { context?: StaysSearchC
           </div>
         )}
 
-        {loading ? (
+        {!canSearch ? (
+          <div className="mt-12 text-center">
+            <p className="text-lg font-medium text-[#1e2e5e]">{m.searchPage.enterDestination}</p>
+            <p className="mt-2 text-sm text-gray-500">{m.common.whereTo}</p>
+          </div>
+        ) : loading ? (
           <div className="mt-8 grid gap-6 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="h-72 animate-pulse rounded-2xl bg-gray-100" />
@@ -191,7 +252,13 @@ export default function StaysSearchResults({ context }: { context?: StaysSearchC
           <div className={`mt-8 gap-6 ${showMap ? "grid lg:grid-cols-[1fr_320px]" : ""}`}>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {offers.map((offer) => (
-                <OfferCard key={offer.id} offer={offer} searchContext={cardContext} />
+                <OfferCard
+                  key={offer.id}
+                  offer={offer}
+                  searchContext={cardContext}
+                  livePrice={livePrices[offer.id]}
+                  priceLoading={canFetchLivePrices && livePricesLoading && !livePrices[offer.id]}
+                />
               ))}
             </div>
             {showMap && (

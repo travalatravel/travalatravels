@@ -83,6 +83,7 @@ export default function SearchForm({
   const showDates = type === "stays";
   const showRooms = type === "stays";
   const isHero = !compact;
+  const canSearchStays = query.trim().length > 0;
 
   const fetchSuggestions = useCallback(async (value: string, searchType: string) => {
     const trimmed = value.trim();
@@ -138,6 +139,9 @@ export default function SearchForm({
   }, []);
 
   const navigateToSearch = (searchQuery: string) => {
+    const term = searchQuery.trim();
+    if (type === "stays" && !term) return;
+
     const dateParams = new URLSearchParams();
     if (checkIn) dateParams.set("checkIn", checkIn);
     if (checkOut) dateParams.set("checkOut", checkOut);
@@ -153,8 +157,7 @@ export default function SearchForm({
       return;
     }
 
-    const term = searchQuery.trim();
-    const base = term ? searchStaysPath(term) : "/search?type=stays";
+    const base = searchStaysPath(term);
     const qs = dateParams.toString();
     router.push(qs ? `${base}${base.includes("?") ? "&" : "?"}${qs}` : base);
   };
@@ -432,7 +435,12 @@ export default function SearchForm({
 
       <button
         type="submit"
-        className={`shrink-0 rounded-xl bg-[#2D83C2] font-semibold uppercase tracking-wide text-white transition hover:bg-[#1e2e5e] ${
+        disabled={!canSearchStays}
+        className={`shrink-0 rounded-xl font-semibold uppercase tracking-wide text-white transition ${
+          canSearchStays
+            ? "bg-[#2D83C2] hover:bg-[#1e2e5e]"
+            : "cursor-not-allowed bg-[#2D83C2]/40"
+        } ${
           isHero ? "min-h-12 min-w-[140px] px-6 py-3 lg:min-w-[168px] lg:self-center" : "min-h-12 w-full px-6 py-3.5 sm:w-auto"
         }`}
       >
