@@ -29,6 +29,8 @@ git push -u origin main
 3. Repo `travalatravel/travalatravels` auswählen
 4. Railway startet automatisch den ersten Build (dauert 3–8 Min.)
 
+> **Crashed mit `DATABASE_URL not found`?** → Du hast Schritt 3 + 4 unten noch nicht gemacht. Variables müssen am **Service** `travalatravels` gesetzt werden, nicht nur im Projekt.
+
 ---
 
 ## Teil 3 — Persistent Volume für die Datenbank
@@ -60,6 +62,14 @@ Im Service → **Variables** → diese Werte eintragen:
 ```
 
 Nach dem Speichern deployt Railway neu.
+
+### Öffentliche URL erzeugen (wichtig!)
+
+Wenn oben **„Unexposed service“** steht:
+
+1. Service → **Settings** → **Networking**
+2. **Generate Domain** klicken (z.B. `travalatravels-production.up.railway.app`)
+3. Damit ist die Seite erreichbar, auch bevor Dynadot DNS fertig ist
 
 ---
 
