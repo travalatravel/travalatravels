@@ -2,7 +2,10 @@ import OfferImage from "@/components/OfferImage";
 import { formatUsd } from "@/lib/pricing";
 import type { Offer } from "@/lib/types";
 import { TYPE_LABELS } from "@/lib/types";
-import { MapPin, Calendar, Users, BedDouble } from "lucide-react";
+import { MapPin, Calendar, Users, BedDouble, Plane } from "lucide-react";
+import type { CabinClass, TripType } from "@/lib/flight-types";
+import { CABIN_LABELS } from "@/lib/flight-types";
+import { parseFlightMetadata } from "@/lib/flight-display";
 
 export default function BookingOrderSummary({
   offer,
@@ -14,6 +17,8 @@ export default function BookingOrderSummary({
   nights,
   roomPackageName,
   roomMealType,
+  cabin,
+  trip,
 }: {
   offer: Offer;
   checkIn?: string;
@@ -24,7 +29,12 @@ export default function BookingOrderSummary({
   nights?: number;
   roomPackageName?: string;
   roomMealType?: string;
+  cabin?: CabinClass;
+  trip?: TripType;
 }) {
+  const isFlight = offer.type === "FLIGHT";
+  const flightMeta = isFlight ? parseFlightMetadata(offer.metadata) : null;
+
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div className="relative h-36">
@@ -45,8 +55,8 @@ export default function BookingOrderSummary({
         </span>
         <h3 className="mt-1 font-semibold text-[#1e2e5e] leading-snug">{offer.title}</h3>
         <p className="mt-1 flex items-center gap-1 text-xs text-gray-500">
-          <MapPin size={12} />
-          {offer.location}
+          {isFlight ? <Plane size={12} /> : <MapPin size={12} />}
+          {isFlight && flightMeta ? `${flightMeta.from} → ${flightMeta.to}` : offer.location}
         </p>
 
         <div className="mt-4 space-y-2 border-t border-slate-100 pt-4 text-sm">
@@ -65,7 +75,7 @@ export default function BookingOrderSummary({
           )}
           <div className="flex items-center gap-2 text-gray-600">
             <Users size={15} className="text-gray-400" />
-            <span>{guests} guest{guests > 1 ? "s" : ""}</span>
+            <span>{guests} {isFlight ? "passenger" : "guest"}{guests > 1 ? "s" : ""}</span>
           </div>
           {offer.type === "HOTEL" && (
             <div className="flex items-center gap-2 text-gray-600">

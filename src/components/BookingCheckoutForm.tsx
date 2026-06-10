@@ -11,6 +11,7 @@ import {
   type BookingType,
 } from "@/lib/booking-guest";
 import type { Offer } from "@/lib/types";
+import type { CabinClass, TripType } from "@/lib/flight-types";
 import { useAuth } from "@/context/AuthContext";
 import { Building2, User, ChevronRight, ShieldCheck, Info, Plus, Trash2 } from "lucide-react";
 
@@ -45,6 +46,10 @@ export default function BookingCheckoutForm({
   roomPackageName,
   roomMealType,
   roomTotalPrice,
+  cabin,
+  trip,
+  liveFlightToken,
+  liveFlightTotal,
 }: {
   offer: Offer;
   checkIn: string;
@@ -54,9 +59,14 @@ export default function BookingCheckoutForm({
   roomPackageName?: string;
   roomMealType?: string;
   roomTotalPrice?: number;
+  cabin?: CabinClass;
+  trip?: TripType;
+  liveFlightToken?: string;
+  liveFlightTotal?: number;
 }) {
   const router = useRouter();
   const { user } = useAuth();
+  const isFlight = offer.type === "FLIGHT";
 
   const [bookingType, setBookingType] = useState<BookingType>("PRIVATE");
   const [guestFirstName, setGuestFirstName] = useState("");
@@ -165,6 +175,10 @@ export default function BookingCheckoutForm({
         roomPackageName,
         roomMealType,
         roomTotalPrice,
+        cabin,
+        trip,
+        liveFlightToken,
+        liveFlightTotal,
       }),
     });
 
@@ -213,8 +227,8 @@ export default function BookingCheckoutForm({
       </Section>
 
       <Section
-        title="Lead guest details"
-        subtitle="The main guest checking in — name must match travel ID."
+        title={isFlight ? "Lead passenger details" : "Lead guest details"}
+        subtitle={isFlight ? "Name must match passport or government ID." : "The main guest checking in — name must match travel ID."}
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <div>

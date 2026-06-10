@@ -1,12 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import type { OfferRoomOption } from "@/lib/travala-details";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import OfferGallery from "@/components/OfferGallery";
 import OfferDetails from "@/components/OfferDetails";
-import { Star, MapPin, ArrowLeft } from "lucide-react";
+import { Star, MapPin, ArrowLeft, Plane } from "lucide-react";
+import FlightOfferDetails from "@/components/FlightOfferDetails";
+import { parseFlightMetadata, priceForFlight } from "@/lib/flight-display";
+import type { CabinClass, TripType } from "@/lib/flight-types";
+import { CABIN_LABELS } from "@/lib/flight-types";
 import SiteChrome from "@/components/SiteChrome";
 import PriceDisplay from "@/components/PriceDisplay";
 import { useAuth } from "@/context/AuthContext";
@@ -19,9 +23,10 @@ import CryptoMethodPicker from "@/components/CryptoMethodPicker";
 import { applySalePrice, getOfferPricing, formatUsd } from "@/lib/pricing";
 import { Tag } from "lucide-react";
 
-export default function OfferDetailPage() {
+function OfferDetailContent() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
   const [offer, setOffer] = useState<Offer | null>(null);
   const [loading, setLoading] = useState(true);
@@ -34,6 +39,13 @@ export default function OfferDetailPage() {
   const [paymentMethod, setPaymentMethod] = useState<(typeof CRYPTO_PAYMENT_METHODS)[number]>("CRYPTO_BTC");
   const [selectedRoom, setSelectedRoom] = useState<OfferRoomOption | null>(null);
   const [error, setError] = useState("");
+
+  const trip = (searchParams.get("trip") || "roundtrip") as TripType;
+  const cabin = (searchParams.get("cabin") || "economy") as CabinClass;
+  const adults = Math.max(1, parseInt(searchParams.get("adults") || "1", 10));
+  const children = Math.max(0, parseInt(searchParams.get("children") || "0", 10));
+  const infants = Math.max(0, parseInt(searchParams.get("infants") || "0", 10));
+  const flightPax = adults + children + infants;
 
   const handleRoomsLoaded = useCallback((roomList: OfferRoomOption[]) => {
     setSelectedRoom((prev) => {
@@ -51,15 +63,23 @@ export default function OfferDetailPage() {
       .then((r) => r.json())
       .then((data) => {
         setOffer(data.offer);
-        const defaults = defaultStayDates();
-        setCheckIn(defaults.checkIn);
-        setCheckOut(defaults.checkOut);
+        const urlDepart = searchParams.get("depart");
+        const urlReturn = searchParams.get("return");
+        if (data.offer?.type === "FLIGHT" && urlDepart) {
+          setCheckIn(urlDepart);
+          setCheckOut(urlReturn || urlDepart);
+          setGuests(adults + children + infants);
+        } else {
+          const defaults = defaultStayDates();
+          setCheckIn(defaults.checkIn);
+          setCheckOut(defaults.checkOut);
+        }
       })
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, searchParams, adults, children, infants]);
 
   useEffect(() => {
-    if (!offer || !checkIn || !checkOut) return;
+    if (!offer || offer.type === "FLIGHT" || !checkIn || !checkOut) return;
     setPriceLoading(true);
     const params = new URLSearchParams({
       offerId: offer.id,
@@ -87,6 +107,9 @@ export default function OfferDetailPage() {
     }
     if (offer.type === "HOTEL") return offer.price * nights * rooms;
     if (offer.type === "CAR_RENTAL") return offer.price * nights;
+    if (offer.type === "FLIGHT") {
+      return priceForFlight(offer.price, cabin, flightPax, trip);
+    }
     return offer.price * guests;
   };
 
@@ -96,7 +119,11 @@ export default function OfferDetailPage() {
   };
 
   const displayPricePerNight =
-    selectedRoom?.pricePerNight ?? livePrice?.pricePerNight ?? offer?.price ?? 0;
+    selectedRoom?.pricePerNight ??
+    livePrice?.pricePerNight ??
+    (offer?.type === "FLIGHT" && offer
+      ? priceForFlight(offer.price, cabin, 1, trip)
+      : offer?.price ?? 0);
   const pricing = offer ? getOfferPricing(displayPricePerNight, offer.id, offer.stars) : null;
   const totalPricing = offer ? getOfferPricing(calcBaseTotal()) : null;
 
@@ -116,11 +143,20 @@ export default function OfferDetailPage() {
     }
     const params = new URLSearchParams({
       checkIn,
-      checkOut,
-      guests: String(guests),
+      checkOut: checkOut || checkIn,
+      guests: String(offer.type === "FLIGHT" ? flightPax : guests),
       rooms: String(rooms),
       paymentMethod,
     });
+    if (offer.type === "FLIGHT") {
+      params.set("depart", checkIn);
+      if (trip === "roundtrip" && checkOut) params.set("return", checkOut);
+      params.set("trip", trip);
+      params.set("cabin", cabin);
+      params.set("adults", String(adults));
+      params.set("children", String(children));
+      params.set("infants", String(infants));
+    }
     if (selectedRoom) {
       params.set("roomId", selectedRoom.id);
       params.set("roomPackage", selectedRoom.packageName);
@@ -148,6 +184,9 @@ export default function OfferDetailPage() {
     );
   }
 
+  const flightMeta = offer.type === "FLIGHT" ? parseFlightMetadata(offer.metadata) : null;
+  const isFlight = offer.type === "FLIGHT";
+
   return (
     <>
       <SiteChrome>
@@ -171,29 +210,42 @@ export default function OfferDetailPage() {
               <span className="rounded-full bg-[#2577be]/10 px-3 py-1 text-xs font-semibold text-[#2577be]">
                 {TYPE_LABELS[offer.type]}
               </span>
-              <h1 className="mt-3 break-words text-lg font-bold text-[#1e2e5e] sm:text-2xl md:text-3xl">{offer.title}</h1>
+              <h1 className="mt-3 break-words text-lg font-bold text-[#1e2e5e] sm:text-2xl md:text-3xl">
+                {isFlight && flightMeta?.airline ? `${flightMeta.airline} · ${flightMeta.from} → ${flightMeta.to}` : offer.title}
+              </h1>
               <div className="mt-2 flex min-w-0 items-start gap-1 text-sm text-gray-500">
-                <MapPin size={16} className="mt-0.5 flex-shrink-0" />
-                <span className="break-words">{offer.location}</span>
+                {isFlight ? <Plane size={16} className="mt-0.5 flex-shrink-0" /> : <MapPin size={16} className="mt-0.5 flex-shrink-0" />}
+                <span className="break-words">{isFlight ? `${flightMeta?.from || offer.city} to ${flightMeta?.to || offer.country}` : offer.location}</span>
               </div>
-              {offer.stars && (
+              {offer.stars && !isFlight && (
                 <div className="mt-2 flex gap-0.5">
                   {Array.from({ length: offer.stars }).map((_, i) => (
                     <Star key={i} size={16} className="fill-amber-400 text-amber-400" />
                   ))}
                 </div>
               )}
-              <OfferDetails
-                offerId={offer.id}
-                checkIn={checkIn}
-                checkOut={checkOut}
-                guests={guests}
-                rooms={rooms}
-                fallbackDescription={offer.description}
-                selectedRoomId={selectedRoom?.id ?? null}
-                onSelectRoom={setSelectedRoom}
-                onRoomsLoaded={handleRoomsLoaded}
-              />
+              {isFlight && flightMeta ? (
+                <FlightOfferDetails
+                  offerId={offer.id}
+                  meta={flightMeta}
+                  cabin={cabin}
+                  trip={trip}
+                  depart={checkIn}
+                  returnDate={trip === "roundtrip" ? checkOut : undefined}
+                />
+              ) : (
+                <OfferDetails
+                  offerId={offer.id}
+                  checkIn={checkIn}
+                  checkOut={checkOut}
+                  guests={guests}
+                  rooms={rooms}
+                  fallbackDescription={offer.description}
+                  selectedRoomId={selectedRoom?.id ?? null}
+                  onSelectRoom={setSelectedRoom}
+                  onRoomsLoaded={handleRoomsLoaded}
+                />
+              )}
             </div>
           </div>
 
@@ -249,6 +301,14 @@ export default function OfferDetailPage() {
               )}
 
               <div className="mt-4 min-w-0 space-y-3 sm:mt-5">
+                {isFlight && (
+                  <div className="rounded-xl border border-[#2577be]/15 bg-blue-50/40 p-3 text-sm">
+                    <p className="font-semibold text-[#1e2e5e]">{CABIN_LABELS[cabin]}</p>
+                    <p className="text-xs text-gray-500">
+                      {flightPax} passenger{flightPax !== 1 ? "s" : ""} · {trip === "roundtrip" ? "Round trip" : trip === "oneway" ? "One way" : "Multi-city"}
+                    </p>
+                  </div>
+                )}
                 {(offer.type === "HOTEL" || offer.type === "CAR_RENTAL") && (
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <div className="min-w-0">
@@ -263,11 +323,28 @@ export default function OfferDetailPage() {
                     </div>
                   </div>
                 )}
+                {isFlight && (
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div className="min-w-0">
+                      <label className="text-xs font-medium text-gray-500">Depart</label>
+                      <input type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)}
+                        className="mt-1 w-full min-w-0 max-w-full rounded-xl border border-gray-200 px-2 py-2 text-sm outline-none focus:border-[#2577be] sm:px-3 sm:py-2.5" />
+                    </div>
+                    {trip === "roundtrip" && (
+                      <div className="min-w-0">
+                        <label className="text-xs font-medium text-gray-500">Return</label>
+                        <input type="date" value={checkOut} min={checkIn} onChange={(e) => setCheckOut(e.target.value)}
+                          className="mt-1 w-full min-w-0 max-w-full rounded-xl border border-gray-200 px-2 py-2 text-sm outline-none focus:border-[#2577be] sm:px-3 sm:py-2.5" />
+                      </div>
+                    )}
+                  </div>
+                )}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="min-w-0">
-                    <label className="text-xs font-medium text-gray-500">Guests</label>
-                    <input type="number" min={1} max={20} value={guests} onChange={(e) => setGuests(+e.target.value)}
-                      className="mt-1 w-full min-w-0 rounded-xl border border-gray-200 px-2 py-2 text-sm outline-none focus:border-[#2577be] sm:px-3 sm:py-2.5" />
+                    <label className="text-xs font-medium text-gray-500">{isFlight ? "Passengers" : "Guests"}</label>
+                    <input type="number" min={1} max={20} value={isFlight ? flightPax : guests} disabled={isFlight}
+                      onChange={(e) => setGuests(+e.target.value)}
+                      className="mt-1 w-full min-w-0 rounded-xl border border-gray-200 px-2 py-2 text-sm outline-none focus:border-[#2577be] disabled:bg-gray-50 sm:px-3 sm:py-2.5" />
                   </div>
                   {offer.type === "HOTEL" && (
                     <div className="min-w-0">
@@ -287,7 +364,7 @@ export default function OfferDetailPage() {
               <div className="mt-4 min-w-0 rounded-xl border border-[#2577be]/15 bg-[#2577be]/5 p-3 sm:mt-5">
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                   <span className="text-sm font-semibold text-[#1e2e5e] sm:text-base">
-                    Your price{livePrice?.nights ? ` · ${livePrice.nights} nights` : ""}
+                    Your price{livePrice?.nights ? ` · ${livePrice.nights} nights` : isFlight ? ` · ${flightPax} pax` : ""}
                   </span>
                   <span className={`text-xl font-bold text-[#1e2e5e] sm:text-2xl ${priceLoading ? "opacity-50" : ""}`}>
                     {priceLoading ? "…" : formatUsd(calcTotal())}
@@ -306,10 +383,10 @@ export default function OfferDetailPage() {
                 onClick={handleContinue}
                 className="mt-4 hidden w-full rounded-xl bg-[#2577be] py-3.5 text-sm font-bold text-white shadow-lg transition hover:bg-[#1e2e5e] sm:block sm:py-4"
               >
-                {user ? "Continue — enter guest details →" : "Log in to book"}
+                {user ? (isFlight ? "Continue — passenger details →" : "Continue — enter guest details →") : "Log in to book"}
               </button>
               <p className="mt-2 text-center text-[10px] text-gray-400">
-                Free cancellation on select rates · Price held for 15 minutes
+                {isFlight ? "Fare rules apply · Price held for 15 minutes" : "Free cancellation on select rates · Price held for 15 minutes"}
               </p>
               </div>
 
@@ -346,5 +423,19 @@ export default function OfferDetailPage() {
 
       </SiteChrome>
     </>
+  );
+}
+
+export default function OfferDetailPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2577be] border-t-transparent" />
+        </div>
+      }
+    >
+      <OfferDetailContent />
+    </Suspense>
   );
 }

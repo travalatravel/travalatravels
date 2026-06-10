@@ -1,5 +1,5 @@
 import Header from "@/components/Header";
-import HeroSearch from "@/components/HeroSearch";
+import HomeTabHero from "@/components/HomeTabHero";
 import FeatureBar from "@/components/FeatureBar";
 import Destinations from "@/components/Destinations";
 import TopUniqueProperties from "@/components/TopUniqueProperties";
@@ -15,7 +15,7 @@ export default function Home() {
   return (
     <>
       <Header variant="home" />
-      <HeroSearch />
+      <HomeTabHero />
       <FeatureBar />
       <CryptoFriendlySection />
       <Destinations />

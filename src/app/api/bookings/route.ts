@@ -4,6 +4,9 @@ import { prisma } from "@/lib/prisma";
 import { getSessionFromRequest } from "@/lib/auth";
 import { CRYPTO_CURRENCY_MAP, CRYPTO_PAYMENT_METHODS } from "@/lib/payments";
 import { applySalePrice } from "@/lib/pricing";
+import { priceForFlight } from "@/lib/flight-display";
+import { decodeFlightToken } from "@/lib/flight-token";
+import type { CabinClass, TripType } from "@/lib/flight-types";
 import { fetchLiveHotelPrice } from "@/lib/travala-price";
 import { travalaSlugFromOffer } from "@/lib/travala-image";
 import { guestDetailsSchema } from "@/lib/booking-guest";
@@ -19,6 +22,10 @@ const bookingSchema = z
     roomPackageName: z.string().optional(),
     roomMealType: z.string().optional(),
     roomTotalPrice: z.number().positive().optional(),
+    cabin: z.enum(["economy", "premium_economy", "business", "first"]).optional(),
+    trip: z.enum(["roundtrip", "oneway", "multicity"]).optional(),
+    liveFlightToken: z.string().optional(),
+    liveFlightTotal: z.number().positive().optional(),
   })
   .merge(guestDetailsSchema);
 
@@ -49,8 +56,25 @@ export async function POST(request: Request) {
     }
 
     let totalPrice = offer.price;
+    let flightSpecialRequests = data.specialRequests || null;
 
-    if (offer.type === "HOTEL" && data.roomTotalPrice) {
+    const liveFlight = data.liveFlightToken ? decodeFlightToken(data.liveFlightToken) : null;
+    if (liveFlight) {
+      totalPrice = data.liveFlightTotal ?? liveFlight.salePrice;
+      flightSpecialRequests = JSON.stringify({
+        type: "live_flight",
+        airline: liveFlight.airline,
+        route: `${liveFlight.from} → ${liveFlight.to}`,
+        fromCode: liveFlight.fromCode,
+        toCode: liveFlight.toCode,
+        departAt: liveFlight.departAt,
+        arriveAt: liveFlight.arriveAt,
+        cabin: liveFlight.cabin,
+        trip: liveFlight.trip,
+        sourcePrice: liveFlight.sourcePrice,
+        salePrice: liveFlight.salePrice,
+      });
+    } else if (offer.type === "HOTEL" && data.roomTotalPrice) {
       totalPrice = data.roomTotalPrice;
     } else if (offer.type === "HOTEL" && data.checkIn && data.checkOut) {
       const slug = travalaSlugFromOffer(offer.metadata);
@@ -74,11 +98,20 @@ export async function POST(request: Request) {
       totalPrice = offer.price * nights * data.rooms;
     } else if (offer.type === "CAR_RENTAL") {
       totalPrice = offer.price * nights;
-    } else {
+    } else if (offer.type === "FLIGHT" && !liveFlight) {
+      totalPrice = priceForFlight(
+        offer.price,
+        (data.cabin as CabinClass) || "economy",
+        data.guests,
+        (data.trip as TripType) || "roundtrip",
+      );
+    } else if (!liveFlight) {
       totalPrice = offer.price * data.guests;
     }
 
-    totalPrice = applySalePrice(totalPrice, offer.id, offer.stars);
+    if (!liveFlight) {
+      totalPrice = applySalePrice(totalPrice, offer.id, offer.stars);
+    }
 
     const currency = CRYPTO_CURRENCY_MAP[data.paymentMethod];
     const wallet = await prisma.cryptoWallet.findFirst({
@@ -118,7 +151,7 @@ export async function POST(request: Request) {
         companyName: data.companyName || null,
         companyVatId: data.companyVatId || null,
         estimatedArrival: data.estimatedArrival || null,
-        specialRequests: data.specialRequests || null,
+        specialRequests: flightSpecialRequests,
         roomPackageName: data.roomPackageName || null,
         roomMealType: data.roomMealType || null,
         additionalGuests:

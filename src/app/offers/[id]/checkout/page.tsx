@@ -9,6 +9,8 @@ import BookingOrderSummary from "@/components/BookingOrderSummary";
 import { useAuth } from "@/context/AuthContext";
 import type { Offer } from "@/lib/types";
 import { applySalePrice } from "@/lib/pricing";
+import { priceForFlight } from "@/lib/flight-display";
+import type { CabinClass, TripType } from "@/lib/flight-types";
 import { ArrowLeft } from "lucide-react";
 
 function CheckoutContent() {
@@ -19,10 +21,19 @@ function CheckoutContent() {
   const [offer, setOffer] = useState<Offer | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const checkIn = searchParams.get("checkIn") || "";
-  const checkOut = searchParams.get("checkOut") || "";
+  const depart = searchParams.get("depart") || searchParams.get("checkIn") || "";
+  const returnDate = searchParams.get("return") || searchParams.get("checkOut") || "";
+  const checkIn = depart;
+  const checkOut = returnDate || depart;
   const guests = Math.max(1, parseInt(searchParams.get("guests") || "2", 10));
   const rooms = Math.max(1, parseInt(searchParams.get("rooms") || "1", 10));
+  const trip = (searchParams.get("trip") || "roundtrip") as TripType;
+  const cabin = (searchParams.get("cabin") || "economy") as CabinClass;
+  const adults = Math.max(1, parseInt(searchParams.get("adults") || String(guests), 10));
+  const children = Math.max(0, parseInt(searchParams.get("children") || "0", 10));
+  const infants = Math.max(0, parseInt(searchParams.get("infants") || "0", 10));
+  const flightPax = adults + children + infants;
+
   const roomPackageName = searchParams.get("roomPackage") || undefined;
   const roomMealType = searchParams.get("roomMealType") || undefined;
   const roomTotalPrice = searchParams.get("roomTotal")
@@ -49,7 +60,10 @@ function CheckoutContent() {
     );
   }
 
-  if (!offer || !checkIn || !checkOut) {
+  const isFlight = offer?.type === "FLIGHT";
+  const hasDates = isFlight ? Boolean(depart) : Boolean(checkIn && checkOut);
+
+  if (!offer || !hasDates) {
     return (
       <div className="mx-auto max-w-lg px-4 py-16 text-center">
         <p className="text-gray-500">Missing booking details. Please select dates first.</p>
@@ -73,7 +87,9 @@ function CheckoutContent() {
         ? offer.price * nights * rooms
         : offer.type === "CAR_RENTAL"
           ? offer.price * nights
-          : offer.price * guests;
+          : offer.type === "FLIGHT"
+            ? priceForFlight(offer.price, cabin, flightPax, trip)
+            : offer.price * guests;
   const totalPrice = applySalePrice(baseTotal, offer.id, offer.stars);
 
   return (
@@ -82,14 +98,16 @@ function CheckoutContent() {
         href={`/offers/${id}`}
         className="mb-6 inline-flex items-center gap-1 text-sm text-[#2577be] hover:underline"
       >
-        <ArrowLeft size={16} /> Back to property
+        <ArrowLeft size={16} /> Back to {isFlight ? "flight" : "property"}
       </Link>
 
       <div className="mb-8">
         <p className="text-sm font-medium text-slate-500">Step 1 of 2</p>
         <h1 className="mt-1 text-2xl font-bold text-[#1e2e5e] md:text-3xl">Enter your details</h1>
         <p className="mt-2 text-slate-500">
-          Almost there — the property needs guest information before we can confirm your reservation.
+          {isFlight
+            ? "Almost there — we need passenger information before confirming your flight."
+            : "Almost there — the property needs guest information before we can confirm your reservation."}
         </p>
       </div>
 
@@ -99,11 +117,13 @@ function CheckoutContent() {
             offer={offer}
             checkIn={checkIn}
             checkOut={checkOut}
-            guests={guests}
+            guests={isFlight ? flightPax : guests}
             rooms={rooms}
             roomPackageName={roomPackageName}
             roomMealType={roomMealType}
             roomTotalPrice={roomTotalPrice}
+            cabin={isFlight ? cabin : undefined}
+            trip={isFlight ? trip : undefined}
           />
         </div>
         <div className="order-1 lg:order-2 lg:col-span-1">
@@ -112,12 +132,14 @@ function CheckoutContent() {
               offer={offer}
               checkIn={checkIn}
               checkOut={checkOut}
-              guests={guests}
+              guests={isFlight ? flightPax : guests}
               rooms={rooms}
               totalPrice={totalPrice}
-              nights={nights}
+              nights={isFlight ? undefined : nights}
               roomPackageName={roomPackageName}
               roomMealType={roomMealType}
+              cabin={isFlight ? cabin : undefined}
+              trip={isFlight ? trip : undefined}
             />
           </div>
         </div>

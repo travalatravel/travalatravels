@@ -5,9 +5,14 @@ import { useSearchParams } from "next/navigation";
 import SiteChrome from "@/components/SiteChrome";
 import SearchForm from "@/components/SearchForm";
 import OfferCard from "@/components/OfferCard";
+import LiveFlightResultCard from "@/components/LiveFlightResultCard";
+import FlightHotelBundle from "@/components/FlightHotelBundle";
 import SearchFilters, { type SortOption } from "@/components/SearchFilters";
 import type { Offer } from "@/lib/types";
+import type { LiveFlightOffer } from "@/lib/live-flight-types";
 import { TYPE_LABELS } from "@/lib/types";
+import type { CabinClass, TripType } from "@/lib/flight-types";
+import { CABIN_LABELS } from "@/lib/flight-types";
 
 const TYPE_MAP: Record<string, string> = {
   stays: "HOTEL",
@@ -19,23 +24,84 @@ const TYPE_MAP: Record<string, string> = {
 function SearchResults() {
   const searchParams = useSearchParams();
   const [offers, setOffers] = useState<Offer[]>([]);
+  const [liveFlights, setLiveFlights] = useState<LiveFlightOffer[]>([]);
+  const [flightSource, setFlightSource] = useState<"skyscrapper" | "market" | "catalog" | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
   const [sort, setSort] = useState<SortOption>("recommended");
+  const [flightError, setFlightError] = useState("");
 
   const q = searchParams.get("q") || "";
   const type = searchParams.get("type") || "stays";
+  const isFlights = type === "flights";
+  const from = searchParams.get("from") || "";
+  const to = searchParams.get("to") || "";
+  const fromCode = searchParams.get("fromCode") || "";
+  const toCode = searchParams.get("toCode") || "";
+  const depart = searchParams.get("depart") || "";
+  const returnDate = searchParams.get("return") || "";
+  const trip = (searchParams.get("trip") || "roundtrip") as TripType;
+  const cabin = (searchParams.get("cabin") || "economy") as CabinClass;
+  const adults = Math.max(1, parseInt(searchParams.get("adults") || "1", 10));
+  const children = Math.max(0, parseInt(searchParams.get("children") || "0", 10));
+  const infants = Math.max(0, parseInt(searchParams.get("infants") || "0", 10));
+  const addHotel = searchParams.get("addHotel") === "1";
+
   const typeLabel = TYPE_LABELS[TYPE_MAP[type] as keyof typeof TYPE_LABELS] || "Stays";
+  const canLiveSearch = isFlights && from && to && depart;
+
+  const buildApiParams = (pageNum: number) => {
+    const params = new URLSearchParams({ type, limit: "48", sort, page: String(pageNum) });
+    if (q) params.set("q", q);
+    if (from) params.set("from", from);
+    if (to) params.set("to", to);
+    return params;
+  };
+
+  const buildFlightApiParams = () => {
+    const params = new URLSearchParams({
+      from,
+      to,
+      depart,
+      trip,
+      cabin,
+      adults: String(adults),
+      children: String(children),
+      infants: String(infants),
+      sort: sort === "price-desc" ? "price-desc" : "price-asc",
+    });
+    if (fromCode) params.set("fromCode", fromCode);
+    if (toCode) params.set("toCode", toCode);
+    if (returnDate) params.set("return", returnDate);
+    return params;
+  };
 
   useEffect(() => {
     setLoading(true);
     setPage(1);
-    const params = new URLSearchParams({ type, limit: "48", sort });
-    if (q) params.set("q", q);
-    fetch(`/api/search?${params}`)
+    setFlightError("");
+
+    if (canLiveSearch) {
+      fetch(`/api/flights/search?${buildFlightApiParams()}`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.error) setFlightError(data.error);
+          setLiveFlights(data.flights || []);
+          setFlightSource(data.source || null);
+          setTotal(data.total || 0);
+          setPages(1);
+          setOffers([]);
+        })
+        .finally(() => setLoading(false));
+      return;
+    }
+
+    setLiveFlights([]);
+    setFlightSource(null);
+    fetch(`/api/search?${buildApiParams(1)}`)
       .then((r) => r.json())
       .then((data) => {
         setOffers(data.offers || []);
@@ -43,19 +109,25 @@ function SearchResults() {
         setPages(data.pages || 1);
       })
       .finally(() => setLoading(false));
-  }, [q, type, sort]);
+  }, [q, type, sort, from, to, fromCode, toCode, depart, returnDate, trip, cabin, adults, children, infants, canLiveSearch]);
 
   const loadMore = async () => {
-    if (page >= pages || loadingMore) return;
+    if (page >= pages || loadingMore || canLiveSearch) return;
     setLoadingMore(true);
     const next = page + 1;
-    const params = new URLSearchParams({ type, limit: "48", page: String(next), sort });
-    if (q) params.set("q", q);
-    const data = await fetch(`/api/search?${params}`).then((r) => r.json());
+    const data = await fetch(`/api/search?${buildApiParams(next)}`).then((r) => r.json());
     setOffers((prev) => [...prev, ...(data.offers || [])]);
     setPage(next);
     setLoadingMore(false);
   };
+
+  const routeLabel =
+    isFlights && (from || to)
+      ? `${from || "Anywhere"} → ${to || "Anywhere"}`
+      : null;
+
+  const resultCount = canLiveSearch ? liveFlights.length : total;
+  const hasResults = canLiveSearch ? liveFlights.length > 0 : offers.length > 0;
 
   return (
     <SiteChrome>
@@ -70,44 +142,70 @@ function SearchResults() {
           <div>
             <p className="text-sm font-semibold text-[#2577be]">{typeLabel}</p>
             <h1 className="text-2xl font-bold text-[#1e2e5e]">
-              {loading ? "Searching..." : `${total.toLocaleString()} results`}
-              {q && <span className="font-normal text-gray-500"> for &ldquo;{q}&rdquo;</span>}
+              {loading ? "Searching..." : `${resultCount.toLocaleString()} ${isFlights ? "flights" : "results"}`}
+              {routeLabel && <span className="font-normal text-gray-500"> · {routeLabel}</span>}
+              {!isFlights && q && <span className="font-normal text-gray-500"> for &ldquo;{q}&rdquo;</span>}
             </h1>
+            {isFlights && !loading && (
+              <p className="mt-1 text-sm text-gray-500">
+                {depart && `Depart ${depart}`}
+                {trip === "roundtrip" && returnDate && ` · Return ${returnDate}`}
+                {" · "}
+                {adults + children + infants} passenger{adults + children + infants !== 1 ? "s" : ""}
+                {" · "}
+                {CABIN_LABELS[cabin]}
+                {(flightSource === "skyscrapper" || flightSource === "market") && (
+                  <span className="ml-2 rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-800">
+                    {flightSource === "skyscrapper" ? "Live rates" : "Best rates"} · 30% off
+                  </span>
+                )}
+              </p>
+            )}
           </div>
-          {!loading && total > 0 && (
+          {!loading && hasResults && (
             <span className="rounded-full bg-[#2dd4bf]/20 px-3 py-1 text-xs font-semibold text-[#1e2e5e]">
               Best price guarantee
             </span>
           )}
         </div>
 
-        {!loading && offers.length > 0 && (
+        {!loading && hasResults && (
           <div className="mt-6">
-            <SearchFilters sort={sort} onSortChange={setSort} total={total} />
+            <SearchFilters sort={sort} onSortChange={setSort} total={resultCount} />
           </div>
         )}
 
         {loading ? (
-          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-72 animate-pulse rounded-2xl bg-gray-100" />
+          <div className={`mt-8 ${isFlights ? "space-y-4" : "grid gap-6 sm:grid-cols-2 lg:grid-cols-3"}`}>
+            {Array.from({ length: isFlights ? 5 : 6 }).map((_, i) => (
+              <div
+                key={i}
+                className={`animate-pulse rounded-2xl bg-gray-100 ${isFlights ? "h-28" : "h-72"}`}
+              />
             ))}
           </div>
-        ) : offers.length === 0 ? (
+        ) : !hasResults ? (
           <div className="mt-12 text-center">
-            <p className="text-gray-500">No results found. Try a different search term.</p>
+            <p className="text-gray-500">
+              {flightError ||
+                (isFlights
+                  ? "No flights found for this route. Try different airports or dates."
+                  : "No results found. Try a different search term.")}
+            </p>
             <p className="mt-2 text-sm text-gray-400">
-              Try: London, Paris, Dubai, Las Vegas, Tokyo, Barcelona
+              {isFlights
+                ? "Try: London → Paris, New York → London, Dubai → Bangkok"
+                : "Try: London, Paris, Dubai, Las Vegas, Tokyo, Barcelona"}
             </p>
           </div>
         ) : (
           <>
-            <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {offers.map((offer) => (
-                <OfferCard key={offer.id} offer={offer} />
-              ))}
+            <div className={`mt-8 ${isFlights ? "space-y-3" : "grid gap-6 sm:grid-cols-2 lg:grid-cols-3"}`}>
+              {canLiveSearch
+                ? liveFlights.map((flight) => <LiveFlightResultCard key={flight.id} flight={flight} />)
+                : offers.map((offer) => <OfferCard key={offer.id} offer={offer} />)}
             </div>
-            {page < pages && (
+            {!canLiveSearch && page < pages && (
               <div className="mt-10 text-center">
                 <button
                   type="button"
@@ -118,6 +216,9 @@ function SearchResults() {
                   {loadingMore ? "Loading…" : `Load more (${offers.length} of ${total})`}
                 </button>
               </div>
+            )}
+            {isFlights && addHotel && to && (
+              <FlightHotelBundle destination={to} depart={depart} returnDate={returnDate} />
             )}
           </>
         )}

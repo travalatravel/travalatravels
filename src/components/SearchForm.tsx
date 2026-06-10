@@ -8,6 +8,7 @@ import SearchSuggestions from "./SearchSuggestions";
 import type { SearchSuggestion } from "@/lib/travala-suggest";
 import { ASSETS } from "@/data/site-data";
 import { defaultStayDates } from "@/lib/travala-price";
+import FlightSearchForm from "./FlightSearchForm";
 
 const TABS = [
   { key: "stays", label: "Stays", icon: Building2 },
@@ -36,10 +37,12 @@ export default function SearchForm({
   defaultType = "stays",
   defaultQuery = "",
   compact = false,
+  onTypeChange,
 }: {
   defaultType?: string;
   defaultQuery?: string;
   compact?: boolean;
+  onTypeChange?: (type: string) => void;
 }) {
   const router = useRouter();
   const defaults = defaultStayDates();
@@ -162,6 +165,21 @@ export default function SearchForm({
   const checkInFmt = formatDisplayDate(checkIn);
   const checkOutFmt = formatDisplayDate(checkOut);
 
+  const handleTabChange = (tab: string) => {
+    setType(tab);
+    onTypeChange?.(tab);
+  };
+
+  if (type === "flights") {
+    return (
+      <FlightSearchForm
+        compact={compact}
+        activeTab={type}
+        onTabChange={handleTabChange}
+      />
+    );
+  }
+
   const tabRow = (
     <div
       role="tablist"
@@ -177,7 +195,7 @@ export default function SearchForm({
             type="button"
             role="tab"
             aria-selected={active}
-            onClick={() => setType(tab.key)}
+            onClick={() => handleTabChange(tab.key)}
             className={
               isHero
                 ? `flex min-w-[72px] flex-shrink-0 flex-col items-center gap-1.5 rounded-t-lg border border-b-0 px-3 py-2 sm:min-w-[88px] sm:px-4 ${
