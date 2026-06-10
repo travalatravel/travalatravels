@@ -3,8 +3,6 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
-import { ASSETS } from "@/data/site-data";
 import { useAuth } from "@/context/AuthContext";
 import AuthLayout from "@/components/AuthLayout";
 import { useTranslations } from "@/i18n/useTranslations";
@@ -39,8 +37,7 @@ function RegisterForm() {
       <div className="mx-auto flex w-full max-w-md justify-center">
       <div className="w-full rounded-2xl bg-white p-5 shadow-lg sm:p-8">
         <div className="mb-8 text-center">
-          <Image src={ASSETS.logoBlack} alt="Travala" width={140} height={36} className="mx-auto" unoptimized />
-          <h1 className="mt-6 text-xl font-bold text-[#1a1a1a]">{m.auth.createAccount}</h1>
+          <h1 className="text-xl font-bold text-[#1a1a1a]">{m.auth.createAccount}</h1>
           <p className="mt-1 text-sm text-gray-500">{m.auth.joinSubtitle}</p>
         </div>
 

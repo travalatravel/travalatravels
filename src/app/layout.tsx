@@ -4,7 +4,6 @@ import { Inter, Satisfy } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
 import ViewTracker from "@/components/ViewTracker";
 import SiteAnalytics from "@/components/SiteAnalytics";
-import AppBanner from "@/components/AppBanner";
 import { LocaleProvider } from "@/i18n/LocaleProvider";
 import { LOCALE_META } from "@/i18n/config";
 import { resolveLocale } from "@/i18n/detect";
@@ -67,7 +66,6 @@ export default async function RootLayout({
             <Suspense fallback={null}>
               <ViewTracker />
             </Suspense>
-            <AppBanner />
             {children}
           </AuthProvider>
         </LocaleProvider>

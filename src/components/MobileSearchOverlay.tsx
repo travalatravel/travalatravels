@@ -49,9 +49,11 @@ export default function MobileSearchOverlay({
   useEffect(() => {
     if (!open) return;
     document.body.style.overflow = "hidden";
+    document.body.setAttribute("data-search-overlay", "");
     const t = window.setTimeout(() => inputRef.current?.focus(), 50);
     return () => {
       document.body.style.overflow = "";
+      document.body.removeAttribute("data-search-overlay");
       window.clearTimeout(t);
     };
   }, [open]);

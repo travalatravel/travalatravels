@@ -10,7 +10,7 @@ function TrustpilotStar({ filled = true, size = 18 }: { filled?: boolean; size?:
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden>
       <path
-        fill={filled ? "#2D83C2" : "#dcdce6"}
+        fill={filled ? "#00b67a" : "#dcdce6"}
         d="M12 0l3.09 6.26L22 7.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 12.14l-5-4.87 6.91-1.01L12 0z"
       />
     </svg>
@@ -59,7 +59,7 @@ export default function CustomerReviews() {
             <div className="mt-2 flex items-center gap-2">
               <StarRow rating={5} size={14} />
               <span className="text-lg font-bold text-[#1a1a1a]">{TRUSTPILOT_RATING.score}</span>
-              <span className="rounded bg-[#2D83C2] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+              <span className="rounded bg-[#00b67a] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
                 {r.excellent}
               </span>
             </div>

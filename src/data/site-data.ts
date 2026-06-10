@@ -194,14 +194,7 @@ export const PROPERTY_TYPES = [
 
 export const BLOG_POSTS = [
   "Upcoming Crypto & Travel Events: July 2026",
-  "Upcoming Crypto & Travel Events: June 2026",
-  "Upcoming Crypto & Travel Events: May 2026",
-  "Upcoming Crypto & Travel Events: April 2026",
-  "Upcoming Crypto & Travel Events: March 2026",
-  "Upcoming Crypto & Travel Events: February 2026",
-  "Upcoming Crypto & Travel Events: January 2026",
   "Bleisure Travel: How to Combine Work and Play on Your Trip",
-  "Upcoming Crypto & Travel Events: December 2025",
   "The Price of a Hotel Room Around the World",
   "When Is the Best Time to Book Flights in 2025? (Data-Driven Guide)",
   "Best Budget Travel Destinations for 2025: Adventure Without Breaking the Bank",

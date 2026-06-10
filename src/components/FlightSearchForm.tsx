@@ -14,7 +14,7 @@ import { useTranslations } from "@/i18n/useTranslations";
 import { LOCALE_BCP47 } from "@/i18n/config";
 import {
   formatDesktopDate,
-  MobileDateCards,
+  MobileDateRange,
   MobileSearchCard,
   MobileSearchIcon,
   MobileUserIcon,
@@ -326,7 +326,7 @@ export default function FlightSearchForm({
       </div>
 
       <div className={`min-w-0 ${isHero ? "w-full lg:w-auto" : "w-full"}`}>
-        <MobileDateCards
+        <MobileDateRange
           checkIn={depart}
           checkOut={returnDate}
           checkInLabel={m.common.depart}

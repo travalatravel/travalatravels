@@ -14,7 +14,7 @@ import { LOCALE_BCP47 } from "@/i18n/config";
 import { searchStaysPath } from "@/lib/seo-paths";
 import {
   formatDesktopDate,
-  MobileDateCards,
+  MobileDateRange,
   MobileSearchCard,
   MobileSearchIcon,
   MobileUserIcon,
@@ -356,9 +356,11 @@ export default function SearchForm({
     <>
       <div className="flex flex-col gap-3 p-[15px] lg:hidden">
         {destinationField}
-        <MobileDateCards
+        <MobileDateRange
           checkIn={checkIn}
           checkOut={checkOut}
+          checkInLabel={m.common.checkIn}
+          checkOutLabel={m.common.checkOut}
           locale={dateLocale}
           checkInFallback={m.common.selectDate}
           checkOutFallback={m.common.selectDate}

@@ -50,9 +50,18 @@ function Logo({ variant }: { variant: "home" | "default" }) {
 
 export default function Header({ variant = "default" }: { variant?: "home" | "default" }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
   const { user, loading, logout } = useAuth();
   const { messages: m } = useTranslations();
   const isHome = variant === "home";
+
+  useEffect(() => {
+    const syncOverlay = () => setSearchOverlayOpen(document.body.hasAttribute("data-search-overlay"));
+    syncOverlay();
+    const observer = new MutationObserver(syncOverlay);
+    observer.observe(document.body, { attributes: true, attributeFilter: ["data-search-overlay"] });
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
@@ -60,6 +69,8 @@ export default function Header({ variant = "default" }: { variant?: "home" | "de
       document.body.style.overflow = "";
     };
   }, [menuOpen]);
+
+  if (searchOverlayOpen) return null;
 
   const shellCls = isHome
     ? "sticky top-0 z-50 w-full bg-[#250834] shadow-sm lg:mx-8 lg:rounded-b-xl lg:bg-white"

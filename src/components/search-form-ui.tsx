@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Building2, Plane } from "lucide-react";
+import { Building2, ChevronRight, Plane } from "lucide-react";
 import { ASSETS } from "@/data/site-data";
 import { useTranslations } from "@/i18n/useTranslations";
 
@@ -55,9 +55,9 @@ export function SearchFormTabs({
       <div
         role="tablist"
         aria-label="searchType"
-        className="mx-6 -mb-0.5 flex gap-0.5 lg:mx-0 lg:mb-0 lg:gap-0 lg:overflow-x-auto lg:scrollbar-hide"
+        className="mx-6 -mb-px flex lg:mx-0 lg:mb-0 lg:gap-0 lg:overflow-x-auto lg:scrollbar-hide"
       >
-        {SEARCH_TABS.map((tab) => {
+        {SEARCH_TABS.map((tab, index) => {
           const active = activeTab === tab.key;
           const Icon = tab.icon;
           return (
@@ -67,26 +67,33 @@ export function SearchFormTabs({
               role="tab"
               aria-selected={active}
               onClick={() => onTabChange(tab.key)}
-              className={`relative z-[1] flex flex-1 flex-col items-center gap-1.5 rounded-t-lg border border-b-0 px-2 py-2 lg:min-w-[100px] lg:flex-none lg:gap-1.5 lg:rounded-none lg:border-0 lg:border-t-[3px] lg:px-4 lg:py-3 ${
+              className={`relative z-[1] flex flex-1 flex-col items-center gap-1.5 px-2 py-2.5 lg:min-w-[100px] lg:flex-none lg:gap-1.5 lg:rounded-none lg:border-0 lg:border-t-[3px] lg:px-4 lg:py-3 ${
                 active
-                  ? "z-[2] border-[#ccc] bg-white lg:border-t-[#2D83C2] lg:bg-white"
-                  : "border-[#ccc] bg-white/95 text-gray-600 lg:border-t-transparent lg:bg-white/80"
-              }`}
+                  ? "z-[2] rounded-t-lg border border-b-0 border-[#ccc] bg-white lg:border-t-[#2D83C2] lg:bg-white"
+                  : "bg-transparent lg:border-t-transparent lg:bg-white/80"
+              } ${index < SEARCH_TABS.length - 1 ? "border-r border-gray-200" : ""}`}
             >
               <span
                 className={`flex h-10 w-10 items-center justify-center rounded-full lg:h-9 lg:w-9 ${
-                  active ? "bg-[#2D83C2] text-white lg:bg-[#1E2E5E]" : "bg-[#eaf3f9] text-[#2D83C2]"
+                  active
+                    ? "bg-[#2D83C2] text-white lg:bg-[#1E2E5E]"
+                    : "border-2 border-[#2D83C2] bg-white text-[#2D83C2]"
                 }`}
               >
                 <Icon size={18} />
               </span>
               <span
-                className={`text-xs font-medium leading-4 lg:text-[11px] lg:font-semibold ${
-                  active ? "text-[#333] lg:text-[#1a1a1a] lg:font-medium" : "text-gray-600"
+                className={`text-xs leading-4 lg:text-[11px] lg:font-semibold ${
+                  active
+                    ? "font-bold text-[#2D83C2] lg:font-medium lg:text-[#1a1a1a]"
+                    : "font-medium text-gray-500"
                 }`}
               >
                 {m.nav[tab.labelKey]}
               </span>
+              {active && (
+                <span className="absolute bottom-0 left-0 right-0 hidden h-[3px] bg-[#2D83C2] lg:hidden" aria-hidden />
+              )}
             </button>
           );
         })}
@@ -160,7 +167,7 @@ export function SearchFormPanel({
     return (
       <>
         {tabRow}
-        <div className="border border-t-0 border-[#2D83C2] bg-white lg:rounded-b-lg lg:rounded-tr-lg lg:rounded-tl-none lg:border-[#ccc] lg:border-t-0">
+        <div className="border border-[#ccc] bg-white lg:rounded-b-lg lg:rounded-tr-lg lg:rounded-tl-none lg:border-t-0">
           {children}
         </div>
       </>
@@ -324,7 +331,42 @@ export function MobileDateCards({
   );
 }
 
-/** @deprecated Use MobileDateCards for Travala mobile layout */
+function MobileDateHalf({
+  label,
+  iso,
+  fallback,
+  locale,
+  onClick,
+  input,
+}: {
+  label: string;
+  iso: string;
+  fallback: string;
+  locale: string;
+  onClick: () => void;
+  input: React.ReactNode;
+}) {
+  const fmt = formatMobileDate(iso, locale);
+
+  return (
+    <button type="button" onClick={onClick} className="flex min-w-0 flex-1 flex-col px-3 py-2 text-left">
+      <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">{label}</span>
+      {iso ? (
+        <div className="mt-0.5 flex items-center gap-1.5">
+          <span className="text-[22px] font-bold leading-none text-[#2D83C2]">{fmt.dayNum}</span>
+          <span className="text-xs text-gray-500">
+            {fmt.weekday} {fmt.month}
+          </span>
+        </div>
+      ) : (
+        <span className="mt-0.5 text-sm text-[#bcbcbc]">{fallback}</span>
+      )}
+      {input}
+    </button>
+  );
+}
+
+/** Travala mobile side-by-side check-in / check-out row */
 export function MobileDateRange({
   checkIn,
   checkOut,
@@ -335,6 +377,7 @@ export function MobileDateRange({
   checkInInput,
   checkOutInput,
   locale = "en-GB",
+  showCheckOut = true,
   checkInFallback = "Select date",
   checkOutFallback = "Select date",
 }: {
@@ -343,27 +386,40 @@ export function MobileDateRange({
   checkInLabel: string;
   checkOutLabel: string;
   onCheckInClick: () => void;
-  onCheckOutClick: () => void;
+  onCheckOutClick?: () => void;
   checkInInput: React.ReactNode;
-  checkOutInput: React.ReactNode;
+  checkOutInput?: React.ReactNode;
   locale?: string;
+  showCheckOut?: boolean;
   checkInFallback?: string;
   checkOutFallback?: string;
 }) {
   return (
-    <MobileDateCards
-      checkIn={checkIn}
-      checkOut={checkOut}
-      checkInLabel={checkInLabel}
-      checkOutLabel={checkOutLabel}
-      onCheckInClick={onCheckInClick}
-      onCheckOutClick={onCheckOutClick}
-      checkInInput={checkInInput}
-      checkOutInput={checkOutInput}
-      locale={locale}
-      checkInFallback={checkInFallback}
-      checkOutFallback={checkOutFallback}
-    />
+    <div className="flex min-h-[42px] items-stretch rounded-lg bg-[#f2f5f9] lg:hidden">
+      <MobileDateHalf
+        label={checkInLabel}
+        iso={checkIn}
+        fallback={checkInFallback}
+        locale={locale}
+        onClick={onCheckInClick}
+        input={checkInInput}
+      />
+      {showCheckOut && onCheckOutClick && (
+        <>
+          <div className="flex shrink-0 items-center self-center text-[#2D83C2]">
+            <ChevronRight size={18} strokeWidth={2.5} />
+          </div>
+          <MobileDateHalf
+            label={checkOutLabel}
+            iso={checkOut}
+            fallback={checkOutFallback}
+            locale={locale}
+            onClick={onCheckOutClick}
+            input={checkOutInput}
+          />
+        </>
+      )}
+    </div>
   );
 }
 
