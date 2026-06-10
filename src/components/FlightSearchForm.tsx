@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeftRight, Building2, Car, MapPin, Plane } from "lucide-react";
+import { ArrowLeftRight, Building2, Plane } from "lucide-react";
 import SearchSuggestions from "./SearchSuggestions";
 import type { SearchSuggestion } from "@/lib/travala-suggest";
 import { ASSETS } from "@/data/site-data";
@@ -15,8 +15,6 @@ import { useTranslations } from "@/i18n/useTranslations";
 const TABS = [
   { key: "stays", labelKey: "stays" as const, icon: Building2 },
   { key: "flights", labelKey: "flights" as const, icon: Plane },
-  { key: "car-rental", labelKey: "carRental" as const, badge: true as const, icon: Car },
-  { key: "activities", labelKey: "activities" as const, icon: MapPin },
 ] as const;
 
 const TRIP_KEYS: TripType[] = ["roundtrip", "oneway", "multicity"];
@@ -276,9 +274,6 @@ export default function FlightSearchForm({
               </span>
             )}
             <span className={`text-[11px] font-medium sm:text-xs ${isHero && active ? "text-[#1a1a1a]" : ""}`}>
-              {"badge" in tab && tab.badge && (
-                <span className="mr-1 rounded bg-[#2dd4bf] px-1 py-0.5 text-[8px] font-bold text-[#1e2e5e]">{m.nav.badgeNew}</span>
-              )}
               {m.nav[tab.labelKey]}
             </span>
           </button>

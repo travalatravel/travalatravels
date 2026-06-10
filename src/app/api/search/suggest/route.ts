@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { fetchTravalaSuggestions } from "@/lib/travala-suggest";
 
-const VALID_TYPES = new Set(["stays", "flights", "car-rental", "activities"]);
+const VALID_TYPES = new Set(["stays", "flights"]);
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

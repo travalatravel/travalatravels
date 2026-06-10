@@ -9,8 +9,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/search?type=stays",
     "/stays",
     "/flights",
-    "/car-rental",
-    "/activities",
     "/login",
     "/register",
   ];

@@ -109,7 +109,7 @@ export default function MyTripsPage() {
                       <span>{booking.guests} guest{booking.guests > 1 ? "s" : ""}</span>
                       <span>
                         Payment:{" "}
-                        {CRYPTO_PAYMENT_LABELS[booking.paymentMethod] ??
+                        {CRYPTO_PAYMENT_LABELS[booking.paymentMethod as keyof typeof CRYPTO_PAYMENT_LABELS] ??
                           booking.paymentMethod.replace("CRYPTO_", "")}
                       </span>
                       <span>Booked: {new Date(booking.createdAt).toLocaleDateString()}</span>

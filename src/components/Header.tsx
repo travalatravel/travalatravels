@@ -12,8 +12,6 @@ import { useTranslations } from "@/i18n/useTranslations";
 const NAV_HREFS = [
   { key: "stays" as const, href: "/stays", badge: false },
   { key: "flights" as const, href: "/flights", badge: false },
-  { key: "carRental" as const, href: "/car-rental", badge: true },
-  { key: "activities" as const, href: "/activities", badge: false },
 ];
 
 function Logo({ variant }: { variant: "home" | "default" }) {

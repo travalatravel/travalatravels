@@ -3,14 +3,14 @@ import { z } from "zod";
 import { getCryptoQuote } from "@/lib/crypto-rates";
 
 const schema = z.object({
-  currency: z.enum(["BTC", "ETH", "USDC"]),
+  currency: z.enum(["BTC", "ETH", "USDC", "USDT", "LTC", "SOL"]),
   usd: z.coerce.number().positive(),
 });
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const parsed = schema.safeParse({
-    currency: searchParams.get("currency"),
+    currency: searchParams.get("currency")?.toUpperCase(),
     usd: searchParams.get("usd"),
   });
 

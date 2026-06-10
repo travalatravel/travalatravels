@@ -9,6 +9,7 @@ import BookingOrderSummary from "@/components/BookingOrderSummary";
 import BundlePaymentSummary from "@/components/BundlePaymentSummary";
 import BookingGuestSummary from "@/components/BookingGuestSummary";
 import { useAuth } from "@/context/AuthContext";
+import { useTranslations } from "@/i18n/useTranslations";
 import type { Booking } from "@/lib/types";
 import { ArrowLeft } from "lucide-react";
 
@@ -16,6 +17,8 @@ function PaymentContent() {
   const { id } = useParams<{ id: string }>();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { messages: m } = useTranslations();
+  const c = m.checkout;
   const { user, loading: authLoading } = useAuth();
   const bookingId = searchParams.get("bookingId");
   const bundleId = searchParams.get("bundleId");
@@ -60,7 +63,7 @@ function PaymentContent() {
   if (!booking) {
     return (
       <div className="mx-auto max-w-lg px-4 py-16 text-center">
-        <p className="text-gray-500">Booking not found.</p>
+        <p className="text-gray-500">{c.bookingNotFound}</p>
         <Link href="/my-trips" className="mt-4 inline-block text-[#2577be] hover:underline">
           My Trips
         </Link>
@@ -88,13 +91,13 @@ function PaymentContent() {
         href={`/offers/${id}/checkout?checkIn=${booking.checkIn?.slice(0, 10)}&checkOut=${booking.checkOut?.slice(0, 10)}&guests=${booking.guests}&rooms=${booking.rooms}`}
         className="mb-6 inline-flex items-center gap-1 text-sm text-[#2577be] hover:underline"
       >
-        <ArrowLeft size={16} /> Edit guest details
+        <ArrowLeft size={16} /> {c.editGuestDetails}
       </Link>
 
       <div className="mb-8">
-        <p className="text-sm font-medium text-slate-500">Step 2 of 2</p>
-        <h1 className="mt-1 text-2xl font-bold text-[#1e2e5e] md:text-3xl">Complete payment</h1>
-        <p className="mt-2 text-slate-500">Review your details and pay securely with cryptocurrency.</p>
+        <p className="text-sm font-medium text-slate-500">{c.step2}</p>
+        <h1 className="mt-1 text-2xl font-bold text-[#1e2e5e] md:text-3xl">{c.completePayment}</h1>
+        <p className="mt-2 text-slate-500">{c.paymentReview}</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">

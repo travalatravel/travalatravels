@@ -12,11 +12,9 @@ export const ASSETS = {
 export const NAV_LINKS = [
   { label: "Stays", href: "/stays" },
   { label: "Flights", href: "/flights" },
-  { label: "Car Rental", href: "/car-rental", badge: "NEW!" },
-  { label: "Activities", href: "/activities" },
 ];
 
-export const SEARCH_TABS = ["Stays", "Flights", "Car Rental", "Activities"] as const;
+export const SEARCH_TABS = ["Stays", "Flights"] as const;
 
 export const FEATURES = [
   {

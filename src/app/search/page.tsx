@@ -10,9 +10,9 @@ import FlightHotelBundle from "@/components/FlightHotelBundle";
 import SearchFilters, { type SortOption } from "@/components/SearchFilters";
 import type { Offer } from "@/lib/types";
 import type { LiveFlightOffer } from "@/lib/live-flight-types";
-import { TYPE_LABELS } from "@/lib/types";
 import type { CabinClass, TripType } from "@/lib/flight-types";
-import { CABIN_LABELS } from "@/lib/flight-types";
+import { useTranslations } from "@/i18n/useTranslations";
+import { cabinLabel } from "@/i18n/cabin-label";
 
 const TYPE_MAP: Record<string, string> = {
   stays: "HOTEL",
@@ -22,6 +22,7 @@ const TYPE_MAP: Record<string, string> = {
 };
 
 function SearchResults() {
+  const { messages: m, fmt } = useTranslations();
   const searchParams = useSearchParams();
   const [offers, setOffers] = useState<Offer[]>([]);
   const [liveFlights, setLiveFlights] = useState<LiveFlightOffer[]>([]);
@@ -50,7 +51,8 @@ function SearchResults() {
   const infants = Math.max(0, parseInt(searchParams.get("infants") || "0", 10));
   const addHotel = searchParams.get("addHotel") === "1";
 
-  const typeLabel = TYPE_LABELS[TYPE_MAP[type] as keyof typeof TYPE_LABELS] || "Stays";
+  const offerTypeKey = TYPE_MAP[type] as keyof typeof m.offerTypes;
+  const typeLabel = m.offerTypes[offerTypeKey] || m.nav.stays;
   const canLiveSearch = isFlights && from && to && depart;
 
   const flightSearchContext = {
@@ -157,21 +159,25 @@ function SearchResults() {
           <div>
             <p className="text-sm font-semibold text-[#2577be]">{typeLabel}</p>
             <h1 className="text-2xl font-bold text-[#1e2e5e]">
-              {loading ? "Searching..." : `${resultCount.toLocaleString()} ${isFlights ? "flights" : "results"}`}
+              {loading
+                ? m.common.searching
+                : isFlights
+                  ? fmt(m.common.flightCount, { count: resultCount.toLocaleString() })
+                  : fmt(m.common.resultCount, { count: resultCount.toLocaleString() })}
               {routeLabel && <span className="font-normal text-gray-500"> · {routeLabel}</span>}
-              {!isFlights && q && <span className="font-normal text-gray-500"> for &ldquo;{q}&rdquo;</span>}
+              {!isFlights && q && <span className="font-normal text-gray-500"> {fmt(m.common.forQuery, { query: q })}</span>}
             </h1>
             {isFlights && !loading && (
               <p className="mt-1 text-sm text-gray-500">
-                {depart && `Depart ${depart}`}
-                {trip === "roundtrip" && returnDate && ` · Return ${returnDate}`}
+                {depart && `${m.common.depart} ${depart}`}
+                {trip === "roundtrip" && returnDate && ` · ${m.common.return} ${returnDate}`}
                 {" · "}
-                {adults + children + infants} passenger{adults + children + infants !== 1 ? "s" : ""}
+                {fmt(m.searchPage.forPassengers, { count: adults + children + infants })}
                 {" · "}
-                {CABIN_LABELS[cabin]}
+                {cabinLabel(cabin, m)}
                 {flightSource === "market" && (
                   <span className="ml-2 rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-800">
-                    Best rates · 30% off
+                    {m.common.bestRatesOff}
                   </span>
                 )}
               </p>
@@ -179,7 +185,7 @@ function SearchResults() {
           </div>
           {!loading && hasResults && (
             <span className="rounded-full bg-[#2dd4bf]/20 px-3 py-1 text-xs font-semibold text-[#1e2e5e]">
-              Best price guarantee
+              {m.common.bestPriceGuarantee}
             </span>
           )}
         </div>
@@ -230,7 +236,7 @@ function SearchResults() {
                   disabled={loadingMore}
                   className="rounded-lg bg-[#2577be] px-8 py-3 text-sm font-semibold text-white hover:bg-[#1e2e5e] disabled:opacity-60"
                 >
-                  {loadingMore ? "Loading…" : `Load more (${offers.length} of ${total})`}
+                  {loadingMore ? m.common.loading : fmt(m.searchPage.loadMore, { shown: offers.length, total })}
                 </button>
               </div>
             )}
@@ -251,7 +257,7 @@ function SearchResults() {
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div className="p-10 text-center">Loading...</div>}>
+    <Suspense fallback={<div className="p-10 text-center">…</div>}>
       <SearchResults />
     </Suspense>
   );

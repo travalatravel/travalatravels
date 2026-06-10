@@ -53,15 +53,19 @@ export default function SearchSuggestions({
   if (!query.trim()) return null;
 
   const listClass = mobileSheet
-    ? "fixed inset-x-3 top-[20%] z-[60] max-h-[min(24rem,55vh)] overflow-y-auto rounded-2xl border border-gray-200 bg-white py-1 shadow-2xl sm:absolute sm:inset-x-0 sm:top-[calc(100%+0.35rem)] sm:z-50 sm:max-h-[min(22rem,60vh)] sm:rounded-xl"
+    ? "fixed inset-x-0 bottom-0 z-[60] max-h-[min(24rem,55vh)] overflow-y-auto rounded-t-2xl border border-gray-200 bg-white py-1 shadow-2xl sm:absolute sm:inset-x-0 sm:bottom-auto sm:top-[calc(100%+0.35rem)] sm:z-50 sm:max-h-[min(22rem,60vh)] sm:rounded-xl"
     : "absolute left-0 right-0 top-[calc(100%+0.35rem)] z-50 max-h-[min(22rem,60vh)] overflow-y-auto rounded-xl border border-gray-200 bg-white py-1 shadow-2xl";
 
   return (
-    <div
-      className={listClass}
-      role="listbox"
-      aria-label="Search suggestions"
-    >
+    <>
+      {mobileSheet && (suggestions.length > 0 || loading) && (
+        <div className="fixed inset-0 z-[55] bg-black/25 sm:hidden" aria-hidden />
+      )}
+      <div
+        className={listClass}
+        role="listbox"
+        aria-label="Search suggestions"
+      >
       {loading && suggestions.length === 0 && (
         <p className="px-4 py-3 text-sm text-gray-500">{m.common.searching}</p>
       )}
@@ -99,6 +103,7 @@ export default function SearchSuggestions({
           </span>
         </button>
       ))}
-    </div>
+      </div>
+    </>
   );
 }

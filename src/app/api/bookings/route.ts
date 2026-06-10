@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getSessionFromRequest } from "@/lib/auth";
-import { CRYPTO_CURRENCY_MAP, CRYPTO_PAYMENT_METHODS } from "@/lib/payments";
+import { CRYPTO_WALLET_LOOKUP, CRYPTO_PAYMENT_METHODS } from "@/lib/payments";
 import { applySalePrice } from "@/lib/pricing";
 import { priceForFlight } from "@/lib/flight-display";
 import { decodeFlightToken } from "@/lib/flight-token";
@@ -118,13 +118,13 @@ export async function POST(request: Request) {
       totalPrice = applySalePrice(totalPrice, offer.id, offer.stars);
     }
 
-    const currency = CRYPTO_CURRENCY_MAP[data.paymentMethod];
+    const walletMeta = CRYPTO_WALLET_LOOKUP[data.paymentMethod];
     const wallet = await prisma.cryptoWallet.findFirst({
-      where: { currency, isActive: true },
+      where: { currency: walletMeta.currency, network: walletMeta.network, isActive: true },
     });
     if (!wallet) {
       return NextResponse.json(
-        { error: `No active ${currency} wallet configured. Contact support.` },
+        { error: `No active ${walletMeta.currency} (${walletMeta.network}) wallet configured. Contact support.` },
         { status: 400 }
       );
     }

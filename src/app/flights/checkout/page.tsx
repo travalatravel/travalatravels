@@ -10,10 +10,13 @@ import FlightBundleSummary from "@/components/FlightBundleSummary";
 import { useFlightOffer } from "@/hooks/useFlightOffer";
 import { parseBundleHotelFromParams } from "@/lib/flight-hotel-bundle";
 import { useAuth } from "@/context/AuthContext";
+import { useTranslations } from "@/i18n/useTranslations";
 
 function CheckoutContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { messages: m } = useTranslations();
+  const c = m.checkout;
   const { user, loading: authLoading } = useAuth();
   const { flight, token, loading: offerLoading } = useFlightOffer(searchParams);
   const [systemOfferId, setSystemOfferId] = useState<string | null>(null);
@@ -44,7 +47,7 @@ function CheckoutContent() {
   if (!token || !systemOfferId) {
     return (
       <div className="mx-auto max-w-lg px-4 py-16 text-center text-gray-500">
-        {!token ? "Flight offer expired or invalid. Please search again." : "Preparing checkout…"}
+        {!token ? m.common.invalidOffer : m.common.preparingCheckout}
       </div>
     );
   }
@@ -82,13 +85,13 @@ function CheckoutContent() {
         })()}
         className="mb-6 inline-flex items-center gap-1 text-sm text-[#2577be] hover:underline"
       >
-        <ArrowLeft size={16} /> Back to flight
+        <ArrowLeft size={16} /> {m.common.backToFlight}
       </Link>
 
       <div className="mb-8">
-        <p className="text-sm font-medium text-slate-500">Step 1 of 2</p>
+        <p className="text-sm font-medium text-slate-500">{c.step1}</p>
         <h1 className="mt-1 text-2xl font-bold text-[#1e2e5e] md:text-3xl">
-          {bundleHotel ? "Enter details for your trip" : "Enter passenger details"}
+          {bundleHotel ? c.enterTripDetails : m.common.enterPassengerDetails}
         </h1>
       </div>
 

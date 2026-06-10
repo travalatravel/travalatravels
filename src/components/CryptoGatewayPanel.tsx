@@ -20,6 +20,9 @@ const CURRENCY_COIN: Record<string, CoinId> = {
   BTC: "btc",
   ETH: "eth",
   USDC: "usdc",
+  USDT: "usdt",
+  LTC: "ltc",
+  SOL: "sol",
 };
 
 function CopyField({
@@ -156,7 +159,11 @@ export default function CryptoGatewayPanel({
       ? quote.cryptoAmount.toFixed(8)
       : wallet.currency === "ETH"
         ? quote.cryptoAmount.toFixed(6)
-        : quote.cryptoAmount.toFixed(2)
+        : wallet.currency === "LTC"
+          ? quote.cryptoAmount.toFixed(6)
+          : wallet.currency === "SOL"
+            ? quote.cryptoAmount.toFixed(4)
+            : quote.cryptoAmount.toFixed(2)
     : null;
 
   const qrData =

@@ -23,6 +23,11 @@ const DEFAULT_WALLETS = [
   { currency: "BTC", label: "Bitcoin Main Wallet", address: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh", network: "Bitcoin" },
   { currency: "ETH", label: "Ethereum Main Wallet", address: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0", network: "Ethereum" },
   { currency: "USDC", label: "USDC ERC-20 Wallet", address: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb1", network: "Ethereum (ERC-20)" },
+  { currency: "LTC", label: "Litecoin Main Wallet", address: "ltc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh", network: "Litecoin" },
+  { currency: "SOL", label: "Solana Main Wallet", address: "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU", network: "Solana" },
+  { currency: "USDT", label: "USDT TRC-20 Wallet", address: "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf", network: "TRON (TRC-20)" },
+  { currency: "USDT", label: "USDT ERC-20 Wallet", address: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb2", network: "Ethereum (ERC-20)" },
+  { currency: "USDT", label: "USDT BEP-20 Wallet", address: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb3", network: "BNB Chain (BEP-20)" },
 ];
 
 function loadScrapedOffers(): ScrapedOffer[] | null {

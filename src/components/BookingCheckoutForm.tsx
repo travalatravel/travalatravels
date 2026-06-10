@@ -13,6 +13,7 @@ import {
 import type { Offer } from "@/lib/types";
 import type { CabinClass, TripType } from "@/lib/flight-types";
 import { useAuth } from "@/context/AuthContext";
+import { useTranslations } from "@/i18n/useTranslations";
 import { Building2, User, ChevronRight, ShieldCheck, Info, Plus, Trash2 } from "lucide-react";
 
 const inputCls =
@@ -78,6 +79,8 @@ export default function BookingCheckoutForm({
 }) {
   const router = useRouter();
   const { user } = useAuth();
+  const { messages: m } = useTranslations();
+  const c = m.checkout;
   const isFlight = offer.type === "FLIGHT";
 
   const [bookingType, setBookingType] = useState<BookingType>("PRIVATE");
@@ -153,7 +156,7 @@ export default function BookingCheckoutForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) {
-      setError("Please complete all required fields before continuing to payment.");
+      setError(c.completeFields);
       return;
     }
     setSubmitting(true);
@@ -203,7 +206,7 @@ export default function BookingCheckoutForm({
     setSubmitting(false);
 
     if (!res.ok) {
-      setError(data.error || "Could not complete booking");
+      setError(data.error || c.bookingFailed);
       return;
     }
 
@@ -246,17 +249,17 @@ export default function BookingCheckoutForm({
       </Section>
 
       <Section
-        title={isFlight ? "Lead passenger details" : "Lead guest details"}
-        subtitle={isFlight ? "Name must match passport or government ID." : "The main guest checking in — name must match travel ID."}
+        title={isFlight ? c.leadPassenger : c.leadGuest}
+        subtitle={isFlight ? c.passportHint : c.guestIdHint}
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className={labelCls}>First name *</label>
-            <input className={inputCls} value={guestFirstName} onChange={(e) => setGuestFirstName(e.target.value)} placeholder="As on passport / ID" />
+            <label className={labelCls}>{c.firstName} *</label>
+            <input className={inputCls} value={guestFirstName} onChange={(e) => setGuestFirstName(e.target.value)} placeholder={c.passportPlaceholder} />
             {fieldErrors.guestFirstName && <p className="mt-1 text-xs text-red-500">{fieldErrors.guestFirstName}</p>}
           </div>
           <div>
-            <label className={labelCls}>Last name *</label>
+            <label className={labelCls}>{c.lastName} *</label>
             <input className={inputCls} value={guestLastName} onChange={(e) => setGuestLastName(e.target.value)} />
             {fieldErrors.guestLastName && <p className="mt-1 text-xs text-red-500">{fieldErrors.guestLastName}</p>}
           </div>
@@ -264,16 +267,16 @@ export default function BookingCheckoutForm({
       </Section>
 
       {bookingType === "BUSINESS" && (
-        <Section title="Company details" subtitle="Required for business bookings and invoicing.">
+        <Section title={c.companyDetails} subtitle={c.companySubtitle}>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <label className={labelCls}>Company name *</label>
+              <label className={labelCls}>{c.companyName} *</label>
               <input className={inputCls} value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
               {fieldErrors.companyName && <p className="mt-1 text-xs text-red-500">{fieldErrors.companyName}</p>}
             </div>
             <div>
-              <label className={labelCls}>VAT / Tax ID</label>
-              <input className={inputCls} value={companyVatId} onChange={(e) => setCompanyVatId(e.target.value)} placeholder="Optional" />
+              <label className={labelCls}>{c.vatId}</label>
+              <input className={inputCls} value={companyVatId} onChange={(e) => setCompanyVatId(e.target.value)} placeholder={c.optional} />
             </div>
           </div>
         </Section>
@@ -287,22 +290,22 @@ export default function BookingCheckoutForm({
             {fieldErrors.contactEmail && <p className="mt-1 text-xs text-red-500">{fieldErrors.contactEmail}</p>}
           </div>
           <div>
-            <label className={labelCls}>Mobile phone *</label>
+            <label className={labelCls}>{c.phone} *</label>
             <input type="tel" className={inputCls} value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} placeholder="+49 170 1234567" />
             {fieldErrors.contactPhone && <p className="mt-1 text-xs text-red-500">{fieldErrors.contactPhone}</p>}
           </div>
         </div>
       </Section>
 
-      <Section title="Billing address" subtitle="Required for invoice and property registration in many countries.">
+      <Section title={c.billingAddress} subtitle={c.billingSubtitle}>
         <div className="grid gap-4">
           <div>
-            <label className={labelCls}>Street address *</label>
+            <label className={labelCls}>{c.street} *</label>
             <input className={inputCls} value={addressLine1} onChange={(e) => setAddressLine1(e.target.value)} />
             {fieldErrors.addressLine1 && <p className="mt-1 text-xs text-red-500">{fieldErrors.addressLine1}</p>}
           </div>
           <div>
-            <label className={labelCls}>Apartment, suite, etc.</label>
+            <label className={labelCls}>{c.apartment}</label>
             <input className={inputCls} value={addressLine2} onChange={(e) => setAddressLine2(e.target.value)} />
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
@@ -312,12 +315,12 @@ export default function BookingCheckoutForm({
               {fieldErrors.addressCity && <p className="mt-1 text-xs text-red-500">{fieldErrors.addressCity}</p>}
             </div>
             <div>
-              <label className={labelCls}>Postal code *</label>
+              <label className={labelCls}>{c.postalCode} *</label>
               <input className={inputCls} value={addressPostalCode} onChange={(e) => setAddressPostalCode(e.target.value)} />
               {fieldErrors.addressPostalCode && <p className="mt-1 text-xs text-red-500">{fieldErrors.addressPostalCode}</p>}
             </div>
             <div>
-              <label className={labelCls}>Country *</label>
+              <label className={labelCls}>{c.country} *</label>
               <select className={inputCls} value={addressCountry} onChange={(e) => setAddressCountry(e.target.value)}>
                 {COUNTRY_OPTIONS.map((c) => (
                   <option key={c} value={c}>{c}</option>
@@ -397,7 +400,7 @@ export default function BookingCheckoutForm({
                     )}
                   </div>
                   <div>
-                    <label className={labelCls}>Last name *</label>
+                    <label className={labelCls}>{c.lastName} *</label>
                     <input
                       className={inputCls}
                       value={g.lastName}
@@ -453,7 +456,7 @@ export default function BookingCheckoutForm({
         </div>
       </Section>
 
-      <Section title="Payment method" subtitle={GATEWAY_NAME}>
+      <Section title={m.common.paymentMethod} subtitle={GATEWAY_NAME}>
         <CryptoMethodPicker value={paymentMethod} onChange={setPaymentMethod} />
       </Section>
 
@@ -465,8 +468,7 @@ export default function BookingCheckoutForm({
         <div className="flex items-start gap-3 text-sm text-slate-600">
           <ShieldCheck size={18} className="mt-0.5 flex-shrink-0 text-emerald-600" />
           <p>
-            By continuing, you confirm that guest names match valid ID documents and that your contact
-            details are correct. The property may require this information before check-in.
+            {c.confirmHint}
           </p>
         </div>
         <button
@@ -474,7 +476,7 @@ export default function BookingCheckoutForm({
           disabled={submitting}
           className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#1e2e5e] py-4 text-sm font-bold text-white transition hover:bg-[#2577be] disabled:opacity-50"
         >
-          {submitting ? "Creating booking…" : "Continue to payment"}
+          {submitting ? c.creatingBooking : c.continueToPayment}
           {!submitting && <ChevronRight size={18} />}
         </button>
       </div>

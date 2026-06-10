@@ -13,8 +13,6 @@ export default function HeroSearch({ defaultTab = "stays" }: { defaultTab?: stri
   const heroCopy: Record<string, { title: string; subtitle: string; bg?: string }> = {
     stays: { title: m.hero.stays.title, subtitle: m.hero.stays.subtitle, bg: ASSETS.heroBg },
     flights: { title: m.hero.flights.title, subtitle: m.hero.flights.subtitle, bg: ASSETS.heroBg },
-    "car-rental": { title: m.hero.carRental.title, subtitle: m.hero.carRental.subtitle, bg: ASSETS.heroBg },
-    activities: { title: m.hero.activities.title, subtitle: m.hero.activities.subtitle, bg: ASSETS.heroBg },
   };
 
   const copy = heroCopy[tab] || heroCopy.stays;

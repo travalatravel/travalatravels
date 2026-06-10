@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import HeroSearch from "./HeroSearch";
 
-const VALID_TABS = new Set(["stays", "flights", "car-rental", "activities"]);
+const VALID_TABS = new Set(["stays", "flights"]);
 
 function HeroWithTab() {
   const searchParams = useSearchParams();
