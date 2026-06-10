@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { decodeFlightToken } from "@/lib/flight-token";
-import { readOutboundToken, clearOutboundToken } from "@/lib/flight-selection-storage";
+import { readOutboundToken, readOutboundOffer, clearOutboundToken } from "@/lib/flight-selection-storage";
 import { LOCALE_BCP47 } from "@/i18n/config";
 import SiteChrome from "@/components/SiteChrome";
 import SearchForm from "@/components/SearchForm";
@@ -64,9 +64,15 @@ function FlightSearchResults() {
   const addHotel = searchParams.get("addHotel") === "1";
   const pickReturn = searchParams.get("pickReturn") === "1";
   const [storedOutbound, setStoredOutbound] = useState("");
+  const [storedOutboundOffer, setStoredOutboundOffer] = useState<LiveFlightOffer | null>(null);
   useEffect(() => {
-    if (pickReturn) setStoredOutbound(readOutboundToken());
-    else setStoredOutbound("");
+    if (pickReturn) {
+      setStoredOutbound(readOutboundToken());
+      setStoredOutboundOffer(readOutboundOffer());
+    } else {
+      setStoredOutbound("");
+      setStoredOutboundOffer(null);
+    }
   }, [pickReturn]);
   const outboundToken = pickReturn
     ? storedOutbound || searchParams.get("outboundToken") || ""
@@ -78,6 +84,33 @@ function FlightSearchResults() {
       ? ("outbound" as const)
       : ("return" as const);
   const selectedOutbound = outboundToken ? decodeFlightToken(outboundToken) : null;
+  const selectedOutboundLeg = storedOutboundOffer
+    ? storedOutboundOffer.outbound || {
+        airline: storedOutboundOffer.airline,
+        airlineCode: storedOutboundOffer.airlineCode,
+        from: storedOutboundOffer.from,
+        to: storedOutboundOffer.to,
+        fromCode: storedOutboundOffer.fromCode,
+        toCode: storedOutboundOffer.toCode,
+        departAt: storedOutboundOffer.departAt,
+        arriveAt: storedOutboundOffer.arriveAt,
+        duration: storedOutboundOffer.duration,
+        stops: storedOutboundOffer.stops,
+      }
+    : selectedOutbound?.outbound || (selectedOutbound
+      ? {
+          airline: selectedOutbound.airline,
+          airlineCode: selectedOutbound.airlineCode,
+          from: selectedOutbound.from,
+          to: selectedOutbound.to,
+          fromCode: selectedOutbound.fromCode,
+          toCode: selectedOutbound.toCode,
+          departAt: selectedOutbound.departAt,
+          arriveAt: selectedOutbound.arriveAt,
+          duration: selectedOutbound.duration,
+          stops: selectedOutbound.stops,
+        }
+      : null);
 
   const canLiveSearch = Boolean(from && to && depart);
 
@@ -199,8 +232,20 @@ function FlightSearchResults() {
             <h1 className="text-2xl font-bold text-[#1a1a1a]">
               {loading
                 ? m.common.searching
-                : fmt(m.common.flightCount, { count: sortedFlights.length.toLocaleString() })}
-              {routeLabel && <span className="font-normal text-gray-500"> · {routeLabel}</span>}
+                : selectionLeg === "outbound"
+                  ? m.searchPage.selectOutbound
+                  : selectionLeg === "return"
+                    ? m.searchPage.selectReturn
+                    : fmt(m.common.flightCount, { count: sortedFlights.length.toLocaleString() })}
+              {routeLabel && selectionLeg !== "return" && (
+                <span className="font-normal text-gray-500"> · {routeLabel}</span>
+              )}
+              {selectionLeg === "return" && selectedOutboundLeg && (
+                <span className="font-normal text-gray-500">
+                  {" "}
+                  · {toCode || selectedOutboundLeg.toCode} → {fromCode || selectedOutboundLeg.fromCode}
+                </span>
+              )}
             </h1>
             {!loading && (
               <p className="mt-1 text-sm text-gray-500">
@@ -225,7 +270,7 @@ function FlightSearchResults() {
           </div>
         </div>
 
-        {selectionLeg === "return" && selectedOutbound && (
+        {selectionLeg === "return" && selectedOutboundLeg && (
           <div className="mt-6 rounded-xl border border-[#2D83C2]/30 bg-[#eef5fc] p-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
@@ -233,20 +278,13 @@ function FlightSearchResults() {
                   {m.searchPage.selectedOutbound}
                 </p>
                 <p className="mt-1 text-sm font-semibold text-[#1a1a1a]">
-                  {selectedOutbound.outbound?.fromCode || selectedOutbound.fromCode} →{" "}
-                  {selectedOutbound.outbound?.toCode || selectedOutbound.toCode}
+                  {selectedOutboundLeg.fromCode} → {selectedOutboundLeg.toCode}
                   {" · "}
-                  {formatLegTime(
-                    selectedOutbound.outbound?.departAt || selectedOutbound.departAt,
-                    dateLocale,
-                  )}
+                  {formatLegTime(selectedOutboundLeg.departAt, dateLocale)}
                   {" – "}
-                  {formatLegTime(
-                    selectedOutbound.outbound?.arriveAt || selectedOutbound.arriveAt,
-                    dateLocale,
-                  )}
+                  {formatLegTime(selectedOutboundLeg.arriveAt, dateLocale)}
                 </p>
-                <p className="text-xs text-gray-500">{selectedOutbound.outbound?.airline || selectedOutbound.airline}</p>
+                <p className="text-xs text-gray-500">{selectedOutboundLeg.airline}</p>
               </div>
               <Link
                 href={(() => {
@@ -286,13 +324,14 @@ function FlightSearchResults() {
         ) : (
           <>
             <div className="mt-8 space-y-2">
-              {sortedFlights.map((flight) => (
+              {sortedFlights.map((flight, index) => (
                 <LiveFlightResultCard
-                  key={flight.id}
+                  key={`${selectionLeg || "all"}-${flight.id}-${index}`}
                   flight={flight}
                   searchContext={flightSearchContext}
                   selectionLeg={selectionLeg}
                   outboundToken={outboundToken || undefined}
+                  outboundOffer={storedOutboundOffer || undefined}
                 />
               ))}
             </div>

@@ -211,6 +211,7 @@ const de: DeepPartial<Messages> = {
     selectReturn: "Rückflug wählen",
     selectedOutbound: "Gewählter Hinflug",
     changeOutbound: "Hinflug ändern",
+    returnSelectFailed: "Rückflug konnte nicht ausgewählt werden. Bitte Hinflug erneut wählen.",
   },
   checkout: {
     step1: "Schritt 1 von 2",

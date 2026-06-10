@@ -425,6 +425,7 @@ const en = {
     selectReturn: "Select return flight",
     selectedOutbound: "Selected outbound flight",
     changeOutbound: "Change outbound flight",
+    returnSelectFailed: "Could not select return flight. Please choose your outbound flight again.",
   },
   checkout: {
     step1: "Step 1 of 2",

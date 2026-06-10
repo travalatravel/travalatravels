@@ -1,13 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Luggage } from "lucide-react";
 import type { FlightLeg, LiveFlightOffer } from "@/lib/live-flight-types";
 import { getFlightPricing } from "@/lib/flight-pricing";
 import { buildFlightOfferHref, type FlightOfferSearchContext } from "@/lib/flight-offer-link";
-import { combineRoundtripTokens } from "@/lib/flight-combine";
-import { saveOutboundToken, readOutboundToken, saveOfferToken } from "@/lib/flight-selection-storage";
+import { combineFlightOffers, combineRoundtripTokens } from "@/lib/flight-combine";
+import {
+  saveOutboundOffer,
+  saveOutboundToken,
+  readOutboundOffer,
+  readOutboundToken,
+  saveOfferToken,
+} from "@/lib/flight-selection-storage";
 import { tokenFromOffer } from "@/lib/flight-token";
 import { formatUsd } from "@/lib/pricing";
 import { useTranslations } from "@/i18n/useTranslations";
@@ -144,18 +150,40 @@ function FlightLegRow({
 
 export type FlightSelectionLeg = "outbound" | "return" | null;
 
+function buildOfferUrl(searchContext: FlightOfferSearchContext, outbound: FlightLeg) {
+  const params = new URLSearchParams({
+    tokenRef: "1",
+    from: searchContext.from,
+    to: searchContext.to,
+    fromCode: searchContext.fromCode || outbound.fromCode,
+    toCode: searchContext.toCode || outbound.toCode,
+    depart: searchContext.depart,
+    trip: "roundtrip",
+    cabin: searchContext.cabin,
+    adults: String(searchContext.adults),
+    children: String(searchContext.children),
+    infants: String(searchContext.infants),
+  });
+  if (searchContext.returnDate) params.set("return", searchContext.returnDate);
+  if (searchContext.addHotel) params.set("addHotel", "1");
+  return `/flights/offer?${params.toString()}`;
+}
+
 export default function LiveFlightResultCard({
   flight,
   searchContext,
   selectionLeg = null,
   outboundToken,
+  outboundOffer,
 }: {
   flight: LiveFlightOffer;
   searchContext: FlightOfferSearchContext;
   selectionLeg?: FlightSelectionLeg;
   outboundToken?: string;
+  outboundOffer?: LiveFlightOffer;
 }) {
-  const router = useRouter();
+  const [selecting, setSelecting] = useState(false);
+  const [selectError, setSelectError] = useState("");
   const { locale, messages: m } = useTranslations();
   const dateLocale = LOCALE_BCP47[locale];
   const pricing = getFlightPricing(flight.sourcePrice);
@@ -185,44 +213,47 @@ export default function LiveFlightResultCard({
     offer.offerToken || tokenFromOffer(offer, pax);
 
   const handleSelect = () => {
+    if (selecting) return;
+    setSelectError("");
+
     if (selectionLeg === "outbound") {
-      const token = resolveToken(flight);
-      if (!token) return;
-      saveOutboundToken(token);
+      setSelecting(true);
+      saveOutboundOffer(flight);
+      saveOutboundToken(resolveToken(flight));
       const params = new URLSearchParams(window.location.search);
       params.delete("outboundToken");
+      params.set("type", "flights");
       params.set("pickReturn", "1");
-      router.push(`/search?${params.toString()}`);
+      window.location.assign(`/search?${params.toString()}`);
       return;
     }
+
     if (selectionLeg === "return") {
+      setSelecting(true);
+      const savedOutbound = outboundOffer || readOutboundOffer();
       const outTok = outboundToken || readOutboundToken();
-      if (!outTok) return;
       const returnTok = resolveToken(flight);
-      if (!returnTok) return;
-      const combined = combineRoundtripTokens(outTok, returnTok);
-      if (!combined) return;
+
+      let combined: string | null = null;
+      if (savedOutbound) {
+        try {
+          combined = combineFlightOffers(savedOutbound, flight, pax);
+        } catch {
+          combined = null;
+        }
+      }
+      if (!combined && outTok && returnTok) {
+        combined = combineRoundtripTokens(outTok, returnTok);
+      }
+
+      if (!combined) {
+        setSelecting(false);
+        setSelectError(m.searchPage.returnSelectFailed);
+        return;
+      }
+
       saveOfferToken(combined);
-      const params = new URLSearchParams({
-        tokenRef: "1",
-        from: searchContext.from,
-        to: searchContext.to,
-        fromCode: searchContext.fromCode || outbound.fromCode,
-        toCode: searchContext.toCode || outbound.toCode,
-        depart: searchContext.depart,
-        trip: "roundtrip",
-        cabin: searchContext.cabin,
-        adults: String(searchContext.adults),
-        children: String(searchContext.children),
-        infants: String(searchContext.infants),
-      });
-      if (searchContext.returnDate) params.set("return", searchContext.returnDate);
-      if (searchContext.addHotel) params.set("addHotel", "1");
-      const href = `/flights/offer?${params.toString()}`;
-      router.push(href);
-      window.setTimeout(() => {
-        if (window.location.pathname === "/search") window.location.assign(href);
-      }, 400);
+      window.location.assign(buildOfferUrl(searchContext, outbound));
     }
   };
 
@@ -253,6 +284,9 @@ export default function LiveFlightResultCard({
           </span>
           <span>{cabinClassLabel(m, flight.cabin)}</span>
         </div>
+        {selectError && (
+          <p className="mt-2 text-xs font-medium text-red-600">{selectError}</p>
+        )}
       </div>
 
       <div className="flex shrink-0 flex-row items-center justify-between gap-4 border-t border-gray-100 bg-[#f8fafc] px-4 py-3 sm:px-5 lg:w-52 lg:flex-col lg:items-end lg:justify-center lg:border-l lg:border-t-0 lg:py-4">
@@ -261,8 +295,8 @@ export default function LiveFlightResultCard({
           <p className="text-xs text-gray-400 line-through">{formatUsd(pricing.originalPrice)}</p>
           <p className="text-[10px] font-semibold text-emerald-600">-{pricing.discountPct}%</p>
         </div>
-        <span className="rounded-lg bg-[#2D83C2] px-5 py-2.5 text-sm font-semibold text-white transition group-hover:bg-[#1a5f94]">
-          {selectionLeg ? c.select : c.select}
+        <span className="rounded-lg bg-[#2D83C2] px-5 py-2.5 text-sm font-semibold text-white transition group-hover:bg-[#1a5f94] group-active:bg-[#1a5f94]">
+          {selecting ? c.loading : c.select}
         </span>
       </div>
     </div>
@@ -273,7 +307,9 @@ export default function LiveFlightResultCard({
       <button
         type="button"
         onClick={handleSelect}
-        className="group block w-full border border-gray-200 bg-white text-left transition hover:border-[#2D83C2]/50 hover:shadow-sm"
+        disabled={selecting}
+        className="group block w-full cursor-pointer border border-gray-200 bg-white text-left transition hover:border-[#2D83C2]/50 hover:shadow-sm active:border-[#2D83C2] disabled:opacity-70"
+        style={{ touchAction: "auto" }}
       >
         {cardBody}
       </button>
