@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, Suspense } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import SiteChrome from "@/components/SiteChrome";
 import SearchForm from "@/components/SearchForm";
@@ -33,7 +33,7 @@ function SearchResults() {
   useEffect(() => {
     setLoading(true);
     setPage(1);
-    const params = new URLSearchParams({ type, limit: "48" });
+    const params = new URLSearchParams({ type, limit: "48", sort });
     if (q) params.set("q", q);
     fetch(`/api/search?${params}`)
       .then((r) => r.json())
@@ -43,27 +43,13 @@ function SearchResults() {
         setPages(data.pages || 1);
       })
       .finally(() => setLoading(false));
-  }, [q, type]);
-
-  const sortedOffers = useMemo(() => {
-    const list = [...offers];
-    switch (sort) {
-      case "price-asc":
-        return list.sort((a, b) => a.price - b.price);
-      case "price-desc":
-        return list.sort((a, b) => b.price - a.price);
-      case "stars-desc":
-        return list.sort((a, b) => (b.stars ?? 0) - (a.stars ?? 0));
-      default:
-        return list;
-    }
-  }, [offers, sort]);
+  }, [q, type, sort]);
 
   const loadMore = async () => {
     if (page >= pages || loadingMore) return;
     setLoadingMore(true);
     const next = page + 1;
-    const params = new URLSearchParams({ type, limit: "48", page: String(next) });
+    const params = new URLSearchParams({ type, limit: "48", page: String(next), sort });
     if (q) params.set("q", q);
     const data = await fetch(`/api/search?${params}`).then((r) => r.json());
     setOffers((prev) => [...prev, ...(data.offers || [])]);
@@ -117,7 +103,7 @@ function SearchResults() {
         ) : (
           <>
             <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {sortedOffers.map((offer) => (
+              {offers.map((offer) => (
                 <OfferCard key={offer.id} offer={offer} />
               ))}
             </div>

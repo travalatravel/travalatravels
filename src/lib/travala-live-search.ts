@@ -1,5 +1,7 @@
 import { travalaApiHeaders, travalaHtmlHeaders } from "./travala-headers";
 import { prisma } from "./prisma";
+import { estimateHotelNightlyPrice } from "./hotel-pricing";
+
 const TRAVALA_BASE = "https://www.travala.com";
 
 type LiveHotel = {
@@ -59,7 +61,12 @@ function propertyToOffer(
   const country = String(p.country_name || ctx.country);
   const countryCode = String(p.country_code || ctx.countryCode || "");
   const id = hotelIdFromSlug(slug);
-  const basePrice = 80 + (Math.abs(hashCode(slug)) % 200) + (stars ? stars * 25 : 0);
+  const basePrice = estimateHotelNightlyPrice({
+    key: `hotel:${id}`,
+    stars,
+    city,
+    country,
+  });
 
   return {
     type: "HOTEL",
@@ -80,12 +87,6 @@ function propertyToOffer(
       live: true,
     },
   };
-}
-
-function hashCode(s: string): number {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
-  return h;
 }
 
 let worldwideCache: {

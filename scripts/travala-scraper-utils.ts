@@ -1,3 +1,5 @@
+import { estimateHotelNightlyPrice } from "../src/lib/hotel-pricing";
+
 export type ScrapedOffer = {
   type: "HOTEL" | "FLIGHT" | "CAR_RENTAL" | "ACTIVITY";
   title: string;
@@ -38,14 +40,23 @@ export function hashString(s: string): number {
   return Math.abs(h);
 }
 
-export function estimatePrice(key: string, stars: number | null, type: ScrapedOffer["type"]): number {
+export function estimatePrice(
+  key: string,
+  stars: number | null,
+  type: ScrapedOffer["type"],
+  ctx?: { city?: string; country?: string; location?: string }
+): number {
   const h = hashString(key);
   if (type === "FLIGHT") return 60 + (h % 540);
   if (type === "CAR_RENTAL") return 28 + (h % 120);
   if (type === "ACTIVITY") return 18 + (h % 280);
-  const s = stars ?? 3;
-  const base = s >= 5 ? 180 : s >= 4 ? 95 : s >= 3 ? 65 : 45;
-  return base + (h % 220);
+  return estimateHotelNightlyPrice({
+    key,
+    stars,
+    city: ctx?.city,
+    country: ctx?.country,
+    location: ctx?.location,
+  });
 }
 
 export function regionFromCountry(code: string | null | undefined, countryName?: string): string | null {
@@ -218,7 +229,11 @@ export function hotelFromProperty(
     country: parsed.country,
     region: ctx.region ?? regionFromCountry(parsed.countryCode, parsed.country),
     image: thumbnail || `https://static.travala.com/destination/europe/london.jpg`,
-    price: estimatePrice(sourceKey, stars, "HOTEL"),
+    price: estimatePrice(sourceKey, stars, "HOTEL", {
+      city: parsed.city,
+      country: parsed.country,
+      location: `${parsed.city}, ${parsed.country}`,
+    }),
     stars,
     metadata: {
       travalaSlug: slug,

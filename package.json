@@ -12,6 +12,7 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:setup": "prisma migrate dev --name init && tsx prisma/seed.ts",
     "import:offers": "tsx scripts/import-travala-offers.ts",
+    "fix:prices": "tsx scripts/fix-hotel-prices.ts",
     "import:full": "tsx scripts/import-travala-offers.ts --cities=200 --flights=3000",
     "db:import": "npm run import:offers && tsx prisma/seed.ts",
     "postinstall": "prisma generate && tsx scripts/copy-coin-icons.ts",

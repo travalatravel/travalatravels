@@ -23,8 +23,18 @@ export async function GET(request: Request) {
   const page = Math.max(parseInt(searchParams.get("page") || "1"), 1);
   const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100);
   const skip = (page - 1) * limit;
+  const sort = searchParams.get("sort") || "recommended";
 
   const type = TYPE_MAP[typeParam.toLowerCase()] || "HOTEL";
+
+  const orderBy =
+    sort === "price-asc"
+      ? [{ price: "asc" as const }]
+      : sort === "price-desc"
+        ? [{ price: "desc" as const }]
+        : sort === "stars-desc"
+          ? [{ stars: "desc" as const }, { price: "asc" as const }]
+          : [{ stars: "desc" as const }, { price: "asc" as const }];
 
   const where: {
     type: string;
@@ -56,7 +66,7 @@ export async function GET(request: Request) {
     where,
     take: limit,
     skip,
-    orderBy: [{ stars: "desc" }, { price: "asc" }],
+    orderBy,
   });
 
   return NextResponse.json({
