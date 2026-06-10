@@ -26,15 +26,6 @@ export default function PriceDisplay({
   const displayPrice = showCrypto ? p.cryptoPrice : p.salePrice;
   const suffix = perNight ? " / night" : "";
 
-  if (priceLoading) {
-    return (
-      <div className="min-w-0 max-w-full">
-        <div className="h-7 w-28 animate-pulse rounded bg-gray-200" />
-        <div className="mt-1.5 h-3 w-36 animate-pulse rounded bg-gray-100" />
-      </div>
-    );
-  }
-
   const priceCls =
     size === "lg"
       ? "text-xl font-bold sm:text-2xl lg:text-3xl"
@@ -63,6 +54,9 @@ export default function PriceDisplay({
           <span className="font-medium text-[#2D83C2]">Save {formatUsd(p.savings)}</span>
         )}
       </div>
+      {priceLoading && !isLive && (
+        <p className="mt-1 text-xs text-gray-400">Updating live rate…</p>
+      )}
       {isLive && (
         <p className="mt-1 text-xs font-medium text-emerald-700">Live rate for your dates</p>
       )}

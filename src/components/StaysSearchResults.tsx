@@ -9,6 +9,7 @@ import SearchFilters, { type SortOption, type StarFilter } from "@/components/Se
 import HotelsMapPanel from "@/components/HotelsMapPanel";
 import type { Offer } from "@/lib/types";
 import type { LivePriceResult } from "@/lib/travala-price";
+import { fetchLivePricesStream } from "@/lib/fetch-live-prices-stream";
 import { useTranslations } from "@/i18n/useTranslations";
 
 export type StaysSearchContext = {
@@ -121,29 +122,27 @@ export default function StaysSearchResults({ context }: { context?: StaysSearchC
       return;
     }
 
-    const offerIds = offers.slice(0, 24).map((o) => o.id);
+    const offerIds = offers.slice(0, 12).map((o) => o.id);
+    const controller = new AbortController();
     setLivePricesLoading(true);
 
-    fetch("/api/hotel-live-prices", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    void fetchLivePricesStream(
+      {
         offerIds,
         checkIn,
         checkOut,
         guests: Math.max(1, parseInt(guests, 10) || 2),
         rooms: Math.max(1, parseInt(rooms, 10) || 1),
-      }),
-    })
-      .then((r) => (r.ok ? r.json() : { prices: {} }))
-      .then((data) =>
-        setLivePrices((prev) => ({
-          ...prev,
-          ...(data.prices || {}),
-        })),
-      )
+      },
+      (id, price) => {
+        setLivePrices((prev) => ({ ...prev, [id]: price }));
+      },
+      controller.signal,
+    )
       .catch(() => {})
       .finally(() => setLivePricesLoading(false));
+
+    return () => controller.abort();
   }, [offers, checkIn, checkOut, guests, rooms, canFetchLivePrices, loading]);
 
   const loadMore = async () => {
@@ -202,7 +201,12 @@ export default function StaysSearchResults({ context }: { context?: StaysSearchC
             )}
             {canFetchLivePrices && !loading && (livePricesLoading || Object.keys(livePrices).length > 0) && (
               <p className="mt-1 text-xs font-medium text-emerald-700">
-                {livePricesLoading ? m.searchPage.loadingLiveRates : m.common.liveRatesOff}
+                {livePricesLoading
+                  ? fmt(m.searchPage.loadingLiveRatesProgress, {
+                      loaded: Object.keys(livePrices).length,
+                      total: Math.min(offers.length, 12),
+                    })
+                  : m.common.liveRatesOff}
               </p>
             )}
             {source === "live" && !loading && !canFetchLivePrices && (
@@ -257,7 +261,7 @@ export default function StaysSearchResults({ context }: { context?: StaysSearchC
                   offer={offer}
                   searchContext={cardContext}
                   livePrice={livePrices[offer.id]}
-                  priceLoading={canFetchLivePrices && livePricesLoading && !livePrices[offer.id]}
+                  priceLoading={false}
                 />
               ))}
             </div>

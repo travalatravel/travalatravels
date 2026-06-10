@@ -23,13 +23,18 @@ export function roomParams(guests: number, rooms: number): Record<string, number
   return params;
 }
 
-export async function travalaGet(path: string, params: Record<string, string | number | boolean>) {
+export async function travalaGet(
+  path: string,
+  params: Record<string, string | number | boolean>,
+  opts?: { timeoutMs?: number; cacheSeconds?: number },
+) {
   const url = new URL(`${TRAVALA_API}/${path}`);
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, String(v)));
 
   const res = await fetch(url, {
     headers: travalaApiHeaders(),
-    next: { revalidate: 300 },
+    signal: opts?.timeoutMs ? AbortSignal.timeout(opts.timeoutMs) : undefined,
+    next: { revalidate: opts?.cacheSeconds ?? 300 },
   });
 
   if (!res.ok) return null;
