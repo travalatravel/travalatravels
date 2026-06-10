@@ -18,7 +18,7 @@ export type FlightOfferSearchContext = {
 
 export function buildFlightOfferHref(flight: LiveFlightOffer, ctx: FlightOfferSearchContext): string {
   const params = new URLSearchParams({
-    id: flight.id,
+    token: flight.offerToken,
     from: ctx.from || flight.from,
     to: ctx.to || flight.to,
     fromCode: ctx.fromCode || flight.fromCode,

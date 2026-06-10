@@ -14,6 +14,15 @@ export function useFlightOffer(searchParams: ReadonlyURLSearchParams) {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (tokenParam) {
+      const decoded = decodeFlightToken(tokenParam);
+      setFlight(decoded ? normalizeFlightPayload(decoded) : null);
+      setToken(tokenParam);
+      setError(decoded ? "" : "Invalid flight token");
+      setLoading(false);
+      return;
+    }
+
     if (id) {
       setLoading(true);
       setError("");
@@ -34,14 +43,6 @@ export function useFlightOffer(searchParams: ReadonlyURLSearchParams) {
           setError("Could not load flight offer");
         })
         .finally(() => setLoading(false));
-      return;
-    }
-
-    if (tokenParam) {
-      const decoded = decodeFlightToken(tokenParam);
-      setFlight(decoded ? normalizeFlightPayload(decoded) : null);
-      setToken(tokenParam);
-      setLoading(false);
       return;
     }
 

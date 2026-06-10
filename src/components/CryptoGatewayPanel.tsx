@@ -98,9 +98,6 @@ export default function CryptoGatewayPanel({
   bundleBookingId?: string;
   bundleTotal?: number;
 }) {
-  const [txHash, setTxHash] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
   const [quote, setQuote] = useState<CryptoQuote | null>(null);
   const [quoteLoading, setQuoteLoading] = useState(true);
   const { messages: m, fmt } = useTranslations();
@@ -125,26 +122,6 @@ export default function CryptoGatewayPanel({
       .catch(() => setQuote(null))
       .finally(() => setQuoteLoading(false));
   }, [wallet, payUsd]);
-
-  const submitTx = async () => {
-    setSubmitting(true);
-    setError("");
-    const res = await fetch(`/api/bookings/${booking.id}/pay`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        txHash: txHash.trim(),
-        bundleBookingId: bundleBookingId || undefined,
-      }),
-    });
-    const data = await res.json();
-    setSubmitting(false);
-    if (!res.ok) {
-      setError(data.error || p.submissionFailed);
-      return;
-    }
-    onPaid();
-  };
 
   if (!wallet) {
     return (
@@ -400,36 +377,14 @@ export default function CryptoGatewayPanel({
                 </p>
               </div>
 
-              <div className="mt-6 border-t border-slate-100 pt-6">
-                <label
-                  htmlFor={`tx-${booking.id}`}
-                  className="text-[11px] font-medium uppercase tracking-wider text-slate-400"
-                >
-                  {p.step3Confirm}
-                </label>
-                <p className="mt-1 text-sm text-slate-500">{p.pasteTxHint}</p>
-                <input
-                  id={`tx-${booking.id}`}
-                  value={txHash}
-                  onChange={(e) => setTxHash(e.target.value)}
-                  placeholder={
-                    wallet.currency === "BTC" ? p.txPlaceholderBtc : p.txPlaceholderEth
-                  }
-                  className="mt-3 w-full rounded-lg border border-slate-200 bg-white px-4 py-3 font-mono text-sm text-slate-800 outline-none transition placeholder:text-slate-300 focus:border-[#1a1a1a] focus:ring-2 focus:ring-[#1e2e5e]/10"
-                />
-                {error && (
-                  <p className="mt-2 flex items-center gap-1.5 text-sm text-red-600">
-                    <AlertCircle size={14} />
-                    {error}
-                  </p>
-                )}
+              <div className="mt-6 rounded-lg border border-slate-200 bg-slate-50 px-4 py-4">
+                <p className="text-sm leading-relaxed text-slate-600">{p.sendPaymentNote}</p>
                 <button
                   type="button"
-                  onClick={submitTx}
-                  disabled={submitting || txHash.trim().length < 10}
-                  className="mt-4 w-full rounded-lg bg-[#1a5f94] py-3.5 text-sm font-semibold text-white transition hover:bg-[#162347] disabled:cursor-not-allowed disabled:opacity-40"
+                  onClick={onPaid}
+                  className="mt-4 text-sm font-medium text-[#2D83C2] hover:underline"
                 >
-                  {submitting ? p.submitting : p.submitConfirmation}
+                  {p.refreshStatus}
                 </button>
               </div>
             </>

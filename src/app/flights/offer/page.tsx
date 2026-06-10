@@ -16,6 +16,7 @@ import { useFlightOffer } from "@/hooks/useFlightOffer";
 import { appendBundleHotelParams, type BundleHotelSelection } from "@/lib/flight-hotel-bundle";
 import { useTranslations } from "@/i18n/useTranslations";
 import { cabinLabel } from "@/i18n/cabin-label";
+import type { FlightTokenPayload } from "@/lib/flight-token";
 
 function formatTime(iso: string) {
   try {
@@ -31,6 +32,21 @@ function formatDate(iso: string) {
   } catch {
     return iso.slice(0, 10);
   }
+}
+
+function splitFlightSegments(flight: FlightTokenPayload) {
+  if (!flight.returnLeg) {
+    return { outbound: flight.segments, return: [] as FlightTokenPayload["segments"] };
+  }
+  const idx = flight.segments.findIndex(
+    (s) =>
+      s.fromCode === flight.returnLeg!.fromCode &&
+      s.departAt.slice(0, 10) >= flight.returnLeg!.departAt.slice(0, 10),
+  );
+  if (idx <= 0) {
+    return { outbound: flight.segments, return: [] as typeof flight.segments };
+  }
+  return { outbound: flight.segments.slice(0, idx), return: flight.segments.slice(idx) };
 }
 
 function FlightOfferContent() {
@@ -67,6 +83,7 @@ function FlightOfferContent() {
 
   const pricing = getFlightPricing(flight.sourcePrice);
   const pax = flight.adults + flight.children + flight.infants;
+  const { outbound: outboundSegments, return: returnSegments } = splitFlightSegments(flight);
   const buildCheckoutUrl = () => {
     const qs = new URLSearchParams({ token, paymentMethod });
     if (selectedHotel) {
@@ -111,31 +128,52 @@ function FlightOfferContent() {
 
           <section className="mt-6 rounded-2xl border border-gray-200 bg-white p-4 sm:p-5">
             <h2 className="text-lg font-bold text-[#1a1a1a]">{m.common.flightItinerary}</h2>
-            {flight.segments.map((seg, i) => (
-              <div key={i} className="mt-4 flex flex-wrap items-center gap-4 border-t border-gray-100 pt-4 first:mt-3 first:border-t-0 first:pt-0">
-                <div>
-                  <p className="font-semibold text-[#1a1a1a]">{seg.airline}</p>
-                  {seg.flightNumber && <p className="text-xs text-gray-500">{seg.flightNumber}</p>}
+            <div className="mt-4">
+              <p className="text-xs font-bold uppercase tracking-wide text-[#2D83C2]">{m.common.departure}</p>
+              {outboundSegments.map((seg, i) => (
+                <div key={`out-${i}`} className="mt-3 flex flex-wrap items-center gap-4 border-t border-gray-100 pt-3 first:mt-2 first:border-t-0 first:pt-0">
+                  <div>
+                    <p className="font-semibold text-[#1a1a1a]">{seg.airline}</p>
+                    {seg.flightNumber && <p className="text-xs text-gray-500">{seg.flightNumber}</p>}
+                  </div>
+                  <div className="text-sm">
+                    <span className="text-xl font-bold text-[#1a1a1a]">{formatTime(seg.departAt)}</span>
+                    <span className="mx-2 text-gray-300">→</span>
+                    <span className="text-xl font-bold text-[#1a1a1a]">{formatTime(seg.arriveAt)}</span>
+                    <p className="text-xs text-gray-500">
+                      {seg.fromCode} → {seg.toCode} · {seg.duration}
+                    </p>
+                  </div>
                 </div>
-                <div className="text-sm">
-                  <span className="text-xl font-bold text-[#1a1a1a]">{formatTime(seg.departAt)}</span>
-                  <span className="mx-2 text-gray-300">→</span>
-                  <span className="text-xl font-bold text-[#1a1a1a]">{formatTime(seg.arriveAt)}</span>
-                  <p className="text-xs text-gray-500">
-                    {seg.fromCode} → {seg.toCode} · {seg.duration}
-                  </p>
-                </div>
-              </div>
-            ))}
-            <p className="mt-4 text-sm text-gray-600">
-              <strong>{m.common.depart}:</strong> {formatDate(flight.departAt)}
-              {flight.trip === "roundtrip" && flight.returnLeg && (
-                <>
-                  {" · "}
+              ))}
+              <p className="mt-3 text-sm text-gray-600">
+                <strong>{m.common.depart}:</strong> {formatDate(flight.departAt)}
+              </p>
+            </div>
+            {returnSegments.length > 0 && flight.returnLeg && (
+              <div className="mt-6 border-t border-gray-100 pt-5">
+                <p className="text-xs font-bold uppercase tracking-wide text-[#2D83C2]">{m.common.returnFlight}</p>
+                {returnSegments.map((seg, i) => (
+                  <div key={`ret-${i}`} className="mt-3 flex flex-wrap items-center gap-4 border-t border-gray-100 pt-3 first:mt-2 first:border-t-0 first:pt-0">
+                    <div>
+                      <p className="font-semibold text-[#1a1a1a]">{seg.airline}</p>
+                      {seg.flightNumber && <p className="text-xs text-gray-500">{seg.flightNumber}</p>}
+                    </div>
+                    <div className="text-sm">
+                      <span className="text-xl font-bold text-[#1a1a1a]">{formatTime(seg.departAt)}</span>
+                      <span className="mx-2 text-gray-300">→</span>
+                      <span className="text-xl font-bold text-[#1a1a1a]">{formatTime(seg.arriveAt)}</span>
+                      <p className="text-xs text-gray-500">
+                        {seg.fromCode} → {seg.toCode} · {seg.duration}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+                <p className="mt-3 text-sm text-gray-600">
                   <strong>{m.common.return}:</strong> {formatDate(flight.returnLeg.departAt)}
-                </>
-              )}
-            </p>
+                </p>
+              </div>
+            )}
           </section>
 
           {addHotel && (
@@ -164,6 +202,14 @@ function FlightOfferContent() {
               </div>
             ))}
           </section>
+
+          <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+            <h2 className="text-lg font-bold text-[#1a1a1a]">{m.common.paymentMethod}</h2>
+            <p className="mt-1 text-sm text-gray-500">{m.common.gatewayName}</p>
+            <div className="mt-4">
+              <CryptoMethodPicker value={paymentMethod} onChange={setPaymentMethod} />
+            </div>
+          </section>
         </div>
 
         <div>
@@ -171,13 +217,10 @@ function FlightOfferContent() {
             <div className="lg:sticky lg:top-20">
               <FlightBundleSummary flight={flight} flightTotal={pricing.salePrice} hotel={selectedHotel} />
               <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <label className="text-xs font-medium text-gray-500">{m.common.paymentMethod}</label>
-                <p className="mb-2 text-[11px] text-gray-400">{m.common.gatewayName}</p>
-                <CryptoMethodPicker value={paymentMethod} onChange={setPaymentMethod} />
                 <button
                   type="button"
                   onClick={handleContinue}
-                  className="mt-5 w-full min-h-12 rounded-xl bg-[#2D83C2] py-3.5 text-sm font-bold text-white hover:bg-[#1a5f94]"
+                  className="w-full min-h-12 rounded-xl bg-[#2D83C2] py-3.5 text-sm font-bold text-white hover:bg-[#1a5f94]"
                 >
                   {user ? m.common.continuePassengers : m.searchPage.logInToBook}
                 </button>
@@ -194,12 +237,6 @@ function FlightOfferContent() {
                 <p className="text-sm text-gray-400 line-through">{formatUsd(pricing.originalPrice)}</p>
               <p className="mt-1 text-xs text-[#2D83C2]">{fmt(m.common.youSave, { amount: formatUsd(pricing.savings) })}</p>
               <p className="mt-2 text-xs text-gray-500">{fmt(m.common.totalForPassengers, { count: pax })}</p>
-
-                <div className="mt-5">
-                  <label className="text-xs font-medium text-gray-500">{m.common.paymentMethod}</label>
-                  <p className="mb-2 text-[11px] text-gray-400">{m.common.gatewayName}</p>
-                  <CryptoMethodPicker value={paymentMethod} onChange={setPaymentMethod} />
-                </div>
 
                 <button
                   type="button"

@@ -12,6 +12,7 @@ import { parseBundleHotelFromParams } from "@/lib/flight-hotel-bundle";
 import { normalizeFlightPayload, flightRouteLabel } from "@/lib/flight-route";
 import { useAuth } from "@/context/AuthContext";
 import { useTranslations } from "@/i18n/useTranslations";
+import { CRYPTO_PAYMENT_METHODS } from "@/lib/payments";
 
 function CheckoutContent() {
   const searchParams = useSearchParams();
@@ -20,6 +21,7 @@ function CheckoutContent() {
   const c = m.checkout;
   const { user, loading: authLoading } = useAuth();
   const { flight, token, loading: offerLoading } = useFlightOffer(searchParams);
+  const paymentMethodParam = searchParams.get("paymentMethod") || "";
   const [systemOfferId, setSystemOfferId] = useState<string | null>(null);
   const bundleHotel = parseBundleHotelFromParams(searchParams);
 
@@ -82,8 +84,6 @@ function CheckoutContent() {
       <Link
         href={(() => {
           const back = new URLSearchParams(searchParams.toString());
-          back.delete("token");
-          back.set("id", flight.id);
           return `/flights/offer?${back.toString()}`;
         })()}
         className="mb-6 inline-flex items-center gap-1 text-sm text-[#2D83C2] hover:underline"
@@ -116,6 +116,13 @@ function CheckoutContent() {
             bundleHotelCheckOut={bundleHotel?.checkOut}
             bundleHotelRooms={bundleHotel?.rooms}
             bundleTotal={bundleHotel ? bundleTotal : undefined}
+            initialPaymentMethod={
+              CRYPTO_PAYMENT_METHODS.includes(
+                paymentMethodParam as (typeof CRYPTO_PAYMENT_METHODS)[number],
+              )
+                ? (paymentMethodParam as (typeof CRYPTO_PAYMENT_METHODS)[number])
+                : undefined
+            }
           />
         </div>
         <div className="order-1 lg:order-2 lg:col-span-1">

@@ -81,6 +81,7 @@ export async function POST(request: Request) {
         trip: liveFlight.trip,
         sourcePrice: liveFlight.sourcePrice,
         salePrice: liveFlight.salePrice,
+        token: data.liveFlightToken,
       });
     } else if (offer.type === "HOTEL" && data.roomTotalPrice) {
       totalPrice = data.roomTotalPrice;
@@ -211,6 +212,7 @@ export async function POST(request: Request) {
               trip: liveFlight!.trip,
               hotelOfferId: hotelOffer.id,
               hotelTitle: hotelOffer.title,
+              token: data.liveFlightToken,
             }),
             ...guestData,
           },

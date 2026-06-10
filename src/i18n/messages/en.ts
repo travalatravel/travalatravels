@@ -580,6 +580,8 @@ const en = {
     myTrips: "My Trips",
     qrAlt: "Payment QR code",
     submissionFailed: "Submission failed",
+    sendPaymentNote:
+      "Send the exact amount to the address above. Your payment will be verified automatically — no transaction ID required.",
   },
   orderSummary: {
     total: "Total",

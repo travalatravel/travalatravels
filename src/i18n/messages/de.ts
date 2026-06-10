@@ -366,6 +366,8 @@ const de: DeepPartial<Messages> = {
     myTrips: "Meine Reisen",
     qrAlt: "Zahlungs-QR-Code",
     submissionFailed: "Übermittlung fehlgeschlagen",
+    sendPaymentNote:
+      "Senden Sie den exakten Betrag an die Adresse oben. Ihre Zahlung wird automatisch geprüft — keine Transaktions-ID erforderlich.",
   },
   orderSummary: {
     total: "Gesamt",

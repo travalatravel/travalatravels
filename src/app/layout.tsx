@@ -35,7 +35,9 @@ export async function generateMetadata(): Promise<Metadata> {
       googleBot: { index: true, follow: true },
     },
     icons: {
-      icon: "https://static.travala.com/frontend/logos-v2/favicon.png",
+      icon: [{ url: "/favicon.png", type: "image/png" }],
+      shortcut: "/favicon.png",
+      apple: "/favicon.png",
     },
     openGraph: {
       title: m.meta.title,
