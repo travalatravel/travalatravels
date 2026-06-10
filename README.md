@@ -4,7 +4,7 @@ Full-featured recreation of [Travala.com](https://www.travala.com/) with real se
 
 ## Features
 
-- **Search** – Hotels, Flights, Car Rentals, Activities (64 offers in database)
+- **Search** – Hotels, Flights, Car Rentals, Activities (**17,348 offers** from real Travala scrape)
 - **Book** – Real booking flow with date/guest selection and payment method
 - **Auth** – Register, login, session management (JWT cookies)
 - **My Trips** – View all confirmed bookings
@@ -67,15 +67,22 @@ Login as admin → click **Admin** in header or go to `/admin`
 
 ## Database
 
-SQLite via Prisma. Seed includes:
-- 25 Hotels
-- 15 Flights
-- 12 Car Rentals
-- 12 Activities
+SQLite via Prisma. Offer data lives in `data/travala-offers.json` (included in repo):
+
+| Type | Count |
+|------|------:|
+| Hotels | 14,008 |
+| Flights | 2,951 |
+| Car Rentals | 193 |
+| Activities | 196 |
+| **Total** | **17,348** |
 
 ```bash
-npm run db:seed   # Re-seed data
+npm run db:seed        # Import all offers into SQLite (~2–5 min)
+npm run import:offers  # Re-scrape from travala.com (optional)
 ```
+
+> **Railway:** After first deploy run `npx prisma db seed` in the Railway shell so the live database gets all offers (migrations alone do not import them).
 
 ## Tech Stack
 
