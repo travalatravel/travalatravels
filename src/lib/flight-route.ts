@@ -20,7 +20,9 @@ export function normalizeFlightPayload(flight: FlightTokenPayload): FlightTokenP
 
 export function flightRouteLabel(flight: FlightTokenPayload): string {
   const f = normalizeFlightPayload(flight);
-  if (f.fromCode && f.toCode) return `${f.fromCode} → ${f.toCode}`;
+  const fromCode = f.outbound?.fromCode || f.fromCode;
+  const toCode = f.outbound?.toCode || f.toCode;
+  if (fromCode && toCode) return `${fromCode} → ${toCode}`;
   if (f.from && f.to) return `${f.from} → ${f.to}`;
   return "";
 }

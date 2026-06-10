@@ -420,6 +420,10 @@ const en = {
     logInToBook: "Log in to book",
     flightOfferInvalid: "Flight offer expired or invalid. Please search again.",
     forPassengers: "{count} passenger(s)",
+    selectOutbound: "Select outbound flight",
+    selectReturn: "Select return flight",
+    selectedOutbound: "Selected outbound flight",
+    changeOutbound: "Change outbound flight",
   },
   checkout: {
     step1: "Step 1 of 2",
@@ -583,7 +587,13 @@ const en = {
     qrAlt: "Payment QR code",
     submissionFailed: "Submission failed",
     sendPaymentNote:
-      "Send the exact amount to the address above. Your payment will be verified automatically — no transaction ID required.",
+      "Send the exact amount to the address above. Then click “Paid”.",
+    paidButton: "Paid",
+    verifyingPayment: "Verifying transaction…",
+    verifyingHint: "Please wait a moment.",
+    thankYouBooking: "Thank you for your booking!",
+    emailConfirmationNote:
+      "Once your transaction is confirmed, you will receive your booking confirmation by email.",
   },
   orderSummary: {
     total: "Total",

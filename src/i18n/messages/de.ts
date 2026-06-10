@@ -206,6 +206,10 @@ const de: DeepPartial<Messages> = {
     logInToBook: "Zum Buchen anmelden",
     flightOfferInvalid: "Flugangebot abgelaufen oder ungültig. Bitte erneut suchen.",
     forPassengers: "{count} Passagier(e)",
+    selectOutbound: "Hinflug wählen",
+    selectReturn: "Rückflug wählen",
+    selectedOutbound: "Gewählter Hinflug",
+    changeOutbound: "Hinflug ändern",
   },
   checkout: {
     step1: "Schritt 1 von 2",
@@ -369,7 +373,13 @@ const de: DeepPartial<Messages> = {
     qrAlt: "Zahlungs-QR-Code",
     submissionFailed: "Übermittlung fehlgeschlagen",
     sendPaymentNote:
-      "Senden Sie den exakten Betrag an die Adresse oben. Ihre Zahlung wird automatisch geprüft — keine Transaktions-ID erforderlich.",
+      "Senden Sie den exakten Betrag an die Adresse oben. Klicken Sie danach auf „Bezahlt“.",
+    paidButton: "Bezahlt",
+    verifyingPayment: "Transaktion wird überprüft…",
+    verifyingHint: "Bitte warten Sie einen Moment.",
+    thankYouBooking: "Vielen Dank für Ihre Buchung!",
+    emailConfirmationNote:
+      "Sobald Ihre Transaktion bestätigt wurde, erhalten Sie Ihre Buchungsbestätigung per E-Mail.",
   },
   orderSummary: {
     total: "Gesamt",

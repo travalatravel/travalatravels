@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Luggage } from "lucide-react";
 import type { FlightLeg, LiveFlightOffer } from "@/lib/live-flight-types";
 import { getFlightPricing } from "@/lib/flight-pricing";
 import { buildFlightOfferHref, type FlightOfferSearchContext } from "@/lib/flight-offer-link";
+import { combineRoundtripTokens } from "@/lib/flight-combine";
 import { formatUsd } from "@/lib/pricing";
 import { useTranslations } from "@/i18n/useTranslations";
 import { LOCALE_BCP47 } from "@/i18n/config";
@@ -44,6 +46,11 @@ function resolveOutbound(flight: LiveFlightOffer): FlightLeg {
     duration: flight.duration,
     stops: flight.stops,
   };
+}
+
+function resolveReturn(flight: LiveFlightOffer): FlightLeg | null {
+  if (flight.returnLeg) return flight.returnLeg;
+  return null;
 }
 
 function stopsLabel(stops: number, direct: string, stop: string, stopsPlural: string) {
@@ -133,64 +140,128 @@ function FlightLegRow({
   );
 }
 
+export type FlightSelectionLeg = "outbound" | "return" | null;
+
 export default function LiveFlightResultCard({
   flight,
   searchContext,
+  selectionLeg = null,
+  outboundToken,
 }: {
   flight: LiveFlightOffer;
   searchContext: FlightOfferSearchContext;
+  selectionLeg?: FlightSelectionLeg;
+  outboundToken?: string;
 }) {
+  const router = useRouter();
   const { locale, messages: m } = useTranslations();
   const dateLocale = LOCALE_BCP47[locale];
   const pricing = getFlightPricing(flight.sourcePrice);
-  const href = buildFlightOfferHref(flight, searchContext);
   const outbound = resolveOutbound(flight);
+  const returnLeg = resolveReturn(flight);
   const c = m.common;
+
+  const displayLeg =
+    selectionLeg === "return" && returnLeg
+      ? returnLeg
+      : selectionLeg === "return"
+        ? outbound
+        : outbound;
+
+  const legLabel =
+    selectionLeg === "return" ? c.returnFlight : selectionLeg === "outbound" ? c.departure : c.departure;
+
+  const href = buildFlightOfferHref(flight, searchContext);
+
+  const handleSelect = () => {
+    if (selectionLeg === "outbound") {
+      const params = new URLSearchParams(window.location.search);
+      params.set("outboundToken", flight.offerToken);
+      router.push(`/search?${params.toString()}`);
+      return;
+    }
+    if (selectionLeg === "return" && outboundToken) {
+      const combined = combineRoundtripTokens(outboundToken, flight.offerToken);
+      if (!combined) return;
+      const params = new URLSearchParams({
+        token: combined,
+        from: searchContext.from,
+        to: searchContext.to,
+        fromCode: searchContext.fromCode || outbound.fromCode,
+        toCode: searchContext.toCode || outbound.toCode,
+        depart: searchContext.depart,
+        trip: "roundtrip",
+        cabin: searchContext.cabin,
+        adults: String(searchContext.adults),
+        children: String(searchContext.children),
+        infants: String(searchContext.infants),
+      });
+      if (searchContext.returnDate) params.set("return", searchContext.returnDate);
+      if (searchContext.addHotel) params.set("addHotel", "1");
+      router.push(`/flights/offer?${params.toString()}`);
+    }
+  };
+
+  const cardBody = (
+    <div className="flex flex-col lg:flex-row">
+      <div className="min-w-0 flex-1 px-4 py-3 sm:px-5 sm:py-4">
+        <FlightLegRow
+          label={legLabel}
+          leg={displayLeg}
+          direct={c.direct}
+          stop={c.stop}
+          stopsPlural={c.stops}
+          dateLocale={dateLocale}
+        />
+        {!selectionLeg && returnLeg && (
+          <FlightLegRow
+            label={c.returnFlight}
+            leg={returnLeg}
+            direct={c.direct}
+            stop={c.stop}
+            stopsPlural={c.stops}
+            dateLocale={dateLocale}
+          />
+        )}
+        <div className="flex flex-wrap gap-3 border-t border-gray-100 pt-2 text-[10px] text-gray-500">
+          <span className="flex items-center gap-1">
+            <Luggage size={11} /> {c.carryOnIncluded}
+          </span>
+          <span>{cabinClassLabel(m, flight.cabin)}</span>
+        </div>
+      </div>
+
+      <div className="flex shrink-0 flex-row items-center justify-between gap-4 border-t border-gray-100 bg-[#f8fafc] px-4 py-3 sm:px-5 lg:w-52 lg:flex-col lg:items-end lg:justify-center lg:border-l lg:border-t-0 lg:py-4">
+        <div className="text-left lg:text-right">
+          <p className="text-xl font-bold text-[#1a1a1a] sm:text-2xl">{formatUsd(pricing.salePrice)}</p>
+          <p className="text-xs text-gray-400 line-through">{formatUsd(pricing.originalPrice)}</p>
+          <p className="text-[10px] font-semibold text-emerald-600">-{pricing.discountPct}%</p>
+        </div>
+        <span className="rounded-lg bg-[#2D83C2] px-5 py-2.5 text-sm font-semibold text-white transition group-hover:bg-[#1a5f94]">
+          {selectionLeg ? c.select : c.select}
+        </span>
+      </div>
+    </div>
+  );
+
+  if (selectionLeg) {
+    return (
+      <button
+        type="button"
+        onClick={handleSelect}
+        className="group block w-full border border-gray-200 bg-white text-left transition hover:border-[#2D83C2]/50 hover:shadow-sm"
+      >
+        {cardBody}
+      </button>
+    );
+  }
 
   return (
     <Link
       href={href}
       className="group block border border-gray-200 bg-white transition hover:border-[#2D83C2]/50 hover:shadow-sm"
     >
-      <div className="flex flex-col lg:flex-row">
-        <div className="min-w-0 flex-1 px-4 py-3 sm:px-5 sm:py-4">
-          <FlightLegRow
-            label={c.departure}
-            leg={outbound}
-            direct={c.direct}
-            stop={c.stop}
-            stopsPlural={c.stops}
-            dateLocale={dateLocale}
-          />
-          {flight.returnLeg && (
-            <FlightLegRow
-              label={c.returnFlight}
-              leg={flight.returnLeg}
-              direct={c.direct}
-              stop={c.stop}
-              stopsPlural={c.stops}
-              dateLocale={dateLocale}
-            />
-          )}
-          <div className="flex flex-wrap gap-3 border-t border-gray-100 pt-2 text-[10px] text-gray-500">
-            <span className="flex items-center gap-1">
-              <Luggage size={11} /> {c.carryOnIncluded}
-            </span>
-            <span>{cabinClassLabel(m, flight.cabin)}</span>
-          </div>
-        </div>
-
-        <div className="flex shrink-0 flex-row items-center justify-between gap-4 border-t border-gray-100 bg-[#f8fafc] px-4 py-3 sm:px-5 lg:w-52 lg:flex-col lg:items-end lg:justify-center lg:border-l lg:border-t-0 lg:py-4">
-          <div className="text-left lg:text-right">
-            <p className="text-xl font-bold text-[#1a1a1a] sm:text-2xl">{formatUsd(pricing.salePrice)}</p>
-            <p className="text-xs text-gray-400 line-through">{formatUsd(pricing.originalPrice)}</p>
-            <p className="text-[10px] font-semibold text-emerald-600">-{pricing.discountPct}%</p>
-          </div>
-          <span className="rounded-lg bg-[#2D83C2] px-5 py-2.5 text-sm font-semibold text-white transition group-hover:bg-[#1a5f94]">
-            {c.select}
-          </span>
-        </div>
-      </div>
+      {cardBody}
     </Link>
   );
 }

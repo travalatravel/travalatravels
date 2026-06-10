@@ -29,6 +29,7 @@ export async function GET(request: Request) {
   const children = Math.max(0, parseInt(searchParams.get("children") || "0", 10));
   const infants = Math.max(0, parseInt(searchParams.get("infants") || "0", 10));
   const sort = searchParams.get("sort") || "price-asc";
+  const leg = searchParams.get("leg") || "";
 
   const fromCode = resolveIataCode(from, fromCodeHint);
   const toCode = resolveIataCode(to, toCodeHint);
@@ -91,6 +92,7 @@ export async function GET(request: Request) {
     liveConfigured: skyScrapperConfigured(),
     fromCode,
     toCode,
+    leg: leg || null,
     discountPct: 30,
   });
 }

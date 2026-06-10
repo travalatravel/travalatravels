@@ -224,24 +224,24 @@ export async function searchSkyScrapperFlights(input: {
 
         const outbound = outboundData.summary;
         const first = segments[0];
-        const last = segments[segments.length - 1];
-        if (!first || !last) return null;
+        if (!first) return null;
 
-        const carrier = first.airlineCode;
+        const carrier = outbound.airlineCode;
         const pricing = getFlightPricing(raw);
         const duration = outbound.duration;
         const stops = outbound.stops;
+        const arriveAt = returnLeg?.arriveAt ?? outbound.arriveAt;
 
         const offer: LiveFlightOffer = {
           id: String(it.id || `sky-${index}`),
-          airline: airlineName(carrier),
+          airline: outbound.airline,
           airlineCode: carrier,
           from: input.fromLabel,
           to: input.toLabel,
-          fromCode: first.fromCode,
-          toCode: last.toCode,
-          departAt: first.departAt,
-          arriveAt: last.arriveAt,
+          fromCode: outbound.fromCode,
+          toCode: outbound.toCode,
+          departAt: outbound.departAt,
+          arriveAt,
           duration,
           stops,
           outbound,

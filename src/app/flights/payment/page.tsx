@@ -98,6 +98,7 @@ function FlightPaymentContent() {
             onPaid={refresh}
             bundleBookingId={bundleId || undefined}
             bundleTotal={bundleTotal}
+            accessToken={access || undefined}
           />
         </div>
         <div className="order-1 lg:order-2 lg:col-span-1">

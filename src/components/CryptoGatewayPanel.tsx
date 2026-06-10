@@ -9,6 +9,7 @@ import {
   ShieldCheck,
   Clock,
   AlertCircle,
+  Loader2,
 } from "lucide-react";
 import type { Booking } from "@/lib/types";
 import { PAYMENT_STATUS_COLORS } from "@/lib/types";
@@ -92,14 +93,18 @@ export default function CryptoGatewayPanel({
   onPaid,
   bundleBookingId,
   bundleTotal,
+  accessToken,
 }: {
   booking: Booking;
   onPaid: () => void;
   bundleBookingId?: string;
   bundleTotal?: number;
+  accessToken?: string;
 }) {
   const [quote, setQuote] = useState<CryptoQuote | null>(null);
   const [quoteLoading, setQuoteLoading] = useState(true);
+  const [paidUi, setPaidUi] = useState<"idle" | "verifying" | "done">("idle");
+  const [payError, setPayError] = useState("");
   const { messages: m, fmt } = useTranslations();
   const p = m.paymentPage;
 
@@ -122,6 +127,33 @@ export default function CryptoGatewayPanel({
       .catch(() => setQuote(null))
       .finally(() => setQuoteLoading(false));
   }, [wallet, payUsd]);
+
+  const handlePaid = async () => {
+    setPayError("");
+    setPaidUi("verifying");
+    await new Promise((r) => setTimeout(r, 2800));
+    try {
+      const res = await fetch(`/api/bookings/${booking.id}/pay`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bundleBookingId: bundleBookingId || undefined,
+          access: accessToken || undefined,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setPayError(data.error || p.submissionFailed);
+        setPaidUi("idle");
+        return;
+      }
+      setPaidUi("done");
+      onPaid();
+    } catch {
+      setPayError(p.submissionFailed);
+      setPaidUi("idle");
+    }
+  };
 
   if (!wallet) {
     return (
@@ -377,20 +409,49 @@ export default function CryptoGatewayPanel({
                 </p>
               </div>
 
-              <div className="mt-6 rounded-lg border border-slate-200 bg-slate-50 px-4 py-4">
-                <p className="text-sm leading-relaxed text-slate-600">{p.sendPaymentNote}</p>
+              <div className="mt-6">
+                <p className="text-sm text-slate-500">{p.sendPaymentNote}</p>
+                {payError && (
+                  <p className="mt-2 flex items-center gap-1.5 text-sm text-red-600">
+                    <AlertCircle size={14} />
+                    {payError}
+                  </p>
+                )}
                 <button
                   type="button"
-                  onClick={onPaid}
-                  className="mt-4 text-sm font-medium text-[#2D83C2] hover:underline"
+                  onClick={handlePaid}
+                  disabled={paidUi !== "idle"}
+                  className="mt-4 w-full rounded-xl bg-[#1a5f94] py-3.5 text-sm font-bold text-white transition hover:bg-[#162347] disabled:opacity-50"
                 >
-                  {p.refreshStatus}
+                  {p.paidButton}
                 </button>
               </div>
             </>
           )}
         </div>
       </div>
+
+      {(paidUi === "verifying" || paidUi === "done") && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-xl">
+            {paidUi === "verifying" ? (
+              <>
+                <Loader2 className="mx-auto h-12 w-12 animate-spin text-[#2D83C2]" />
+                <p className="mt-4 text-lg font-semibold text-[#1a1a1a]">{p.verifyingPayment}</p>
+                <p className="mt-2 text-sm text-gray-500">{p.verifyingHint}</p>
+              </>
+            ) : (
+              <>
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
+                  <Check className="h-8 w-8 text-emerald-600" strokeWidth={3} />
+                </div>
+                <p className="mt-5 text-xl font-bold text-[#1a1a1a]">{p.thankYouBooking}</p>
+                <p className="mt-3 text-sm leading-relaxed text-gray-600">{p.emailConfirmationNote}</p>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="border-t border-slate-100 bg-slate-50/50 px-6 py-3">
         <p className="flex items-center justify-center gap-1.5 text-center text-[11px] text-slate-400">

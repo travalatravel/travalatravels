@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState, Suspense } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { decodeFlightToken } from "@/lib/flight-token";
+import { LOCALE_BCP47 } from "@/i18n/config";
 import SiteChrome from "@/components/SiteChrome";
 import SearchForm from "@/components/SearchForm";
 import StaysSearchResults from "@/components/StaysSearchResults";
@@ -24,8 +27,17 @@ function sortFlights(flights: LiveFlightOffer[], sort: SortOption): LiveFlightOf
   return sorted;
 }
 
+function formatLegTime(iso: string, locale: string) {
+  try {
+    return new Date(iso).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", hour12: false });
+  } catch {
+    return "--:--";
+  }
+}
+
 function FlightSearchResults() {
-  const { messages: m, fmt } = useTranslations();
+  const { locale, messages: m, fmt } = useTranslations();
+  const dateLocale = LOCALE_BCP47[locale];
   const searchParams = useSearchParams();
   const [liveFlights, setLiveFlights] = useState<LiveFlightOffer[]>([]);
   const [flightSource, setFlightSource] = useState<"sky-scrapper" | "market" | null>(null);
@@ -49,6 +61,14 @@ function FlightSearchResults() {
   const children = Math.max(0, parseInt(searchParams.get("children") || "0", 10));
   const infants = Math.max(0, parseInt(searchParams.get("infants") || "0", 10));
   const addHotel = searchParams.get("addHotel") === "1";
+  const outboundToken = searchParams.get("outboundToken") || "";
+  const isRoundtripSelect = trip === "roundtrip" && Boolean(returnDate);
+  const selectionLeg = !isRoundtripSelect
+    ? null
+    : !outboundToken
+      ? ("outbound" as const)
+      : ("return" as const);
+  const selectedOutbound = outboundToken ? decodeFlightToken(outboundToken) : null;
 
   const canLiveSearch = Boolean(from && to && depart);
 
@@ -95,6 +115,8 @@ function FlightSearchResults() {
     if (toSkyId) params.set("toSkyId", toSkyId);
     if (toEntityId) params.set("toEntityId", toEntityId);
     if (returnDate) params.set("return", returnDate);
+    if (selectionLeg === "outbound") params.set("leg", "outbound");
+    if (selectionLeg === "return") params.set("leg", "return");
 
     fetch(`/api/flights/search?${params}`)
       .then((r) => r.json())
@@ -125,6 +147,7 @@ function FlightSearchResults() {
     adults,
     children,
     infants,
+    selectionLeg,
     m.searchPage.noFlightsFound,
   ]);
 
@@ -174,6 +197,43 @@ function FlightSearchResults() {
           </div>
         </div>
 
+        {selectionLeg === "return" && selectedOutbound && (
+          <div className="mt-6 rounded-xl border border-[#2D83C2]/30 bg-[#eef5fc] p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wide text-[#2D83C2]">
+                  {m.searchPage.selectedOutbound}
+                </p>
+                <p className="mt-1 text-sm font-semibold text-[#1a1a1a]">
+                  {selectedOutbound.outbound?.fromCode || selectedOutbound.fromCode} →{" "}
+                  {selectedOutbound.outbound?.toCode || selectedOutbound.toCode}
+                  {" · "}
+                  {formatLegTime(
+                    selectedOutbound.outbound?.departAt || selectedOutbound.departAt,
+                    dateLocale,
+                  )}
+                  {" – "}
+                  {formatLegTime(
+                    selectedOutbound.outbound?.arriveAt || selectedOutbound.arriveAt,
+                    dateLocale,
+                  )}
+                </p>
+                <p className="text-xs text-gray-500">{selectedOutbound.outbound?.airline || selectedOutbound.airline}</p>
+              </div>
+              <Link
+                href={(() => {
+                  const p = new URLSearchParams(searchParams.toString());
+                  p.delete("outboundToken");
+                  return `/search?${p.toString()}`;
+                })()}
+                className="text-sm font-medium text-[#2D83C2] hover:underline"
+              >
+                {m.searchPage.changeOutbound}
+              </Link>
+            </div>
+          </div>
+        )}
+
         {!loading && hasResults && (
           <div className="mt-6">
             <SearchFilters sort={sort} onSortChange={setSort} total={sortedFlights.length} />
@@ -197,7 +257,13 @@ function FlightSearchResults() {
           <>
             <div className="mt-8 space-y-2">
               {sortedFlights.map((flight) => (
-                <LiveFlightResultCard key={flight.id} flight={flight} searchContext={flightSearchContext} />
+                <LiveFlightResultCard
+                  key={flight.id}
+                  flight={flight}
+                  searchContext={flightSearchContext}
+                  selectionLeg={selectionLeg}
+                  outboundToken={outboundToken || undefined}
+                />
               ))}
             </div>
             {addHotel && to && (
