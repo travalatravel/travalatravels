@@ -7,9 +7,10 @@ https://www.travala.com
 
 ### Pages to Replicate
 - [x] Home page (primary)
-- [ ] Stays, Flights, Car Rental, Activities landing pages (partial)
-- [ ] Search results
-- [ ] Offer detail & checkout (functional clone)
+- [x] Stays, Flights, Car Rental, Activities landing pages
+- [x] Search results + autocomplete
+- [x] Offer detail & checkout (functional clone with local DB)
+- [ ] Pixel-perfect CSS pass on all sections (ongoing)
 
 ### Fidelity Level
 - [x] **High fidelity** — match Travala layout, copy, typography, and section order

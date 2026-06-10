@@ -1,11 +1,12 @@
 import Image from "next/image";
 
-export type CoinId = "btc" | "eth" | "usdc";
+export type CoinId = "btc" | "eth" | "usdc" | "ava";
 
 const COINS: Record<CoinId, { label: string; src: string }> = {
   btc: { label: "Bitcoin", src: "/coins/btc.svg" },
   eth: { label: "Ethereum", src: "/coins/eth.svg" },
   usdc: { label: "USD Coin", src: "/coins/usdc.svg" },
+  ava: { label: "AVA", src: "https://statics.travala.com/coin-logo/ava20.png" },
 };
 
 export default function CoinIcon({

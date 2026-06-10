@@ -210,7 +210,35 @@ export const TRAVEL_GUIDE_CATEGORIES = [
   "Accommodation Guides", "Travel Trends", "News",
 ];
 
-export const CRYPTO_COINS = ["btc", "eth", "usdc"] as const;
+export const TRAVALA_STATS = [
+  { value: "2.2M+", label: "Properties" },
+  { value: "230+", label: "Countries" },
+  { value: "114K+", label: "Destinations" },
+];
+
+export const PARTNERS = [
+  { name: "Priceline", icon: "https://statics.travala.com/partner-icon/priceline.png", width: 120 },
+  { name: "Webbeds", icon: "https://statics.travala.com/partner-icon/WebBeds.png", width: 120 },
+  { name: "Hotelbeds", icon: "https://statics.travala.com/partner-icon/hotlebeds.png", width: 110 },
+  { name: "Ratehawk", icon: "https://statics.travala.com/partner-icon/ratehawk.png", width: 110 },
+  { name: "Hotelspro", icon: "https://statics.travala.com/partner-icon/hotelspro.png", width: 100 },
+  { name: "Go Global", icon: "https://statics.travala.com/partner-icon/goglobal.png", width: 110 },
+  { name: "DidaTravel", icon: "https://statics.travala.com/partner-icon/didatravel.png", width: 120 },
+  { name: "World2meet", icon: "https://statics.travala.com/partner-icon/world2meet.png", width: 120 },
+];
+
+export const PAYMENT_ACCEPT_LOGOS = [
+  { src: "https://static.travala.com/frontend/images/paymentaccept/visa.png", alt: "Visa" },
+  { src: "https://static.travala.com/frontend/images/paymentaccept/master-card.png", alt: "Mastercard" },
+  { src: "https://static.travala.com/frontend/images/paymentaccept/american.png", alt: "American Express" },
+  { src: "https://static.travala.com/frontend/images/paymentaccept/stripe.png", alt: "Stripe" },
+  { src: "https://static.travala.com/frontend/images/paymentaccept/binance.png", alt: "Binance Pay" },
+  { src: "https://static.travala.com/frontend/images/paymentaccept/crypto-com.png", alt: "Crypto.com" },
+  { src: "https://static.travala.com/frontend/images/paymentaccept/utrust.png", alt: "Utrust" },
+  { src: "https://static.travala.com/frontend/images/paymentaccept/ava.png", alt: "AVA" },
+];
+
+export const CRYPTO_COINS = ["btc", "eth", "usdc", "ava"] as const;
 export type CryptoCoinId = (typeof CRYPTO_COINS)[number];
 
 export const FOOTER_COINS = CRYPTO_COINS;

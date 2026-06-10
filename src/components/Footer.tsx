@@ -1,6 +1,7 @@
 import Link from "next/link";
 import SafeImage from "./SafeImage";
 import CoinIcon from "./CoinIcon";
+import PaymentAcceptLogos from "./PaymentAcceptLogos";
 import { FOOTER_CITIES, FOOTER_COUNTRIES, FOOTER_COINS, FOOTER_REGIONS } from "@/data/site-data";
 
 const FOOTER_LINKS = {
@@ -61,7 +62,10 @@ export default function Footer() {
             className="mb-4 h-8 w-auto"
             fallbackClassName="mb-4 h-8 w-28 rounded bg-white/10"
           />
-          <p className="mb-4 text-xs text-white/60">Crypto payments — BTC, ETH, USDC · Extra 20% off at checkout</p>
+          <p className="mb-3 text-xs text-white/60">
+            We accept credit cards, debit cards and cryptocurrency payments.
+          </p>
+          <PaymentAcceptLogos className="mb-6" />
           <div className="mb-8 flex flex-wrap gap-3">
             {FOOTER_COINS.map((coin) => (
               <div
