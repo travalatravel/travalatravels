@@ -37,20 +37,46 @@ function ensureEnv() {
   }
 }
 
-ensureEnv();
-
-if (!fs.existsSync(serverEntry)) {
-  console.error("server.js not found. Did the build run?");
-  process.exit(1);
+async function getOfferCount() {
+  const { PrismaClient } = await import("@prisma/client");
+  const prisma = new PrismaClient();
+  try {
+    return await prisma.offer.count();
+  } finally {
+    await prisma.$disconnect();
+  }
 }
 
-console.log("Environment OK");
-console.log(`  DATABASE_URL=${process.env.DATABASE_URL}`);
-console.log(`  APP_URL=${process.env.APP_URL}`);
-console.log(`  PORT=${process.env.PORT || "3000"}`);
+async function main() {
+  ensureEnv();
 
-console.log("Running database migrations…");
-execSync("npx prisma migrate deploy", { stdio: "inherit", cwd: root, env: process.env });
+  if (!fs.existsSync(serverEntry)) {
+    console.error("server.js not found. Did the build run?");
+    process.exit(1);
+  }
 
-console.log("Starting Travala app…");
-execSync("node server.js", { stdio: "inherit", cwd: standaloneDir, env: process.env });
+  console.log("Environment OK");
+  console.log(`  DATABASE_URL=${process.env.DATABASE_URL}`);
+  console.log(`  APP_URL=${process.env.APP_URL}`);
+  console.log(`  PORT=${process.env.PORT || "3000"}`);
+
+  console.log("Running database migrations…");
+  execSync("npx prisma migrate deploy", { stdio: "inherit", cwd: root, env: process.env });
+
+  const shouldSeed =
+    process.env.SEED_DATABASE === "true" || (await getOfferCount()) === 0;
+
+  if (shouldSeed) {
+    console.log("Importing offers into database (3–8 minutes, please wait)…");
+    execSync("npx prisma db seed", { stdio: "inherit", cwd: root, env: process.env });
+    console.log("Database seed complete.");
+  }
+
+  console.log("Starting Travala app…");
+  execSync("node server.js", { stdio: "inherit", cwd: standaloneDir, env: process.env });
+}
+
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
