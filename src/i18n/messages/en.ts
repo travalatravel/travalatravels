@@ -90,6 +90,7 @@ const en = {
     noPropertiesFound: "No properties found",
     bestRatesOff: "Best rates · 30% off",
     liveRatesOff: "Live rates · 30% off",
+    estimatedRates: "Estimated prices",
     backToResults: "Back to results",
     backToFlight: "Back to flight",
     fareRules: "Fare rules apply · Price held for 15 minutes",

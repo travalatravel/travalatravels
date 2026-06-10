@@ -147,9 +147,14 @@ function FlightSearchResults() {
                 {fmt(m.searchPage.forPassengers, { count: adults + children + infants })}
                 {" · "}
                 {cabinLabel(cabin, m)}
+                {flightSource === "sky-scrapper" && (
+                  <span className="ml-2 rounded bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-800">
+                    {m.common.liveRatesOff}
+                  </span>
+                )}
                 {flightSource === "market" && (
-                  <span className="ml-2 rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-800">
-                    {m.common.bestRatesOff}
+                  <span className="ml-2 rounded bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800">
+                    {m.common.estimatedRates}
                   </span>
                 )}
               </p>

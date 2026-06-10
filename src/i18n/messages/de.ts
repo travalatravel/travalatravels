@@ -34,7 +34,7 @@ const de: DeepPartial<Messages> = {
     child: "Kind", infants: "Kleinkinder", yrs12: "12+ J.", yrs211: "2–11 J.", under2: "Unter 2",
     whereTo: "Wohin?", cityOrAirport: "Stadt oder Flughafen", addHotel: "Hotel am Zielort hinzufügen",
     donePassengers: "Fertig", propertiesFound: "{count} Unterkünfte gefunden", noPropertiesFound: "Keine Unterkünfte gefunden",
-    bestRatesOff: "Beste Preise · 30 % Rabatt", liveRatesOff: "Live-Preise · 30 % Rabatt",
+    bestRatesOff: "Beste Preise · 30 % Rabatt", liveRatesOff: "Live-Preise · 30 % Rabatt", estimatedRates: "Schätzpreise",
     backToResults: "Zurück zu den Ergebnissen", backToFlight: "Zurück zum Flug",
     fareRules: "Tarifregeln gelten · Preis 15 Min. garantiert", paymentMethod: "Zahlungsmethode",
     continuePassengers: "Weiter — Passagierdaten →", enterPassengerDetails: "Passagierdaten eingeben",

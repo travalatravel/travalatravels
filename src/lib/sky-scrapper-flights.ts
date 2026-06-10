@@ -82,6 +82,36 @@ function parseDuration(raw: string | number | undefined): string {
   return s;
 }
 
+type SkyRecord = Record<string, unknown>;
+
+function skyTime(value: unknown): string {
+  if (typeof value === "string") return value;
+  if (value && typeof value === "object" && "time" in value) {
+    return String((value as { time?: string }).time || "");
+  }
+  return "";
+}
+
+function skyCarrierCode(carrier: SkyRecord | undefined): string {
+  if (!carrier) return "XX";
+  return String(carrier.alternateId || carrier.displayCode || carrier.code || "XX");
+}
+
+function skyCarrierName(carrier: SkyRecord | undefined, code: string): string {
+  if (carrier?.name) return String(carrier.name);
+  return airlineName(code);
+}
+
+function skyPlaceCode(place: SkyRecord | undefined, fallback: string): string {
+  if (!place) return fallback;
+  return String(place.displayCode || place.flightPlaceId || place.id || fallback);
+}
+
+function skyPlaceLabel(place: SkyRecord | undefined, fallback: string): string {
+  if (!place) return fallback;
+  return String(place.name || place.city || fallback);
+}
+
 const CABIN_PARAM: Record<CabinClass, string> = {
   economy: "economy",
   premium_economy: "premium_economy",
@@ -146,24 +176,33 @@ export async function searchSkyScrapperFlights(input: {
         const leg = legs[0];
         if (!leg) return null;
 
-        const segmentsRaw = (leg.segments as Record<string, unknown>[]) || [];
+        const legOrigin = leg.origin as SkyRecord | undefined;
+        const legDestination = leg.destination as SkyRecord | undefined;
+        const segmentsRaw = (leg.segments as SkyRecord[]) || [];
         const segments: LiveFlightSegment[] = segmentsRaw.map((seg) => {
-          const dep = seg.departure as Record<string, string> | undefined;
-          const arr = seg.arrival as Record<string, string> | undefined;
-          const mkt = seg.marketingCarrier as Record<string, string> | undefined;
-          const op = seg.operatingCarrier as Record<string, string> | undefined;
-          const code = String(mkt?.code || op?.code || "XX");
+          const mkt = seg.marketingCarrier as SkyRecord | undefined;
+          const op = seg.operatingCarrier as SkyRecord | undefined;
+          const code = skyCarrierCode(mkt) !== "XX" ? skyCarrierCode(mkt) : skyCarrierCode(op);
+          const origin = (seg.origin as SkyRecord | undefined) || legOrigin;
+          const destination = (seg.destination as SkyRecord | undefined) || legDestination;
+          const departAt =
+            skyTime(seg.departure) || skyTime(leg.departure) || `${input.depart}T08:00:00`;
+          const arriveAt =
+            skyTime(seg.arrival) || skyTime(leg.arrival) || `${input.depart}T12:00:00`;
           return {
-            airline: airlineName(code),
+            airline: skyCarrierName(mkt, code),
             airlineCode: code,
             flightNumber: seg.flightNumber ? String(seg.flightNumber) : undefined,
-            from: dep?.city || input.fromLabel,
-            fromCode: dep?.airportCode || input.fromCode,
-            to: arr?.city || input.toLabel,
-            toCode: arr?.airportCode || input.toCode,
-            departAt: dep?.time || `${input.depart}T08:00:00`,
-            arriveAt: arr?.time || `${input.depart}T12:00:00`,
-            duration: parseDuration(seg.duration as string | number),
+            from: skyPlaceLabel(origin, input.fromLabel),
+            fromCode: skyPlaceCode(origin, input.fromCode),
+            to: skyPlaceLabel(destination, input.toLabel),
+            toCode: skyPlaceCode(destination, input.toCode),
+            departAt,
+            arriveAt,
+            duration: parseDuration(
+              (seg.durationInMinutes as number | undefined) ??
+                (seg.duration as string | number | undefined),
+            ),
           };
         });
 
@@ -175,7 +214,9 @@ export async function searchSkyScrapperFlights(input: {
         const pricing = getFlightPricing(raw);
         const stops = Math.max(0, segments.length - 1);
 
-        const duration = parseDuration(leg.duration as string | number);
+        const duration = parseDuration(
+          (leg.durationInMinutes as number | undefined) ?? (leg.duration as string | number),
+        );
         const outbound = {
           airline: airlineName(carrier),
           airlineCode: carrier,
