@@ -1,4 +1,5 @@
 import { execSync } from "child_process";
+import crypto from "crypto";
 import fs from "fs";
 import path from "path";
 
@@ -6,30 +7,47 @@ const root = process.cwd();
 const standaloneDir = path.join(root, ".next", "standalone");
 const serverEntry = path.join(standaloneDir, "server.js");
 
-const required = ["DATABASE_URL", "JWT_SECRET", "NEXT_PUBLIC_APP_URL", "APP_URL"];
-const missing = required.filter((key) => !process.env[key]?.trim());
+function ensureEnv() {
+  if (!process.env.DATABASE_URL?.trim()) {
+    process.env.DATABASE_URL = "file:./prisma/production.db";
+    console.warn("⚠ DATABASE_URL not set → using file:./prisma/production.db");
+  }
 
-if (missing.length > 0) {
-  console.error("\n❌ Missing Railway environment variables:\n");
-  for (const key of missing) console.error(`   - ${key}`);
-  console.error(`
-Add them in Railway → travalatravels service → Variables:
+  if (!process.env.JWT_SECRET?.trim()) {
+    process.env.JWT_SECRET = crypto.randomBytes(32).toString("hex");
+    console.warn("⚠ JWT_SECRET not set → using ephemeral secret (set in Railway Variables!)");
+  }
 
-  DATABASE_URL=file:/data/production.db
-  JWT_SECRET=your-long-random-secret
-  NEXT_PUBLIC_APP_URL=https://travala.travel
-  APP_URL=https://travala.travel
-  NODE_ENV=production
+  if (!process.env.NEXT_PUBLIC_APP_URL?.trim()) {
+    const domain = process.env.RAILWAY_PUBLIC_DOMAIN;
+    if (domain) {
+      process.env.NEXT_PUBLIC_APP_URL = `https://${domain}`;
+    } else {
+      process.env.NEXT_PUBLIC_APP_URL = "https://travala.travel";
+    }
+    console.warn(`⚠ NEXT_PUBLIC_APP_URL not set → using ${process.env.NEXT_PUBLIC_APP_URL}`);
+  }
 
-Also add a Volume with mount path /data (Tab: Volumes).
-`);
-  process.exit(1);
+  if (!process.env.APP_URL?.trim()) {
+    process.env.APP_URL = process.env.NEXT_PUBLIC_APP_URL;
+  }
+
+  if (!process.env.NODE_ENV?.trim()) {
+    process.env.NODE_ENV = "production";
+  }
 }
+
+ensureEnv();
 
 if (!fs.existsSync(serverEntry)) {
   console.error("server.js not found. Did the build run?");
   process.exit(1);
 }
+
+console.log("Environment OK");
+console.log(`  DATABASE_URL=${process.env.DATABASE_URL}`);
+console.log(`  APP_URL=${process.env.APP_URL}`);
+console.log(`  PORT=${process.env.PORT || "3000"}`);
 
 console.log("Running database migrations…");
 execSync("npx prisma migrate deploy", { stdio: "inherit", cwd: root, env: process.env });
