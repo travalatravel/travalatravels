@@ -1,71 +1,50 @@
+/** Fixed discount vs travala.com list price */
+export const TRAVALA_DISCOUNT_PCT = 40;
+
 export type OfferPricing = {
-  salePrice: number;
+  /** travala.com price (reference) */
   originalPrice: number;
+  /** Our price — 40% below travala.com */
+  salePrice: number;
   discountPct: number;
   savings: number;
+  /** Same as salePrice — crypto pays the discounted rate, no extra markdown */
   cryptoPrice: number;
-  cryptoExtraPct: number;
-  urgencyRooms: number;
-  isLuxury: boolean;
 };
-
-function hashId(id: string): number {
-  let h = 0;
-  for (let i = 0; i < id.length; i++) {
-    h = (h * 31 + id.charCodeAt(i)) >>> 0;
-  }
-  return h;
-}
-
-export function getOfferPricing(
-  basePrice: number,
-  offerId: string,
-  stars?: number | null
-): OfferPricing {
-  const h = hashId(offerId);
-  const isLuxury = (stars ?? 0) >= 5;
-
-  const discountPct = Math.min(
-    60,
-    isLuxury ? 45 + (h % 16) : (stars ?? 0) >= 4 ? 35 + (h % 13) : 25 + (h % 16),
-  );
-
-  const salePrice = round2(basePrice * (1 - discountPct / 100));
-  const markup = isLuxury ? 1.55 : (stars ?? 0) >= 4 ? 1.45 : 1.32;
-  const originalPrice = round2(Math.max(basePrice * markup, salePrice * 1.12));
-  const savings = round2(originalPrice - salePrice);
-  const cryptoExtraPct = 20;
-  const cryptoPrice = round2(salePrice * (1 - cryptoExtraPct / 100));
-  const urgencyRooms = 2 + (h % 7);
-
-  return {
-    salePrice,
-    originalPrice,
-    discountPct,
-    savings,
-    cryptoPrice,
-    cryptoExtraPct,
-    urgencyRooms,
-    isLuxury,
-  };
-}
 
 function round2(n: number) {
   return Math.round(n * 100) / 100;
+}
+
+/** `basePrice` must be the travala.com price (per night or total). */
+export function getOfferPricing(
+  basePrice: number,
+  _offerId?: string,
+  _stars?: number | null,
+): OfferPricing {
+  const originalPrice = round2(Math.max(0, basePrice));
+  const salePrice = round2(originalPrice * (1 - TRAVALA_DISCOUNT_PCT / 100));
+  const savings = round2(originalPrice - salePrice);
+
+  return {
+    originalPrice,
+    salePrice,
+    discountPct: TRAVALA_DISCOUNT_PCT,
+    savings,
+    cryptoPrice: salePrice,
+  };
 }
 
 export function formatUsd(amount: number) {
   return `$${amount.toFixed(2)}`;
 }
 
+/** Apply the fixed 40% travala.com discount to a travala list amount. */
 export function applySalePrice(
   amount: number,
-  offerId: string,
-  stars?: number | null,
-  crypto = false
+  _offerId?: string,
+  _stars?: number | null,
+  _crypto?: boolean,
 ): number {
-  const { discountPct, cryptoExtraPct } = getOfferPricing(amount, offerId, stars);
-  let price = amount * (1 - discountPct / 100);
-  if (crypto) price *= 1 - cryptoExtraPct / 100;
-  return round2(price);
+  return round2(Math.max(0, amount) * (1 - TRAVALA_DISCOUNT_PCT / 100));
 }

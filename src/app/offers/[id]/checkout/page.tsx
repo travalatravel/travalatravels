@@ -74,7 +74,7 @@ function CheckoutContent() {
         : offer.type === "CAR_RENTAL"
           ? offer.price * nights
           : offer.price * guests;
-  const totalPrice = applySalePrice(baseTotal, offer.id, offer.stars, true);
+  const totalPrice = applySalePrice(baseTotal, offer.id, offer.stars);
 
   return (
     <main className="mx-auto max-w-6xl px-3 py-6 sm:px-4 sm:py-8 lg:px-6">

@@ -78,7 +78,7 @@ export async function POST(request: Request) {
       totalPrice = offer.price * data.guests;
     }
 
-    totalPrice = applySalePrice(totalPrice, offer.id, offer.stars, true);
+    totalPrice = applySalePrice(totalPrice, offer.id, offer.stars);
 
     const currency = CRYPTO_CURRENCY_MAP[data.paymentMethod];
     const wallet = await prisma.cryptoWallet.findFirst({

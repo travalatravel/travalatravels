@@ -48,10 +48,7 @@ export default function PriceDisplay({
         )}
       </div>
       {showCrypto && (
-        <p className="mt-1 text-xs text-gray-500">
-          or {formatUsd(p.cryptoPrice)}
-          {perNight ? "/night" : ""} with crypto
-        </p>
+        <p className="mt-1 text-xs text-gray-500">Crypto payment accepted at this rate</p>
       )}
     </div>
   );

@@ -92,10 +92,13 @@ export default function OfferDetailPage() {
 
   const calcTotal = () => {
     if (!offer) return 0;
-    return applySalePrice(calcBaseTotal(), offer.id, offer.stars, true);
+    return applySalePrice(calcBaseTotal(), offer.id, offer.stars);
   };
 
-  const pricing = offer ? getOfferPricing(offer.price, offer.id, offer.stars) : null;
+  const displayPricePerNight =
+    selectedRoom?.pricePerNight ?? livePrice?.pricePerNight ?? offer?.price ?? 0;
+  const pricing = offer ? getOfferPricing(displayPricePerNight, offer.id, offer.stars) : null;
+  const totalPricing = offer ? getOfferPricing(calcBaseTotal()) : null;
 
   const handleContinue = () => {
     if (!offer) return;
@@ -200,7 +203,7 @@ export default function OfferDetailPage() {
                 <div className="flex items-center gap-2 bg-[#2577be] px-3 py-2.5 text-white sm:px-4">
                   <Tag size={14} className="flex-shrink-0" />
                   <span className="text-xs font-semibold sm:text-sm">
-                    Save up to {pricing.discountPct}% — Best price guarantee
+                    Save {pricing.discountPct}% vs travala.com — Best price guarantee
                   </span>
                 </div>
               )}
@@ -213,7 +216,7 @@ export default function OfferDetailPage() {
               <div className={priceLoading ? "opacity-50" : ""}>
                 {offer && (
                   <PriceDisplay
-                    price={livePrice?.pricePerNight ?? offer.price}
+                    price={displayPricePerNight}
                     offerId={offer.id}
                     stars={offer.stars}
                     size="lg"
@@ -290,9 +293,9 @@ export default function OfferDetailPage() {
                     {priceLoading ? "…" : formatUsd(calcTotal())}
                   </span>
                 </div>
-                {pricing && pricing.savings > 0 && (
+                {totalPricing && totalPricing.savings > 0 && (
                   <p className="mt-1 break-words text-xs text-[#2577be]">
-                    Save {formatUsd(pricing.savings)} vs public rate · Pay with crypto for extra rewards
+                    Save {formatUsd(totalPricing.savings)} vs travala.com ({formatUsd(calcBaseTotal())})
                   </p>
                 )}
               </div>

@@ -1,16 +1,23 @@
-# SearchForm Specification
+# SearchForm Specification (Travala PC)
 
 ## Overview
-- **Target file:** `src/components/SearchForm.tsx`
-- **Interaction model:** click-driven tabs + typeahead dropdown
+- **Target:** `src/components/SearchForm.tsx`
+- **DOM:** `TvlSearchBoxPC_wrap` + `HomepageHeroBannerPc_tabHeader`
+
+## Desktop hero box
+- border: 1px solid #2d83c2
+- border-radius: 8px, border-top-left-radius: 0
+- padding: 24px
+- flex row: search | dates | rooms | Search button
+- Search button: min-width 168px, uppercase, #2577be
 
 ## Tabs
-Stays | Flights | Car Rental (NEW!) | Activities
+- Circular icon badges #2D83C2 (active) / #eaf3f9 (inactive)
+- Tabs sit above box, active tab connects to white box
 
-## Placeholders
-- Stays: Search for Places or Properties
-- Flights: From airport or city
+## Room picker
+- Display: `{n} Adults - {c} Child` + `{r} room`
+- Popover for rooms/adults/children
 
-## API
-- Suggestions: `/api/search/suggest` → Travala `suggestion/v2/autocomplete`
-- Airport suggestions use Plane icon; cities use MapPin
+## Icons
+- search-icon.svg, datepicker.svg, user.svg from static.travala.com

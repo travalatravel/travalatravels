@@ -121,7 +121,11 @@ function parseHotelProps(hotel: Record<string, unknown>): Omit<OfferDetailsData,
 
   const attractions = hotel.attractions as string | undefined;
   if (attractions?.trim()) {
-    sections.push({ title: "Nearby attractions", content: attractions });
+    sections.push({
+      title: "Nearby attractions",
+      content: attractions,
+      html: attractions.includes("<"),
+    });
   }
 
   const address = [

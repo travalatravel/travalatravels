@@ -1,18 +1,16 @@
-import AppInstallBanner from "./AppInstallBanner";
 import Header from "./Header";
 import Footer from "./Footer";
 
 export default function SiteChrome({
   children,
-  overHero = false,
+  headerVariant = "default",
 }: {
   children: React.ReactNode;
-  overHero?: boolean;
+  headerVariant?: "home" | "default";
 }) {
   return (
     <>
-      <AppInstallBanner />
-      <Header overHero={overHero} />
+      <Header variant={headerVariant} />
       {children}
       <Footer />
     </>

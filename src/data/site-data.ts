@@ -2,8 +2,10 @@ export const ASSETS = {
   logoWhite: "/logo-white.svg",
   logoDark: "https://static.travala.com/frontend/logos-v2/logo-dark-purple.svg",
   logoMint: "https://static.travala.com/frontend/logos-v2/logo-mint.svg",
-  heroBg: "https://static.travala.com/resources/images-pc/countries/banner/banner-mexico.jpg",
+  heroBg: "https://static.travala.com/resources/images-pc/rebranding/rebrand-background-v2.webp?v1",
   searchIcon: "https://static.travala.com/resources/images-pc/rebranding/icon/search-icon.svg",
+  datepickerIcon: "https://static.travala.com/resources/images-pc/rebranding/icon/datepicker.svg",
+  userIcon: "https://static.travala.com/resources/images-pc/rebranding/icon/user.svg",
   supportIcon: "https://static.travala.com/resources/images-pc/icon/icon-support-white.svg",
 };
 

@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Check, Clock, MapPin, Phone, Wifi } from "lucide-react";
 import type { OfferDetailsData, OfferRoomOption } from "@/lib/travala-details";
+import { getOfferPricing, formatUsd } from "@/lib/pricing";
 
 type Props = {
   offerId: string;
@@ -145,6 +146,8 @@ export default function OfferDetails({
           <div className="space-y-3">
             {details.rooms.map((room) => {
               const selected = selectedRoomId === room.id;
+              const nightPricing = getOfferPricing(room.pricePerNight);
+              const totalPricing = getOfferPricing(room.totalPrice);
               return (
               <button
                 key={room.id}
@@ -164,8 +167,15 @@ export default function OfferDetails({
                     )}
                   </div>
                   <div className="flex-shrink-0 sm:text-right">
-                    <p className="text-base font-bold text-[#2577be] sm:text-lg">${room.pricePerNight.toFixed(2)}</p>
-                    <p className="text-xs text-gray-400">/ night · ${room.totalPrice.toFixed(2)} total</p>
+                    <p className="text-base font-bold text-[#2577be] sm:text-lg">
+                      {formatUsd(nightPricing.salePrice)}
+                      <span className="text-xs font-normal text-gray-400"> / night</span>
+                    </p>
+                    <p className="text-xs text-gray-400 line-through">{formatUsd(nightPricing.originalPrice)}</p>
+                    <p className="text-xs text-gray-500">
+                      {formatUsd(totalPricing.salePrice)} total
+                      <span className="text-gray-400"> · was {formatUsd(totalPricing.originalPrice)}</span>
+                    </p>
                   </div>
                 </div>
                 <div className="mt-2 flex flex-wrap gap-2 text-xs">

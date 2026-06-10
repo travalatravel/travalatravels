@@ -8,13 +8,49 @@ import Carousel from "./Carousel";
 import SafeImage from "./SafeImage";
 import { DESTINATION_DATA, REGIONS } from "@/data/site-data";
 
-function Stars({ count = 5 }: { count?: number }) {
+function ExploreLabel() {
   return (
-    <div className="flex gap-0.5">
-      {Array.from({ length: count }).map((_, i) => (
-        <Star key={i} size={12} className="fill-amber-400 text-amber-400" />
-      ))}
+    <div className="relative font-[family-name:var(--font-satisfy)] text-2xl text-[#aaa] before:absolute before:right-[calc(100%+16px)] before:top-1/2 before:h-0 before:w-4 before:-translate-y-1/2 before:border-t before:border-[#cfcfcf] after:absolute after:left-[calc(100%+16px)] after:top-1/2 after:h-0 after:w-4 after:-translate-y-1/2 after:border-t after:border-[#cfcfcf] lg:text-4xl lg:before:w-7 lg:after:w-7">
+      Explore
     </div>
+  );
+}
+
+function DestinationCard({
+  href,
+  image,
+  title,
+  subtitle,
+  stars,
+}: {
+  href: string;
+  image: string;
+  title: string;
+  subtitle?: string;
+  stars?: number;
+}) {
+  return (
+    <Link
+      href={href}
+      className="group block h-[220px] w-[42vw] max-w-[200px] flex-shrink-0 snap-start overflow-hidden rounded-md bg-white shadow-[0_0_10px_rgba(0,0,0,0.2)] transition hover:shadow-[0_0_10px_rgba(0,0,0,0.4)] sm:h-[260px] sm:w-[200px]"
+    >
+      <div className="relative h-[58%] overflow-hidden">
+        <Image src={image} alt={title} fill sizes="200px" className="object-cover transition duration-300 group-hover:scale-105" />
+      </div>
+      <div className="flex h-[42%] flex-col justify-center px-4 pl-10">
+        <p className="text-sm font-semibold text-[#333] transition group-hover:text-[#2577be] group-hover:underline">
+          {title}
+        </p>
+        {subtitle && <p className="mt-0.5 text-xs text-gray-500">{subtitle}</p>}
+        {stars && (
+          <div className="mt-1 flex gap-0.5">
+            {Array.from({ length: stars }).map((_, i) => (
+              <Star key={i} size={11} className="fill-amber-400 text-amber-400" />
+            ))}
+          </div>
+        )}
+      </div>
+    </Link>
   );
 }
 
@@ -23,88 +59,97 @@ export default function Destinations() {
   const data = DESTINATION_DATA[activeRegion];
 
   return (
-    <section className="bg-gray-50 py-10 sm:py-16">
-      <div className="mx-auto max-w-6xl px-3 sm:px-4 lg:px-6">
-        <p className="text-sm font-semibold uppercase tracking-wider text-[#2577be]">Explore</p>
-        <h2 className="mt-1 font-[family-name:var(--font-display)] text-xl font-bold text-[#1e2e5e] sm:text-2xl md:text-3xl">
-          Worldwide Destinations
-        </h2>
-        <p className="mt-2 text-gray-500">
-          Where do you want to go? Find the best hotels in top destinations
-        </p>
-
-        <div className="mt-8 flex gap-3 overflow-x-auto scrollbar-hide pb-2">
-          {REGIONS.map((region) => (
-            <button
-              key={region.id}
-              onClick={() => setActiveRegion(region.id)}
-              className={`relative flex-shrink-0 overflow-hidden rounded-xl transition ${
-                activeRegion === region.id ? "ring-2 ring-[#2577be] ring-offset-2" : ""
-              }`}
-            >
-              <div className="relative h-20 w-28 sm:h-24 sm:w-36">
-                <Image src={region.image} alt={region.label} fill sizes="144px" className="object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                <span className="absolute bottom-2 left-2 right-2 text-xs font-semibold text-white leading-tight">
-                  {region.label}
-                </span>
-              </div>
-            </button>
-          ))}
+    <section className="bg-white pb-16 pt-10 sm:pb-[72px] sm:pt-14" data-testid="popular-travel-destinations-worldwide-section">
+      <div className="mx-auto max-w-6xl px-4 lg:px-6">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <ExploreLabel />
+          <h2 className="text-2xl font-bold text-[#333] lg:text-[30px] lg:leading-[37px]">Worldwide Destinations</h2>
+          <p className="max-w-2xl text-sm font-medium text-gray-600">
+            Where do you want to go? Find the best hotels in top destinations
+          </p>
         </div>
+
+        <ul className="mt-8 flex flex-wrap justify-center gap-2 lg:gap-2.5">
+          {REGIONS.map((region) => {
+            const active = activeRegion === region.id;
+            return (
+              <li key={region.id}>
+                <button
+                  type="button"
+                  onClick={() => setActiveRegion(region.id)}
+                  className={`cursor-pointer px-2 pb-2 text-sm font-medium text-[#979696] lg:flex lg:h-9 lg:items-center lg:justify-center lg:rounded lg:border lg:px-2 lg:text-xs lg:font-semibold lg:uppercase lg:transition ${
+                    active
+                      ? "text-[#1e2e5e] underline decoration-2 underline-offset-8 lg:border-[#2577be] lg:bg-[#2577be] lg:text-white lg:no-underline"
+                      : "lg:border-[#2577be] lg:bg-white lg:text-[#2577be] hover:lg:bg-[#eaf3f9]"
+                  }`}
+                >
+                  {region.label}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
 
         {data && (
           <div className="mt-10 space-y-10">
             <div>
-              <h3 className="mb-4 text-lg font-semibold text-[#1e2e5e]">Most Visited Countries</h3>
+              <h3 className="mb-4 text-base font-semibold text-[#333]">Most Visited Countries</h3>
               <Carousel>
                 {data.countries.map((item) => (
-                  <Link key={item.name} href={`/search?type=stays&q=${encodeURIComponent(item.name)}`} className="w-[42vw] max-w-36 flex-shrink-0 snap-start sm:w-36">
-                    <div className="relative h-24 overflow-hidden rounded-xl sm:h-28">
-                      <Image src={item.image} alt={item.name} fill sizes="144px" className="object-cover transition hover:scale-105" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                      <span className="absolute bottom-2 left-2 text-sm font-semibold text-white">{item.name}</span>
-                    </div>
-                  </Link>
+                  <DestinationCard
+                    key={item.name}
+                    href={`/search?type=stays&q=${encodeURIComponent(item.name)}`}
+                    image={item.image}
+                    title={item.name}
+                  />
                 ))}
               </Carousel>
             </div>
 
             <div>
-              <h3 className="mb-4 text-lg font-semibold text-[#1e2e5e]">Top Cities</h3>
+              <h3 className="mb-4 text-base font-semibold text-[#333]">Top Cities</h3>
               <Carousel>
                 {data.cities.map((item) => (
-                  <Link key={item.name} href={`/search?type=stays&q=${encodeURIComponent(item.name)}`} className="w-[46vw] max-w-40 flex-shrink-0 snap-start sm:w-40">
-                    <div className="relative h-28 overflow-hidden rounded-xl sm:h-32">
-                      <Image src={item.image} alt={item.name} fill sizes="160px" className="object-cover transition hover:scale-105" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                      <div className="absolute bottom-2 left-2">
-                        <div className="text-sm font-semibold text-white">{item.name}</div>
-                        <div className="text-xs text-white/80">{item.country}</div>
-                      </div>
-                    </div>
-                  </Link>
+                  <DestinationCard
+                    key={item.name}
+                    href={`/search?type=stays&q=${encodeURIComponent(item.name)}`}
+                    image={item.image}
+                    title={item.name}
+                    subtitle={item.country}
+                  />
                 ))}
               </Carousel>
             </div>
 
             <div>
-              <h3 className="mb-4 text-lg font-semibold text-[#1e2e5e]">Popular Hotels</h3>
+              <h3 className="mb-4 text-base font-semibold text-[#333]">Popular Hotels</h3>
               <Carousel>
                 {data.hotels.map((item) => (
-                  <Link key={item.name} href={`/search?type=stays&q=${encodeURIComponent(item.name)}`} className="w-[72vw] max-w-56 flex-shrink-0 snap-start sm:w-56">
-                    <div className="relative h-32 overflow-hidden rounded-xl sm:h-36">
+                  <Link
+                    key={item.name}
+                    href={`/search?type=stays&q=${encodeURIComponent(item.name)}`}
+                    className="group block h-[220px] w-[72vw] max-w-[240px] flex-shrink-0 snap-start overflow-hidden rounded-md bg-white shadow-[0_0_10px_rgba(0,0,0,0.2)] transition hover:shadow-[0_0_10px_rgba(0,0,0,0.4)] sm:h-[260px] sm:w-56"
+                  >
+                    <div className="relative h-[58%] overflow-hidden">
                       <SafeImage
                         src={item.image}
                         alt={item.name}
                         fill
-                        className="transition hover:scale-105"
+                        className="transition duration-300 group-hover:scale-105"
                       />
                     </div>
-                    <div className="mt-2">
-                      <div className="text-sm font-semibold text-[#1e2e5e] line-clamp-2">{item.name}</div>
-                      {item.stars && <Stars count={item.stars} />}
-                      <div className="mt-0.5 text-xs text-gray-500">{item.country}</div>
+                    <div className="p-4 pl-10">
+                      <p className="line-clamp-2 text-sm font-semibold text-[#333] group-hover:text-[#2577be]">
+                        {item.name}
+                      </p>
+                      {item.stars && (
+                        <div className="mt-1 flex gap-0.5">
+                          {Array.from({ length: item.stars }).map((_, i) => (
+                            <Star key={i} size={11} className="fill-amber-400 text-amber-400" />
+                          ))}
+                        </div>
+                      )}
+                      <p className="mt-0.5 text-xs text-gray-500">{item.country}</p>
                     </div>
                   </Link>
                 ))}

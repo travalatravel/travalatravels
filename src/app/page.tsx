@@ -1,4 +1,3 @@
-import AppInstallBanner from "@/components/AppInstallBanner";
 import Header from "@/components/Header";
 import HeroSearch from "@/components/HeroSearch";
 import FeatureBar from "@/components/FeatureBar";
@@ -7,7 +6,7 @@ import TopUniqueProperties from "@/components/TopUniqueProperties";
 import BlogSection from "@/components/BlogSection";
 import TravelGuides from "@/components/TravelGuides";
 import PartnersSection from "@/components/PartnersSection";
-import CryptoSection from "@/components/CryptoSection";
+import CryptoFriendlySection from "@/components/CryptoFriendlySection";
 import FAQ from "@/components/FAQ";
 import Footer from "@/components/Footer";
 import StatsStrip from "@/components/StatsStrip";
@@ -15,19 +14,16 @@ import StatsStrip from "@/components/StatsStrip";
 export default function Home() {
   return (
     <>
-      <AppInstallBanner />
-      <div className="relative">
-        <Header overHero />
-        <HeroSearch />
-      </div>
+      <Header variant="home" />
+      <HeroSearch />
       <FeatureBar />
-      <StatsStrip />
+      <CryptoFriendlySection />
       <Destinations />
+      <StatsStrip />
       <TopUniqueProperties />
       <BlogSection />
       <TravelGuides />
       <PartnersSection />
-      <CryptoSection />
       <FAQ />
       <Footer />
     </>
