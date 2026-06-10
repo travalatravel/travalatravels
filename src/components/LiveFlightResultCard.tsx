@@ -3,23 +3,24 @@
 import Link from "next/link";
 import { Luggage } from "lucide-react";
 import type { FlightLeg, LiveFlightOffer } from "@/lib/live-flight-types";
-import { CABIN_LABELS } from "@/lib/flight-types";
 import { getFlightPricing } from "@/lib/flight-pricing";
 import { buildFlightOfferHref, type FlightOfferSearchContext } from "@/lib/flight-offer-link";
 import { formatUsd } from "@/lib/pricing";
 import { useTranslations } from "@/i18n/useTranslations";
+import { LOCALE_BCP47 } from "@/i18n/config";
+import { cabinClassLabel } from "@/i18n/display-labels";
 
-function formatTime(iso: string) {
+function formatTime(iso: string, locale: string) {
   try {
-    return new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false });
+    return new Date(iso).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", hour12: false });
   } catch {
     return "--:--";
   }
 }
 
-function formatLegDate(iso: string) {
+function formatLegDate(iso: string, locale: string) {
   try {
-    return new Date(iso).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+    return new Date(iso).toLocaleDateString(locale, { weekday: "short", day: "numeric", month: "short" });
   } catch {
     return "";
   }
@@ -57,12 +58,14 @@ function FlightLegRow({
   direct,
   stop,
   stopsPlural,
+  dateLocale,
 }: {
   label: string;
   leg: FlightLeg;
   direct: string;
   stop: string;
   stopsPlural: string;
+  dateLocale: string;
 }) {
   return (
     <div className="flex gap-3 border-t border-gray-100 py-3 first:border-t-0 first:pt-0 sm:gap-4">
@@ -92,14 +95,14 @@ function FlightLegRow({
         <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
           <span className="text-[10px] font-bold uppercase tracking-wide text-[#2D83C2]">{label}</span>
           <span className="text-[10px] text-gray-400">·</span>
-          <span className="text-[10px] font-medium text-gray-500">{formatLegDate(leg.departAt)}</span>
+          <span className="text-[10px] font-medium text-gray-500">{formatLegDate(leg.departAt, dateLocale)}</span>
           <span className="text-[10px] text-gray-400 sm:hidden">·</span>
           <span className="text-[10px] font-medium text-gray-600 sm:hidden">{leg.airline}</span>
         </div>
 
         <div className="mt-2 grid grid-cols-[auto_1fr_auto] items-center gap-2 sm:gap-3">
           <div className="text-center sm:text-left">
-            <p className="text-base font-bold text-[#1a1a1a] sm:text-lg">{formatTime(leg.departAt)}</p>
+            <p className="text-base font-bold text-[#1a1a1a] sm:text-lg">{formatTime(leg.departAt, dateLocale)}</p>
             <p className="text-[10px] font-semibold text-gray-500 sm:text-xs">{leg.fromCode}</p>
           </div>
 
@@ -116,7 +119,7 @@ function FlightLegRow({
           </div>
 
           <div className="text-center sm:text-right">
-            <p className="text-base font-bold text-[#1a1a1a] sm:text-lg">{formatTime(leg.arriveAt)}</p>
+            <p className="text-base font-bold text-[#1a1a1a] sm:text-lg">{formatTime(leg.arriveAt, dateLocale)}</p>
             <p className="text-[10px] font-semibold text-gray-500 sm:text-xs">{leg.toCode}</p>
           </div>
         </div>
@@ -137,7 +140,8 @@ export default function LiveFlightResultCard({
   flight: LiveFlightOffer;
   searchContext: FlightOfferSearchContext;
 }) {
-  const { messages: m } = useTranslations();
+  const { locale, messages: m } = useTranslations();
+  const dateLocale = LOCALE_BCP47[locale];
   const pricing = getFlightPricing(flight.sourcePrice);
   const href = buildFlightOfferHref(flight, searchContext);
   const outbound = resolveOutbound(flight);
@@ -156,6 +160,7 @@ export default function LiveFlightResultCard({
             direct={c.direct}
             stop={c.stop}
             stopsPlural={c.stops}
+            dateLocale={dateLocale}
           />
           {flight.returnLeg && (
             <FlightLegRow
@@ -164,13 +169,14 @@ export default function LiveFlightResultCard({
               direct={c.direct}
               stop={c.stop}
               stopsPlural={c.stops}
+              dateLocale={dateLocale}
             />
           )}
           <div className="flex flex-wrap gap-3 border-t border-gray-100 pt-2 text-[10px] text-gray-500">
             <span className="flex items-center gap-1">
               <Luggage size={11} /> {c.carryOnIncluded}
             </span>
-            <span>{CABIN_LABELS[flight.cabin]}</span>
+            <span>{cabinClassLabel(m, flight.cabin)}</span>
           </div>
         </div>
 

@@ -48,7 +48,19 @@ const zh: Partial<Messages> = {
     cabin: { economy: "经济舱", premiumEconomy: "超级经济舱", business: "商务舱", first: "头等舱" },
     flight1: "航班1", flight2: "航班2", from: "从", to: "到", flyingFrom: "出发地", flyingTo: "目的地",
     swapAirports: "交换机场", cabinClass: "舱位等级",
-  },
+    staysGuestMobile: "{rooms} {roomsLabel} - {adults} {adultsLabel} - {children} {childrenLabel}",
+    staysGuestDesktop: "{adults} {adultsLabel} - {children} {childrenLabel}",
+    staysRoomsLine: "{rooms} {roomsLabel}",
+    passengersLine: "{count} {passengerLabel}",
+    passengersCabinLine: "{count} {passengerLabel}, {cabin}",
+    closeGuestSelector: "Close guest selector",
+    closePassengerSelector: "Close passenger selector",
+    mobileSearch: {
+      searchAirport: "Search Airport",
+      searchPlaces: "Search for Places or Properties",
+      allAirports: "All Airports",
+      clearSearch: "Clear search",
+    },  },
   crypto: {
     subtitle: "加密货币友好预订", title: "您的资金在这里同样有效。",
     body: "我们是领先的加密货币旅行平台。使用100多种加密货币无缝支付全球旅行。",
@@ -84,7 +96,7 @@ const zh: Partial<Messages> = {
   footer: {
     exploreHotels: "探索世界最佳酒店", exploreSubtitle: "发现最值得访问的国家、地区和城市",
     countries: "国家", regions: "地区", cities: "城市",
-    sections: { travala: "TRAVALA", support: "支持", resources: "资源" },
+    sections: { travala: "TRAVALA", support: "SUPPORT", resources: "RESOURCES", community: "COMMUNITY" },
     links: {
       priceGuarantee: "价格保证", mobileApp: "移动应用", businessTravel: "商务旅行",
       helpCenter: "帮助中心", myTrip: "我的行程", terms: "条款与条件", privacy: "隐私政策", cookies: "Cookie政策",

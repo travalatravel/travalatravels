@@ -4,6 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Check, Clock, MapPin, Phone, Wifi } from "lucide-react";
 import type { OfferDetailsData, OfferRoomOption } from "@/lib/travala-details";
 import { getOfferPricing, formatUsd } from "@/lib/pricing";
+import { useTranslations } from "@/i18n/useTranslations";
 
 type Props = {
   offerId: string;
@@ -37,6 +38,7 @@ export default function OfferDetails({
   onSelectRoom,
   onRoomsLoaded,
 }: Props) {
+  const { messages: m, fmt } = useTranslations();
   const [details, setDetails] = useState<OfferDetailsData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -93,21 +95,21 @@ export default function OfferDetails({
         </div>
       )}
 
-      <SectionBlock title="Description">
+      <SectionBlock title={m.offerDetails.description}>
         <p className="whitespace-pre-line break-words">{description}</p>
       </SectionBlock>
 
       {(details?.checkIn || details?.checkOut) && (
-        <SectionBlock title="Check-in / Check-out">
+        <SectionBlock title={m.offerDetails.checkInOut}>
           <div className="flex flex-wrap gap-6">
             {details.checkIn && (
               <div className="flex items-start gap-2">
                 <Clock size={16} className="mt-0.5 text-[#2D83C2]" />
                 <div>
-                  <p className="font-medium text-[#1a1a1a]">Check-in</p>
+                  <p className="font-medium text-[#1a1a1a]">{m.common.checkIn}</p>
                   <p>
-                    {details.checkIn.from && `From ${details.checkIn.from}`}
-                    {details.checkIn.to && ` · Until ${details.checkIn.to}`}
+                    {details.checkIn.from && fmt(m.offerDetails.fromTime, { time: details.checkIn.from })}
+                    {details.checkIn.to && ` · ${fmt(m.offerDetails.untilTime, { time: details.checkIn.to })}`}
                   </p>
                 </div>
               </div>
@@ -116,8 +118,8 @@ export default function OfferDetails({
               <div className="flex items-start gap-2">
                 <Clock size={16} className="mt-0.5 text-[#2D83C2]" />
                 <div>
-                  <p className="font-medium text-[#1a1a1a]">Check-out</p>
-                  <p>Until {details.checkOut.until}</p>
+                  <p className="font-medium text-[#1a1a1a]">{m.common.checkOut}</p>
+                  <p>{fmt(m.offerDetails.untilTime, { time: details.checkOut.until })}</p>
                 </div>
               </div>
             )}
@@ -126,7 +128,7 @@ export default function OfferDetails({
       )}
 
       {details?.amenities && details.amenities.length > 0 && (
-        <SectionBlock title="Amenities">
+        <SectionBlock title={m.offerDetails.amenities}>
           <ul className="grid gap-2 sm:grid-cols-2">
             {details.amenities.map((name) => (
               <li key={name} className="flex items-center gap-2">
@@ -139,10 +141,8 @@ export default function OfferDetails({
       )}
 
       {details?.rooms && details.rooms.length > 0 && (
-        <SectionBlock title="Available rooms">
-          <p className="mb-4 text-sm text-gray-500">
-            Select a room type to continue — price updates in the booking panel.
-          </p>
+        <SectionBlock title={m.offerDetails.availableRooms}>
+          <p className="mb-4 text-sm text-gray-500">{m.offerDetails.selectRoomHint}</p>
           <div className="space-y-3">
             {details.rooms.map((room) => {
               const selected = selectedRoomId === room.id;
@@ -169,12 +169,12 @@ export default function OfferDetails({
                   <div className="flex-shrink-0 sm:text-right">
                     <p className="text-base font-bold text-[#2D83C2] sm:text-lg">
                       {formatUsd(nightPricing.salePrice)}
-                      <span className="text-xs font-normal text-gray-400"> / night</span>
+                      <span className="text-xs font-normal text-gray-400">{m.common.perNight}</span>
                     </p>
                     <p className="text-xs text-gray-400 line-through">{formatUsd(nightPricing.originalPrice)}</p>
                     <p className="text-xs text-gray-500">
-                      {formatUsd(totalPricing.salePrice)} total
-                      <span className="text-gray-400"> · was {formatUsd(totalPricing.originalPrice)}</span>
+                      {formatUsd(totalPricing.salePrice)} {m.common.totalLabel}
+                      <span className="text-gray-400"> · {fmt(m.common.wasPrice, { price: formatUsd(totalPricing.originalPrice) })}</span>
                     </p>
                   </div>
                 </div>
@@ -187,7 +187,7 @@ export default function OfferDetails({
                       room.refundable ? "bg-green-100 text-green-800" : "bg-gray-200 text-gray-600"
                     }`}
                   >
-                    {room.refundable ? "Refundable" : "Non-refundable"}
+                    {room.refundable ? m.common.refundable : m.common.nonRefundable}
                   </span>
                 </div>
                 {room.amenities.length > 0 && (
@@ -195,7 +195,7 @@ export default function OfferDetails({
                 )}
                 <div className="mt-3 flex items-center justify-between">
                   <span className={`text-xs font-semibold ${selected ? "text-[#2D83C2]" : "text-gray-400"}`}>
-                    {selected ? "Selected" : "Select this room"}
+                    {selected ? m.common.selected : m.offerDetails.selectThisRoom}
                   </span>
                   {selected && <Check size={18} className="text-[#2D83C2]" />}
                 </div>
@@ -207,7 +207,7 @@ export default function OfferDetails({
       )}
 
       {details?.policies && details.policies.length > 0 && (
-        <SectionBlock title="Property policies">
+        <SectionBlock title={m.offerDetails.propertyPolicies}>
           <ul className="list-disc space-y-1 pl-5">
             {details.policies.map((policy) => (
               <li key={policy}>{policy}</li>

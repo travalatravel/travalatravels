@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import OfferImage from "@/components/OfferImage";
 import OfferLocation from "@/components/OfferLocation";
@@ -6,8 +8,9 @@ import { getOfferPricing } from "@/lib/pricing";
 import { parseTravalaSlug } from "@/lib/hotel-slug";
 import { Star, Tag } from "lucide-react";
 import type { Offer } from "@/lib/types";
-import { TYPE_LABELS } from "@/lib/types";
 import type { LivePriceResult } from "@/lib/travala-price";
+import { useTranslations } from "@/i18n/useTranslations";
+import { offerTypeLabel } from "@/i18n/display-labels";
 
 export default function OfferCard({
   offer,
@@ -20,6 +23,7 @@ export default function OfferCard({
   livePrice?: LivePriceResult | null;
   priceLoading?: boolean;
 }) {
+  const { messages: m, fmt } = useTranslations();
   const pricing = getOfferPricing(offer.price, offer.id, offer.stars);
   const slug = offer.type === "HOTEL" ? parseTravalaSlug(offer.metadata) : null;
 
@@ -54,12 +58,12 @@ export default function OfferCard({
         {pricing.discountPct > 0 && (
           <span className="absolute left-3 top-3 flex items-center gap-1 rounded-md bg-[#2D83C2] px-2.5 py-1 text-[10px] font-bold text-white shadow">
             <Tag size={10} />
-            Save {pricing.discountPct}%
+            {fmt(m.common.savePctGuarantee, { pct: pricing.discountPct })}
           </span>
         )}
 
         <span className="absolute right-3 top-3 rounded-md bg-[#1a5f94]/90 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur">
-          {TYPE_LABELS[offer.type]}
+          {offerTypeLabel(m, offer.type)}
         </span>
       </div>
 

@@ -11,7 +11,7 @@ import { getFlightPricing } from "@/lib/flight-pricing";
 import { formatUsd } from "@/lib/pricing";
 import { useAuth } from "@/context/AuthContext";
 import CryptoMethodPicker from "@/components/CryptoMethodPicker";
-import { CRYPTO_PAYMENT_METHODS, GATEWAY_NAME } from "@/lib/payments";
+import { CRYPTO_PAYMENT_METHODS } from "@/lib/payments";
 import { useFlightOffer } from "@/hooks/useFlightOffer";
 import { appendBundleHotelParams, type BundleHotelSelection } from "@/lib/flight-hotel-bundle";
 import { useTranslations } from "@/i18n/useTranslations";
@@ -172,7 +172,7 @@ function FlightOfferContent() {
               <FlightBundleSummary flight={flight} flightTotal={pricing.salePrice} hotel={selectedHotel} />
               <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                 <label className="text-xs font-medium text-gray-500">{m.common.paymentMethod}</label>
-                <p className="mb-2 text-[11px] text-gray-400">{GATEWAY_NAME}</p>
+                <p className="mb-2 text-[11px] text-gray-400">{m.common.gatewayName}</p>
                 <CryptoMethodPicker value={paymentMethod} onChange={setPaymentMethod} />
                 <button
                   type="button"
@@ -197,7 +197,7 @@ function FlightOfferContent() {
 
                 <div className="mt-5">
                   <label className="text-xs font-medium text-gray-500">{m.common.paymentMethod}</label>
-                  <p className="mb-2 text-[11px] text-gray-400">{GATEWAY_NAME}</p>
+                  <p className="mb-2 text-[11px] text-gray-400">{m.common.gatewayName}</p>
                   <CryptoMethodPicker value={paymentMethod} onChange={setPaymentMethod} />
                 </div>
 

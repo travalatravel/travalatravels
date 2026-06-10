@@ -107,7 +107,7 @@ function FlightSearchResults() {
     m.searchPage.noFlightsFound,
   ]);
 
-  const routeLabel = from || to ? `${from || "Anywhere"} → ${to || "Anywhere"}` : null;
+  const routeLabel = from || to ? `${from || m.common.anywhere} → ${to || m.common.anywhere}` : null;
   const hasResults = liveFlights.length > 0;
 
   return (

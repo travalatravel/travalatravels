@@ -48,7 +48,19 @@ const pt: Partial<Messages> = {
     cabin: { economy: "Econômica", premiumEconomy: "Premium Economy", business: "Executiva", first: "Primeira classe" },
     flight1: "Voo 1", flight2: "Voo 2", from: "De", to: "Para", flyingFrom: "Partindo de", flyingTo: "Indo para",
     swapAirports: "Trocar aeroportos", cabinClass: "Classe da cabine",
-  },
+    staysGuestMobile: "{rooms} {roomsLabel} - {adults} {adultsLabel} - {children} {childrenLabel}",
+    staysGuestDesktop: "{adults} {adultsLabel} - {children} {childrenLabel}",
+    staysRoomsLine: "{rooms} {roomsLabel}",
+    passengersLine: "{count} {passengerLabel}",
+    passengersCabinLine: "{count} {passengerLabel}, {cabin}",
+    closeGuestSelector: "Close guest selector",
+    closePassengerSelector: "Close passenger selector",
+    mobileSearch: {
+      searchAirport: "Search Airport",
+      searchPlaces: "Search for Places or Properties",
+      allAirports: "All Airports",
+      clearSearch: "Clear search",
+    },  },
   crypto: {
     subtitle: "Reservas compatíveis com cripto", title: "Seu dinheiro é bem-vindo aqui.",
     body: "Somos a principal plataforma de viagens em cripto. Pague suas viagens em qualquer lugar do mundo com mais de 100 criptomoedas.",
@@ -84,7 +96,7 @@ const pt: Partial<Messages> = {
   footer: {
     exploreHotels: "Explore os melhores hotéis do mundo", exploreSubtitle: "Descubra os melhores países, regiões e cidades para visitar",
     countries: "Países", regions: "Regiões", cities: "Cidades",
-    sections: { travala: "TRAVALA", support: "SUPORTE", resources: "RECURSOS" },
+    sections: { travala: "TRAVALA", support: "SUPPORT", resources: "RESOURCES", community: "COMMUNITY" },
     links: {
       priceGuarantee: "Garantia de preço", mobileApp: "App móvel", businessTravel: "Viagens corporativas",
       helpCenter: "Central de ajuda", myTrip: "Minha viagem", terms: "Termos e condições", privacy: "Política de privacidade", cookies: "Política de cookies",

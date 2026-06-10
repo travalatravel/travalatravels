@@ -12,8 +12,10 @@ import { applySalePrice } from "@/lib/pricing";
 import { priceForFlight } from "@/lib/flight-display";
 import type { CabinClass, TripType } from "@/lib/flight-types";
 import { ArrowLeft } from "lucide-react";
+import { useTranslations } from "@/i18n/useTranslations";
 
 function CheckoutContent() {
+  const { messages: m } = useTranslations();
   const { id } = useParams<{ id: string }>();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -66,9 +68,9 @@ function CheckoutContent() {
   if (!offer || !hasDates) {
     return (
       <div className="mx-auto max-w-lg px-4 py-16 text-center">
-        <p className="text-gray-500">Missing booking details. Please select dates first.</p>
+        <p className="text-gray-500">{m.offerPage.missingCheckoutDates}</p>
         <Link href={`/offers/${id}`} className="mt-4 inline-block text-[#2D83C2] hover:underline">
-          Back to offer
+          {m.checkout.backToOffer}
         </Link>
       </div>
     );
@@ -98,16 +100,14 @@ function CheckoutContent() {
         href={`/offers/${id}`}
         className="mb-6 inline-flex items-center gap-1 text-sm text-[#2D83C2] hover:underline"
       >
-        <ArrowLeft size={16} /> Back to {isFlight ? "flight" : "property"}
+        <ArrowLeft size={16} /> {isFlight ? m.offerPage.backToFlight : m.offerPage.backToProperty}
       </Link>
 
       <div className="mb-8">
-        <p className="text-sm font-medium text-slate-500">Step 1 of 2</p>
-        <h1 className="mt-1 text-2xl font-bold text-[#1a1a1a] md:text-3xl">Enter your details</h1>
+        <p className="text-sm font-medium text-slate-500">{m.checkout.step1}</p>
+        <h1 className="mt-1 text-2xl font-bold text-[#1a1a1a] md:text-3xl">{m.offerPage.enterYourDetails}</h1>
         <p className="mt-2 text-slate-500">
-          {isFlight
-            ? "Almost there — we need passenger information before confirming your flight."
-            : "Almost there — the property needs guest information before we can confirm your reservation."}
+          {isFlight ? m.offerPage.flightCheckoutHint : m.offerPage.hotelCheckoutHint}
         </p>
       </div>
 

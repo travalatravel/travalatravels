@@ -5,12 +5,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowLeftRight, Building2 } from "lucide-react";
 import SearchSuggestions from "./SearchSuggestions";
+import MobileSearchOverlay from "./MobileSearchOverlay";
 import type { SearchSuggestion } from "@/lib/travala-suggest";
 import { ASSETS } from "@/data/site-data";
 import { buildFlightSearchQuery } from "@/lib/flight-display";
 import type { CabinClass, TripType } from "@/lib/flight-types";
-import { CABIN_LABELS } from "@/lib/flight-types";
 import { useTranslations } from "@/i18n/useTranslations";
+import { LOCALE_BCP47 } from "@/i18n/config";
 import {
   formatDesktopDate,
   MobileDateRange,
@@ -21,7 +22,7 @@ import {
   SearchSubmitButton,
 } from "./search-form-ui";
 
-const TRIP_KEYS: TripType[] = ["roundtrip", "oneway", "multicity"];
+const TRIP_KEYS: TripType[] = ["roundtrip", "oneway"];
 
 function defaultFlightDates() {
   const d = new Date();
@@ -45,7 +46,8 @@ export default function FlightSearchForm({
 }) {
   const router = useRouter();
   const urlParams = useSearchParams();
-  const { messages: m, fmt } = useTranslations();
+  const { locale, messages: m, fmt } = useTranslations();
+  const dateLocale = LOCALE_BCP47[locale];
   const defaults = defaultFlightDates();
   const isHero = !compact;
 
@@ -70,6 +72,7 @@ export default function FlightSearchForm({
   const [activeField, setActiveField] = useState<AirportField | null>(null);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [fieldQuery, setFieldQuery] = useState("");
+  const [mobileOverlayOpen, setMobileOverlayOpen] = useState(false);
 
   const paxRef = useRef<HTMLDivElement>(null);
   const departRef = useRef<HTMLInputElement>(null);
@@ -159,6 +162,18 @@ export default function FlightSearchForm({
     setSuggestions([]);
   };
 
+  const openMobileAirport = (field: AirportField, current: string) => {
+    openField(field, current);
+    setMobileOverlayOpen(true);
+  };
+
+  const closeMobileOverlay = () => {
+    setMobileOverlayOpen(false);
+    setActiveField(null);
+    setFieldQuery("");
+    setSuggestions([]);
+  };
+
   const selectSuggestion = (item: SearchSuggestion) => {
     if (!activeField) return;
     const code = item.iata || item.searchQuery?.slice(0, 3).toUpperCase();
@@ -166,7 +181,20 @@ export default function FlightSearchForm({
     setActiveField(null);
     setFieldQuery("");
     setSuggestions([]);
+    setMobileOverlayOpen(false);
   };
+
+  const cabinLabel = (c: CabinClass) => {
+    const labels: Record<CabinClass, string> = {
+      economy: m.search.cabin.economy,
+      premium_economy: m.search.cabin.premiumEconomy,
+      business: m.search.cabin.business,
+      first: m.search.cabin.first,
+    };
+    return labels[c];
+  };
+
+  const passengerLabel = (n: number) => (n === 1 ? m.common.passenger : m.common.passengers);
 
   const swapAirports = () => {
     setFrom(to);
@@ -201,8 +229,8 @@ export default function FlightSearchForm({
   };
 
   const selectDateLabel = m.common.selectDate;
-  const departFmt = formatDesktopDate(depart, selectDateLabel);
-  const returnFmt = formatDesktopDate(returnDate, selectDateLabel);
+  const departFmt = formatDesktopDate(depart, selectDateLabel, dateLocale);
+  const returnFmt = formatDesktopDate(returnDate, selectDateLabel, dateLocale);
   const paxTotal = adults + children + infants;
 
   const airportInput = (
@@ -215,7 +243,21 @@ export default function FlightSearchForm({
     <div
       className={`relative z-20 min-w-0 overflow-visible rounded-xl bg-[#eef3f8] px-4 py-3 lg:border-0 lg:bg-transparent lg:px-0 lg:py-0 ${className}`}
     >
-      <label className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">{label}</label>
+      <button
+        type="button"
+        onClick={() => openMobileAirport(field, value)}
+        className="w-full text-left lg:hidden"
+      >
+        <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">{label}</span>
+        <span
+          className={`mt-1 block min-h-[44px] text-base font-semibold ${
+            value ? "text-[#1a1a1a]" : "font-normal text-gray-400"
+          }`}
+        >
+          {value || m.common.cityOrAirport}
+        </span>
+      </button>
+      <label className="hidden text-[10px] font-semibold uppercase tracking-wide text-gray-500 lg:block">{label}</label>
       <input
         type="text"
         value={activeField === field ? fieldQuery : value}
@@ -227,17 +269,19 @@ export default function FlightSearchForm({
         placeholder={m.common.cityOrAirport}
         autoComplete="off"
         enterKeyHint="search"
-        className="mt-1 min-h-[44px] w-full min-w-0 bg-transparent text-base font-semibold text-[#1a1a1a] outline-none placeholder:font-normal placeholder:text-gray-400 sm:mt-0.5 sm:min-h-0 sm:text-sm"
+        className="mt-1 hidden min-h-[44px] w-full min-w-0 bg-transparent text-base font-semibold text-[#1a1a1a] outline-none placeholder:font-normal placeholder:text-gray-400 sm:mt-0.5 sm:min-h-0 sm:text-sm lg:block"
       />
-      {activeField === field && (
-        <SearchSuggestions
-          suggestions={suggestions}
-          loading={suggestLoading}
-          query={fieldQuery}
-          activeIndex={activeIndex}
-          onSelect={selectSuggestion}
-          onHover={setActiveIndex}
-        />
+      {activeField === field && !mobileOverlayOpen && (
+        <div className="hidden lg:block">
+          <SearchSuggestions
+            suggestions={suggestions}
+            loading={suggestLoading}
+            query={fieldQuery}
+            activeIndex={activeIndex}
+            onSelect={selectSuggestion}
+            onHover={setActiveIndex}
+          />
+        </div>
       )}
     </div>
   );
@@ -272,47 +316,27 @@ export default function FlightSearchForm({
 
   const flightRow = (
     <div className={`flex flex-col gap-3 ${isHero ? "lg:flex-row lg:items-stretch lg:flex-wrap" : ""}`}>
-      {trip !== "multicity" ? (
-        <>
-          <div className={`relative flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-end sm:gap-2 ${isHero ? "lg:min-w-[280px]" : ""}`}>
-            {airportInput("from", m.search.flyingFrom, from, setFrom, "flex-1")}
-            <button
-              type="button"
-              onClick={swapAirports}
-              aria-label="Swap airports"
-              className="mx-auto flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gray-200 text-[#2D83C2] hover:bg-[#eef5fc] sm:mb-0.5 sm:h-9 sm:w-9"
-            >
-              <ArrowLeftRight size={16} />
-            </button>
-            {airportInput("to", m.search.flyingTo, to, setTo, "flex-1")}
-          </div>
-        </>
-      ) : (
-        <div className="grid w-full gap-3 sm:grid-cols-2">
-          <div className="rounded-lg border border-gray-100 p-3">
-            <p className="mb-2 text-xs font-semibold text-[#2D83C2]">Flight 1</p>
-            <div className="grid gap-2 sm:grid-cols-2">
-              {airportInput("leg0from", "From", from, setFrom)}
-              {airportInput("leg0to", "To", to, setTo)}
-            </div>
-          </div>
-          <div className="rounded-lg border border-gray-100 p-3">
-            <p className="mb-2 text-xs font-semibold text-[#2D83C2]">Flight 2</p>
-            <div className="grid gap-2 sm:grid-cols-2">
-              {airportInput("leg1from", "From", leg2From, setLeg2From)}
-              {airportInput("leg1to", "To", leg2To, setLeg2To)}
-            </div>
-          </div>
-        </div>
-      )}
+      <div className={`relative flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-end sm:gap-2 ${isHero ? "lg:min-w-[280px]" : ""}`}>
+        {airportInput("from", m.search.flyingFrom, from, setFrom, "flex-1")}
+        <button
+          type="button"
+          onClick={swapAirports}
+          aria-label={m.search.swapAirports}
+          className="mx-auto flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gray-200 text-[#2D83C2] hover:bg-[#eef5fc] sm:mb-0.5 sm:h-9 sm:w-9"
+        >
+          <ArrowLeftRight size={16} />
+        </button>
+        {airportInput("to", m.search.flyingTo, to, setTo, "flex-1")}
+      </div>
 
       <div className={`min-w-0 ${isHero ? "w-full lg:w-auto" : "w-full"}`}>
         {trip === "roundtrip" ? (
           <MobileDateRange
             checkIn={depart}
             checkOut={returnDate}
-            checkInLabel="Depart"
-            checkOutLabel="Return"
+            checkInLabel={m.common.depart}
+            checkOutLabel={m.common.return}
+            locale={dateLocale}
             onCheckInClick={() => departRef.current?.showPicker?.() ?? departRef.current?.focus()}
             onCheckOutClick={() => returnRef.current?.showPicker?.() ?? returnRef.current?.focus()}
             checkInInput={
@@ -324,7 +348,7 @@ export default function FlightSearchForm({
           />
         ) : (
           <label className="flex min-h-[72px] w-full flex-col justify-center rounded-xl bg-[#eef3f8] px-4 py-3 lg:hidden">
-            <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">Depart</span>
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">{m.common.depart}</span>
             <input
               type="date"
               value={depart}
@@ -335,7 +359,7 @@ export default function FlightSearchForm({
         )}
         <div className="hidden lg:flex">
           <DesktopDateButton
-            label="Depart"
+            label={m.common.depart}
             full={departFmt.full}
             day={departFmt.day}
             onClick={() => departRef.current?.showPicker?.() ?? departRef.current?.focus()}
@@ -346,7 +370,7 @@ export default function FlightSearchForm({
           />
           {trip === "roundtrip" && (
             <DesktopDateButton
-              label="Return"
+              label={m.common.return}
               full={returnFmt.full}
               day={returnFmt.day}
               onClick={() => returnRef.current?.showPicker?.() ?? returnRef.current?.focus()}
@@ -368,26 +392,29 @@ export default function FlightSearchForm({
           {isHero && <Image src={ASSETS.userIcon} alt="" width={24} height={24} className="shrink-0" unoptimized />}
           <div>
             <div className="text-base font-semibold text-[#1a1a1a] sm:text-sm">
-              {paxTotal} Passenger{paxTotal !== 1 ? "s" : ""}
+              {fmt(m.search.passengersCabinLine, {
+                count: paxTotal,
+                passengerLabel: passengerLabel(paxTotal),
+                cabin: cabinLabel(cabin),
+              })}
             </div>
-            <div className="text-xs text-gray-500">{CABIN_LABELS[cabin]}</div>
           </div>
         </button>
         {paxOpen && (
           <>
             <button
               type="button"
-              aria-label="Close passenger selector"
+              aria-label={m.search.closePassengerSelector}
               className="fixed inset-0 z-40 bg-black/30 sm:hidden"
               onClick={() => setPaxOpen(false)}
             />
             <div className="fixed inset-x-4 bottom-4 z-50 max-h-[70vh] overflow-y-auto rounded-2xl border border-gray-200 bg-white p-4 shadow-2xl sm:absolute sm:inset-x-auto sm:bottom-auto sm:left-0 sm:top-full sm:mt-2 sm:w-72 sm:max-h-none sm:rounded-xl">
             {[
-              { label: "Adults", sub: "12+ yrs", value: adults, set: setAdults, min: 1, max: 9 },
-              { label: "Children", sub: "2–11 yrs", value: children, set: setChildren, min: 0, max: 8 },
-              { label: "Infants", sub: "Under 2", value: infants, set: setInfants, min: 0, max: 4 },
+              { key: "adults", label: m.common.adults, sub: m.common.yrs12, value: adults, set: setAdults, min: 1, max: 9 },
+              { key: "children", label: m.common.children, sub: m.common.yrs211, value: children, set: setChildren, min: 0, max: 8 },
+              { key: "infants", label: m.common.infants, sub: m.common.under2, value: infants, set: setInfants, min: 0, max: 4 },
             ].map((row) => (
-              <div key={row.label} className="mb-3 flex items-center justify-between last:mb-0">
+              <div key={row.key} className="mb-3 flex items-center justify-between last:mb-0">
                 <div>
                   <div className="text-sm font-medium text-gray-800">{row.label}</div>
                   <div className="text-[10px] text-gray-400">{row.sub}</div>
@@ -400,14 +427,14 @@ export default function FlightSearchForm({
               </div>
             ))}
             <div className="mt-4 border-t border-gray-100 pt-3">
-              <label className="text-xs font-medium text-gray-500">Cabin class</label>
+              <label className="text-xs font-medium text-gray-500">{m.search.cabinClass}</label>
               <select
                 value={cabin}
                 onChange={(e) => setCabin(e.target.value as CabinClass)}
                 className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-3 text-base outline-none focus:border-[#2D83C2] sm:py-2 sm:text-sm"
               >
-                {(Object.keys(CABIN_LABELS) as CabinClass[]).map((c) => (
-                  <option key={c} value={c}>{CABIN_LABELS[c]}</option>
+                {(["economy", "premium_economy", "business", "first"] as CabinClass[]).map((c) => (
+                  <option key={c} value={c}>{cabinLabel(c)}</option>
                 ))}
               </select>
             </div>
@@ -416,7 +443,7 @@ export default function FlightSearchForm({
               onClick={() => setPaxOpen(false)}
               className="mt-4 w-full rounded-xl bg-[#9eb8f5] py-3 text-sm font-bold uppercase text-[#1E2E5E] lg:hidden"
             >
-              Done
+              {m.common.donePassengers}
             </button>
           </div>
           </>
@@ -446,6 +473,18 @@ export default function FlightSearchForm({
           {addHotelRow}
         </SearchFormPanel>
       </SearchFormShell>
+      <MobileSearchOverlay
+        open={mobileOverlayOpen}
+        title={m.search.mobileSearch.searchAirport}
+        placeholder={m.common.cityOrAirport}
+        query={fieldQuery}
+        onQueryChange={setFieldQuery}
+        suggestions={suggestions}
+        loading={suggestLoading}
+        onSelect={selectSuggestion}
+        onClose={closeMobileOverlay}
+        showAllAirportsBadge
+      />
     </form>
   );
 }

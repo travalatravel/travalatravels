@@ -16,7 +16,7 @@ export default function Footer() {
   const { messages: m } = useTranslations();
 
   return (
-    <footer className="bg-[#1a5f94] text-white">
+    <footer className="bg-[#250834] text-white">
       <div className="mx-auto max-w-6xl px-3 py-10 sm:px-4 sm:py-12 lg:px-6">
         <div className="mb-10">
           <h3 className="font-[family-name:var(--font-display)] text-xl font-bold">
@@ -69,11 +69,12 @@ export default function Footer() {
 
         <div className="border-t border-white/10 pt-10">
           <SafeImage
-            src={ASSETS.logoWhite}
+            src={ASSETS.logoMint}
             alt="Travala"
             width={140}
             height={36}
             className="mb-4 h-8 w-auto"
+            fallbackSrc={ASSETS.logoWhite}
             fallbackClassName="mb-4 h-8 w-28 rounded bg-white/10"
           />
           <p className="mb-3 text-xs text-white/60">{m.crypto.footerPay}</p>
@@ -99,7 +100,7 @@ export default function Footer() {
                 {FOOTER_NAV.travala.map((link) => (
                   <li key={link.href}>
                     <Link href={link.href} className="text-xs text-white/70 hover:text-white" target={link.href.startsWith("http") ? "_blank" : undefined} rel={link.href.startsWith("http") ? "noopener noreferrer" : undefined}>
-                      {link.label}
+                      {m.footer.links[link.key]}
                     </Link>
                   </li>
                 ))}
@@ -113,7 +114,7 @@ export default function Footer() {
                 {FOOTER_NAV.support.map((link) => (
                   <li key={link.href}>
                     <Link href={link.href} className="text-xs text-white/70 hover:text-white" target={link.href.startsWith("http") ? "_blank" : undefined} rel={link.href.startsWith("http") ? "noopener noreferrer" : undefined}>
-                      {link.label}
+                      {m.footer.links[link.key]}
                     </Link>
                   </li>
                 ))}
@@ -127,19 +128,19 @@ export default function Footer() {
                 {FOOTER_NAV.resources.map((link) => (
                   <li key={link.href}>
                     <Link href={link.href} className="text-xs text-white/70 hover:text-white" target={link.href.startsWith("http") ? "_blank" : undefined} rel={link.href.startsWith("http") ? "noopener noreferrer" : undefined}>
-                      {link.label}
+                      {m.footer.links[link.key]}
                     </Link>
                   </li>
                 ))}
               </ul>
             </div>
             <div>
-              <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-[#2D83C2]">COMMUNITY</h4>
+              <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-[#2D83C2]">{m.footer.sections.community}</h4>
               <ul className="space-y-2">
                 {FOOTER_NAV.community.map((link) => (
                   <li key={link.href}>
                     <Link href={link.href} className="text-xs text-white/70 hover:text-white" target="_blank" rel="noopener noreferrer">
-                      {link.label}
+                      {m.footer.links[link.key]}
                     </Link>
                   </li>
                 ))}

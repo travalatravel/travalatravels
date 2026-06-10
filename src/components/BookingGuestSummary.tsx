@@ -7,6 +7,7 @@ import {
 } from "@/lib/booking-guest";
 import { parseFlightBookingMeta } from "@/lib/flight-route";
 import { useTranslations } from "@/i18n/useTranslations";
+import { arrivalSlotLabel } from "@/i18n/booking-form-options";
 import { Building2, User, Mail, Phone, MapPin, Clock, MessageSquare, Plane } from "lucide-react";
 
 type GuestBooking = {
@@ -72,7 +73,7 @@ export default function BookingGuestSummary({ booking }: { booking: GuestBooking
         <Row
           icon={type === "BUSINESS" ? Building2 : User}
           label={type === "BUSINESS" ? g.businessBooking : g.privateBooking}
-          value={guestDisplayName(booking)}
+          value={guestDisplayName(booking) || m.common.defaultGuest}
         />
         {type === "BUSINESS" && booking.companyName && (
           <Row
@@ -98,7 +99,11 @@ export default function BookingGuestSummary({ booking }: { booking: GuestBooking
           </>
         )}
         {!flightMeta && (
-          <Row icon={Clock} label={g.estimatedArrival} value={booking.estimatedArrival} />
+          <Row
+            icon={Clock}
+            label={g.estimatedArrival}
+            value={booking.estimatedArrival ? arrivalSlotLabel(m, booking.estimatedArrival) : null}
+          />
         )}
         {extra.length > 0 && (
           <div className="flex gap-3 text-sm">

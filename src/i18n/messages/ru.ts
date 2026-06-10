@@ -48,7 +48,19 @@ const ru: Partial<Messages> = {
     cabin: { economy: "Эконом", premiumEconomy: "Премиум-эконом", business: "Бизнес", first: "Первый класс" },
     flight1: "Рейс 1", flight2: "Рейс 2", from: "Откуда", to: "Куда", flyingFrom: "Вылет из", flyingTo: "Полёт в",
     swapAirports: "Поменять аэропорты", cabinClass: "Класс обслуживания",
-  },
+    staysGuestMobile: "{rooms} {roomsLabel} - {adults} {adultsLabel} - {children} {childrenLabel}",
+    staysGuestDesktop: "{adults} {adultsLabel} - {children} {childrenLabel}",
+    staysRoomsLine: "{rooms} {roomsLabel}",
+    passengersLine: "{count} {passengerLabel}",
+    passengersCabinLine: "{count} {passengerLabel}, {cabin}",
+    closeGuestSelector: "Close guest selector",
+    closePassengerSelector: "Close passenger selector",
+    mobileSearch: {
+      searchAirport: "Search Airport",
+      searchPlaces: "Search for Places or Properties",
+      allAirports: "All Airports",
+      clearSearch: "Clear search",
+    },  },
   crypto: {
     subtitle: "Бронирование с криптовалютой", title: "Ваши деньги здесь приветствуются.",
     body: "Мы — ведущая крипто-платформа для путешествий. Оплачивайте поездки по всему миру более чем 100 криптовалютами.",
@@ -84,7 +96,7 @@ const ru: Partial<Messages> = {
   footer: {
     exploreHotels: "Лучшие отели мира", exploreSubtitle: "Откройте лучшие страны, регионы и города",
     countries: "Страны", regions: "Регионы", cities: "Города",
-    sections: { travala: "TRAVALA", support: "ПОДДЕРЖКА", resources: "РЕСУРСЫ" },
+    sections: { travala: "TRAVALA", support: "SUPPORT", resources: "RESOURCES", community: "COMMUNITY" },
     links: {
       priceGuarantee: "Гарантия цены", mobileApp: "Мобильное приложение", businessTravel: "Деловые поездки",
       helpCenter: "Центр помощи", myTrip: "Моя поездка", terms: "Условия", privacy: "Конфиденциальность", cookies: "Cookies",

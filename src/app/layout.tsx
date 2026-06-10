@@ -8,6 +8,7 @@ import AppBanner from "@/components/AppBanner";
 import { LocaleProvider } from "@/i18n/LocaleProvider";
 import { LOCALE_META } from "@/i18n/config";
 import { resolveLocale } from "@/i18n/detect";
+import { getMessages } from "@/i18n/messages";
 import "./globals.css";
 
 const inter = Inter({
@@ -22,29 +23,32 @@ const satisfy = Satisfy({
   variable: "--font-satisfy",
 });
 
-export const metadata: Metadata = {
-  title: "Book Hotels, Flights, Tours & Car Rental with Crypto | Travala",
-  description:
-    "Book over 3 million travel products around the world with popular cryptocurrencies. Find and book Hotels, Flights, Car Rental, Tours and Activities online.",
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: { index: true, follow: true },
-  },
-  icons: {
-    icon: "https://static.travala.com/frontend/logos-v2/favicon.png",
-  },
-  openGraph: {
-    title: "Book Hotels, Flights, Tours & Car Rental with Crypto | Travala",
-    description:
-      "Book over 3 million travel products around the world with popular cryptocurrencies.",
-    images: ["https://static.travala.com/photo/social-share-v2/social-travala.jpg"],
-    siteName: "Travala",
-  },
-  verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
-    ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
-    : undefined,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await resolveLocale();
+  const m = getMessages(locale);
+
+  return {
+    title: m.meta.title,
+    description: m.meta.description,
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: { index: true, follow: true },
+    },
+    icons: {
+      icon: "https://static.travala.com/frontend/logos-v2/favicon.png",
+    },
+    openGraph: {
+      title: m.meta.title,
+      description: m.meta.ogDescription,
+      images: ["https://static.travala.com/photo/social-share-v2/social-travala.jpg"],
+      siteName: m.meta.siteName,
+    },
+    verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+      ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
+      : undefined,
+  };
+}
 
 export default async function RootLayout({
   children,

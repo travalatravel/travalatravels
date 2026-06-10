@@ -1,7 +1,11 @@
+"use client";
+
 import { Briefcase, Clock, Luggage, Plane, Shield } from "lucide-react";
 import type { FlightMetadata } from "@/lib/flight-types";
-import { CABIN_LABELS, type CabinClass } from "@/lib/flight-types";
+import type { CabinClass } from "@/lib/flight-types";
 import { flightTimesForOffer, stopsForOffer } from "@/lib/flight-display";
+import { useTranslations } from "@/i18n/useTranslations";
+import { cabinClassLabel } from "@/i18n/display-labels";
 
 export default function FlightOfferDetails({
   offerId,
@@ -18,13 +22,14 @@ export default function FlightOfferDetails({
   depart?: string;
   returnDate?: string;
 }) {
+  const { messages: m, fmt } = useTranslations();
   const times = flightTimesForOffer(offerId, meta.duration || "3h 0m");
   const stops = meta.stops ?? stopsForOffer(offerId);
 
   return (
     <div className="mt-6 space-y-6">
       <section className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6">
-        <h2 className="text-lg font-bold text-[#1a1a1a]">Flight itinerary</h2>
+        <h2 className="text-lg font-bold text-[#1a1a1a]">{m.common.flightItinerary}</h2>
         <div className="mt-4 flex flex-wrap items-center gap-6">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#eef5fc]">
@@ -39,19 +44,19 @@ export default function FlightOfferDetails({
             <span className="text-2xl font-bold text-[#1a1a1a]">{times.depart}</span>
             <span className="mx-2 text-gray-300">→</span>
             <span className="text-2xl font-bold text-[#1a1a1a]">{times.arrive}</span>
-            <p className="mt-1 text-xs text-gray-500">{meta.duration} · {stops === 0 ? "Direct" : `${stops} stop(s)`}</p>
+            <p className="mt-1 text-xs text-gray-500">
+              {meta.duration} · {stops === 0 ? m.common.direct : fmt(m.common.stopsCount, { count: stops })}
+            </p>
           </div>
         </div>
-        <p className="mt-4 text-sm text-gray-600">
-          Economy fare includes 1 carry-on. Checked baggage may be added at checkout.
-        </p>
+        <p className="mt-4 text-sm text-gray-600">{m.common.economyFareHint}</p>
         {depart && (
           <p className="mt-2 text-sm text-gray-600">
-            <strong>Depart:</strong> {depart}
+            <strong>{m.common.depart}:</strong> {depart}
             {trip === "roundtrip" && returnDate && (
               <>
                 {" · "}
-                <strong>Return:</strong> {returnDate}
+                <strong>{m.common.returnFlight}:</strong> {returnDate}
               </>
             )}
           </p>
@@ -60,10 +65,10 @@ export default function FlightOfferDetails({
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { icon: Luggage, title: "Baggage", text: "1 carry-on included. Checked bag from $35." },
-          { icon: Briefcase, title: "Cabin", text: CABIN_LABELS[cabin] || "Economy" },
-          { icon: Clock, title: "Duration", text: meta.duration || "See airline" },
-          { icon: Shield, title: "Flexibility", text: "Change fees may apply. See fare rules at checkout." },
+          { icon: Luggage, title: m.common.baggage, text: m.common.baggageText },
+          { icon: Briefcase, title: m.common.cabin, text: cabinClassLabel(m, cabin) },
+          { icon: Clock, title: m.common.duration, text: meta.duration || m.common.seeAirline },
+          { icon: Shield, title: m.common.flexibility, text: m.common.flexibilityText },
         ].map((item) => (
           <div key={item.title} className="rounded-xl border border-gray-100 bg-gray-50/80 p-4">
             <item.icon size={18} className="text-[#2D83C2]" />

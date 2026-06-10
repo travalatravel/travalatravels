@@ -1,4 +1,7 @@
 import HotelListingPage from "@/components/HotelListingPage";
+import { resolveLocale } from "@/i18n/detect";
+import { getMessages } from "@/i18n/messages";
+import { formatMessage } from "@/i18n/useTranslations";
 
 function titleCase(slug: string) {
   return slug
@@ -15,11 +18,13 @@ export default async function HotelsCityPage({
   const { country: countrySlug, city: citySlug } = await params;
   const country = titleCase(decodeURIComponent(countrySlug));
   const city = titleCase(decodeURIComponent(citySlug));
+  const locale = await resolveLocale();
+  const m = getMessages(locale);
 
   return (
     <HotelListingPage
-      title={`Hotels in ${city}, ${country}`}
-      subtitle={`Find the best places to stay in ${city}`}
+      title={formatMessage(m.hotelsPage.inCity, { city, country })}
+      subtitle={formatMessage(m.hotelsPage.inCitySub, { city })}
       query={city}
       country={country}
       city={city}

@@ -48,7 +48,19 @@ const tr: Partial<Messages> = {
     cabin: { economy: "Ekonomi", premiumEconomy: "Premium Ekonomi", business: "Business", first: "First Class" },
     flight1: "Uçuş 1", flight2: "Uçuş 2", from: "Nereden", to: "Nereye", flyingFrom: "Kalkış", flyingTo: "Varış",
     swapAirports: "Havalimanlarını değiştir", cabinClass: "Kabin sınıfı",
-  },
+    staysGuestMobile: "{rooms} {roomsLabel} - {adults} {adultsLabel} - {children} {childrenLabel}",
+    staysGuestDesktop: "{adults} {adultsLabel} - {children} {childrenLabel}",
+    staysRoomsLine: "{rooms} {roomsLabel}",
+    passengersLine: "{count} {passengerLabel}",
+    passengersCabinLine: "{count} {passengerLabel}, {cabin}",
+    closeGuestSelector: "Close guest selector",
+    closePassengerSelector: "Close passenger selector",
+    mobileSearch: {
+      searchAirport: "Search Airport",
+      searchPlaces: "Search for Places or Properties",
+      allAirports: "All Airports",
+      clearSearch: "Clear search",
+    },  },
   crypto: {
     subtitle: "Kripto dostu rezervasyonlar", title: "Paranız burada geçerli.",
     body: "Önde gelen kripto yerel seyahat platformuyuz. 100'den fazla kripto para birimiyle dünyanın her yerinde seyahatinizi ödeyin.",
@@ -84,7 +96,7 @@ const tr: Partial<Messages> = {
   footer: {
     exploreHotels: "Dünyanın en iyi otellerini keşfedin", exploreSubtitle: "Ziyaret edilecek en iyi ülke, bölge ve şehirleri keşfedin",
     countries: "Ülkeler", regions: "Bölgeler", cities: "Şehirler",
-    sections: { travala: "TRAVALA", support: "DESTEK", resources: "KAYNAKLAR" },
+    sections: { travala: "TRAVALA", support: "SUPPORT", resources: "RESOURCES", community: "COMMUNITY" },
     links: {
       priceGuarantee: "Fiyat garantisi", mobileApp: "Mobil uygulama", businessTravel: "İş seyahati",
       helpCenter: "Yardım merkezi", myTrip: "Gezim", terms: "Şartlar ve koşullar", privacy: "Gizlilik politikası", cookies: "Çerez politikası",

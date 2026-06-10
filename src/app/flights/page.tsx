@@ -1,12 +1,22 @@
+import type { Metadata } from "next";
 import SiteChrome from "@/components/SiteChrome";
 import HeroSearch from "@/components/HeroSearch";
 import PopularFlightRoutes from "@/components/PopularFlightRoutes";
 import CryptoFriendlySection from "@/components/CryptoFriendlySection";
 import { FLIGHT_AIRLINES } from "@/data/flight-data";
+import { resolveLocale } from "@/i18n/detect";
+import { getMessages } from "@/i18n/messages";
 
-export const metadata = { title: "Book Flights with Crypto | Travala" };
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await resolveLocale();
+  const m = getMessages(locale);
+  return { title: m.meta.flightsTitle };
+}
 
-export default function FlightsPage() {
+export default async function FlightsPage() {
+  const locale = await resolveLocale();
+  const m = getMessages(locale);
+
   return (
     <SiteChrome>
       <HeroSearch defaultTab="flights" />
@@ -14,8 +24,8 @@ export default function FlightsPage() {
 
       <section className="border-t border-gray-100 bg-[#f8fafc] py-10">
         <div className="mx-auto max-w-6xl px-3 sm:px-4 lg:px-6">
-          <h2 className="text-xl font-bold text-[#1a1a1a] sm:text-2xl">600+ airlines worldwide</h2>
-          <p className="mt-1 text-sm text-gray-500">Search and compare flights from leading carriers</p>
+          <h2 className="text-xl font-bold text-[#1a1a1a] sm:text-2xl">{m.flightsPage.airlinesWorldwide}</h2>
+          <p className="mt-1 text-sm text-gray-500">{m.flightsPage.subtitle}</p>
           <div className="mt-6 flex flex-wrap gap-2">
             {FLIGHT_AIRLINES.map((airline) => (
               <span

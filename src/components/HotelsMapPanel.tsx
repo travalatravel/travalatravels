@@ -3,6 +3,7 @@
 import type { Offer } from "@/lib/types";
 import { parseTravalaSlug } from "@/lib/hotel-slug";
 import { MapPin } from "lucide-react";
+import { useTranslations } from "@/i18n/useTranslations";
 
 const CITY_COORDS: Record<string, { lat: number; lng: number }> = {
   london: { lat: 51.5074, lng: -0.1278 },
@@ -32,17 +33,18 @@ export default function HotelsMapPanel({
   offers: Offer[];
   centerLabel?: string;
 }) {
+  const { messages: m } = useTranslations();
   const center = offers[0] ? coordsForOffer(offers[0]) : { lat: 51.5, lng: 0 };
   const mapSrc = `https://www.openstreetmap.org/export/embed.html?bbox=${center.lng - 0.4}%2C${center.lat - 0.25}%2C${center.lng + 0.4}%2C${center.lat + 0.25}&layer=mapnik&marker=${center.lat}%2C${center.lng}`;
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
       <div className="border-b border-gray-100 px-4 py-3">
-        <p className="text-sm font-semibold text-[#1a1a1a]">Map</p>
+        <p className="text-sm font-semibold text-[#1a1a1a]">{m.searchFilters.map}</p>
         {centerLabel && <p className="text-xs text-gray-500">{centerLabel}</p>}
       </div>
       <iframe
-        title="Hotel map"
+        title={m.common.hotelMap}
         src={mapSrc}
         className="h-56 w-full border-0 sm:h-72"
         loading="lazy"

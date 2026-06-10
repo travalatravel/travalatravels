@@ -1,4 +1,7 @@
+"use client";
+
 import { getOfferPricing, formatUsd } from "@/lib/pricing";
+import { useTranslations } from "@/i18n/useTranslations";
 
 export default function PriceDisplay({
   price,
@@ -21,10 +24,11 @@ export default function PriceDisplay({
   priceLoading?: boolean;
   isLive?: boolean;
 }) {
+  const { messages: m, fmt } = useTranslations();
   const basePrice = livePricePerNight != null && livePricePerNight > 0 ? livePricePerNight : price;
   const p = getOfferPricing(basePrice, offerId, stars);
   const displayPrice = showCrypto ? p.cryptoPrice : p.salePrice;
-  const suffix = perNight ? " / night" : "";
+  const suffix = perNight ? m.common.perNight : "";
 
   const priceCls =
     size === "lg"
@@ -51,17 +55,17 @@ export default function PriceDisplay({
           <span className="text-gray-400 line-through">{formatUsd(p.originalPrice)}</span>
         )}
         {p.savings > 0 && (
-          <span className="font-medium text-[#2D83C2]">Save {formatUsd(p.savings)}</span>
+          <span className="font-medium text-[#2D83C2]">{fmt(m.common.youSave, { amount: formatUsd(p.savings) })}</span>
         )}
       </div>
       {priceLoading && !isLive && (
-        <p className="mt-1 text-xs text-gray-400">Updating live rate…</p>
+        <p className="mt-1 text-xs text-gray-400">{m.priceDisplay.updatingLive}</p>
       )}
       {isLive && (
-        <p className="mt-1 text-xs font-medium text-emerald-700">Live rate for your dates</p>
+        <p className="mt-1 text-xs font-medium text-emerald-700">{m.priceDisplay.liveRateForDates}</p>
       )}
       {showCrypto && (
-        <p className="mt-1 text-xs text-gray-500">Crypto payment accepted at this rate</p>
+        <p className="mt-1 text-xs text-gray-500">{m.priceDisplay.cryptoAccepted}</p>
       )}
     </div>
   );

@@ -1,7 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import { Plane } from "lucide-react";
 import { POPULAR_FLIGHT_ROUTES } from "@/data/flight-data";
 import { buildFlightSearchQuery } from "@/lib/flight-display";
+import { useTranslations } from "@/i18n/useTranslations";
 
 function defaultDates() {
   const d = new Date();
@@ -13,12 +16,13 @@ function defaultDates() {
 }
 
 export default function PopularFlightRoutes() {
+  const { messages: m } = useTranslations();
   const dates = defaultDates();
 
   return (
     <section className="mx-auto max-w-6xl px-3 py-10 sm:px-4 lg:px-6">
-      <h2 className="text-xl font-bold text-[#1a1a1a] sm:text-2xl">Popular routes</h2>
-      <p className="mt-1 text-sm text-gray-500">Book flights to top destinations worldwide</p>
+      <h2 className="text-xl font-bold text-[#1a1a1a] sm:text-2xl">{m.flightsPage.popularRoutes}</h2>
+      <p className="mt-1 text-sm text-gray-500">{m.flightsPage.routesSubtitle}</p>
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {POPULAR_FLIGHT_ROUTES.map((route) => {
           const qs = buildFlightSearchQuery({

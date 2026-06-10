@@ -48,7 +48,19 @@ const nl: Partial<Messages> = {
     cabin: { economy: "Economy", premiumEconomy: "Premium Economy", business: "Business", first: "First Class" },
     flight1: "Vlucht 1", flight2: "Vlucht 2", from: "Van", to: "Naar", flyingFrom: "Vliegen van", flyingTo: "Vliegen naar",
     swapAirports: "Luchthavens wisselen", cabinClass: "Cabineklasse",
-  },
+    staysGuestMobile: "{rooms} {roomsLabel} - {adults} {adultsLabel} - {children} {childrenLabel}",
+    staysGuestDesktop: "{adults} {adultsLabel} - {children} {childrenLabel}",
+    staysRoomsLine: "{rooms} {roomsLabel}",
+    passengersLine: "{count} {passengerLabel}",
+    passengersCabinLine: "{count} {passengerLabel}, {cabin}",
+    closeGuestSelector: "Close guest selector",
+    closePassengerSelector: "Close passenger selector",
+    mobileSearch: {
+      searchAirport: "Search Airport",
+      searchPlaces: "Search for Places or Properties",
+      allAirports: "All Airports",
+      clearSearch: "Clear search",
+    },  },
   crypto: {
     subtitle: "Crypto-vriendelijke boekingen", title: "Uw geld is hier welkom.",
     body: "Wij zijn het toonaangevende crypto-reisplatform. Betaal uw reis overal ter wereld naadloos met meer dan 100 cryptovaluta.",
@@ -84,7 +96,7 @@ const nl: Partial<Messages> = {
   footer: {
     exploreHotels: "Ontdek de beste hotels ter wereld", exploreSubtitle: "Ontdek de beste landen, regio's en steden om te bezoeken",
     countries: "Landen", regions: "Regio's", cities: "Steden",
-    sections: { travala: "TRAVALA", support: "SUPPORT", resources: "BRONNEN" },
+    sections: { travala: "TRAVALA", support: "SUPPORT", resources: "RESOURCES", community: "COMMUNITY" },
     links: {
       priceGuarantee: "Prijsgarantie", mobileApp: "Mobiele app", businessTravel: "Zakenreizen",
       helpCenter: "Helpcentrum", myTrip: "Mijn reis", terms: "Algemene voorwaarden", privacy: "Privacybeleid", cookies: "Cookiebeleid",

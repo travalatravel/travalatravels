@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CRYPTO_PAYMENT_METHODS, GATEWAY_NAME } from "@/lib/payments";
+import { CRYPTO_PAYMENT_METHODS } from "@/lib/payments";
+import { arrivalSlotLabel, countryLabel } from "@/i18n/booking-form-options";
 import CryptoMethodPicker from "@/components/CryptoMethodPicker";
 import {
   ARRIVAL_SLOTS,
@@ -136,18 +137,18 @@ export default function BookingCheckoutForm({
 
   const validate = () => {
     const errs: Record<string, string> = {};
-    if (!guestFirstName.trim()) errs.guestFirstName = "Required";
-    if (!guestLastName.trim()) errs.guestLastName = "Required";
-    if (!contactEmail.trim()) errs.contactEmail = "Required";
-    if (!contactPhone.trim()) errs.contactPhone = "Required";
-    if (!addressLine1.trim()) errs.addressLine1 = "Required";
-    if (!addressCity.trim()) errs.addressCity = "Required";
-    if (!addressPostalCode.trim()) errs.addressPostalCode = "Required";
-    if (!addressCountry.trim()) errs.addressCountry = "Required";
-    if (bookingType === "BUSINESS" && !companyName.trim()) errs.companyName = "Required for business bookings";
+    if (!guestFirstName.trim()) errs.guestFirstName = c.required;
+    if (!guestLastName.trim()) errs.guestLastName = c.required;
+    if (!contactEmail.trim()) errs.contactEmail = c.required;
+    if (!contactPhone.trim()) errs.contactPhone = c.required;
+    if (!addressLine1.trim()) errs.addressLine1 = c.required;
+    if (!addressCity.trim()) errs.addressCity = c.required;
+    if (!addressPostalCode.trim()) errs.addressPostalCode = c.required;
+    if (!addressCountry.trim()) errs.addressCountry = c.required;
+    if (bookingType === "BUSINESS" && !companyName.trim()) errs.companyName = c.requiredForBusiness;
     additionalGuests.forEach((g, i) => {
-      if (!g.firstName.trim()) errs[`guest_${i}_first`] = "Required";
-      if (!g.lastName.trim()) errs[`guest_${i}_last`] = "Required";
+      if (!g.firstName.trim()) errs[`guest_${i}_first`] = c.required;
+      if (!g.lastName.trim()) errs[`guest_${i}_last`] = c.required;
     });
     setFieldErrors(errs);
     return Object.keys(errs).length === 0;
@@ -432,7 +433,7 @@ export default function BookingCheckoutForm({
             <label className={labelCls}>{c.estimatedArrival}</label>
             <select className={inputCls} value={estimatedArrival} onChange={(e) => setEstimatedArrival(e.target.value)}>
               {ARRIVAL_SLOTS.map((s) => (
-                <option key={s} value={s}>{s}</option>
+                <option key={s} value={s}>{arrivalSlotLabel(m, s)}</option>
               ))}
             </select>
           </div>
@@ -451,7 +452,7 @@ export default function BookingCheckoutForm({
       </Section>
       )}
 
-      <Section title={m.common.paymentMethod} subtitle={GATEWAY_NAME}>
+      <Section title={m.common.paymentMethod} subtitle={m.common.gatewayName}>
         <CryptoMethodPicker value={paymentMethod} onChange={setPaymentMethod} />
       </Section>
 

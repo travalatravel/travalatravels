@@ -10,8 +10,9 @@ import {
   stopsForOffer,
 } from "@/lib/flight-display";
 import type { CabinClass, TripType } from "@/lib/flight-types";
-import { CABIN_LABELS } from "@/lib/flight-types";
 import { getOfferPricing, formatUsd } from "@/lib/pricing";
+import { useTranslations } from "@/i18n/useTranslations";
+import { cabinClassLabel } from "@/i18n/display-labels";
 
 export default function FlightResultCard({
   offer,
@@ -28,6 +29,7 @@ export default function FlightResultCard({
     return?: string;
   };
 }) {
+  const { messages: m, fmt } = useTranslations();
   const meta = parseFlightMetadata(offer.metadata);
   const times = flightTimesForOffer(offer.id, meta.duration || "3h 0m");
   const stops = meta.stops ?? stopsForOffer(offer.id);
@@ -60,9 +62,9 @@ export default function FlightResultCard({
             <Plane size={22} />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-bold text-[#1a1a1a]">{meta.airline || "Airline"}</p>
+            <p className="text-sm font-bold text-[#1a1a1a]">{meta.airline || m.common.airline}</p>
             <p className="mt-0.5 text-xs text-gray-500">
-              {meta.from || offer.city} → {meta.to || "Destination"}
+              {meta.from || offer.city} → {meta.to || m.common.destination}
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-4 text-sm">
               <div>
@@ -75,14 +77,14 @@ export default function FlightResultCard({
                 {meta.duration || "—"}
               </span>
               <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600">
-                {stops === 0 ? "Direct" : `${stops} stop${stops > 1 ? "s" : ""}`}
+                {stops === 0 ? m.common.direct : stops === 1 ? `1 ${m.common.stop}` : `${stops} ${m.common.stops}`}
               </span>
             </div>
             <div className="mt-2 flex flex-wrap gap-2 text-[10px] text-gray-500">
               <span className="flex items-center gap-1">
-                <Luggage size={11} /> 1 carry-on included
+                <Luggage size={11} /> {m.common.carryOnIncluded}
               </span>
-              <span>{CABIN_LABELS[(searchParams.cabin as CabinClass) || "economy"]}</span>
+              <span>{cabinClassLabel(m, (searchParams.cabin as CabinClass) || "economy")}</span>
             </div>
           </div>
         </div>
@@ -93,10 +95,14 @@ export default function FlightResultCard({
             {pricing.originalPrice > pricing.salePrice && (
               <p className="text-xs text-gray-400 line-through">{formatUsd(pricing.originalPrice)}</p>
             )}
-            <p className="text-[10px] text-gray-500">total for {pax} passenger{pax !== 1 ? "s" : ""}</p>
+            <p className="text-[10px] text-gray-500">
+              {pax === 1
+                ? fmt(m.common.totalForPassenger, { count: pax })
+                : fmt(m.common.totalForPassengersCount, { count: pax })}
+            </p>
           </div>
           <span className="rounded-lg bg-[#2D83C2] px-5 py-2.5 text-sm font-semibold text-white transition group-hover:bg-[#1a5f94]">
-            Select
+            {m.common.select}
           </span>
         </div>
       </div>

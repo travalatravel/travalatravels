@@ -48,7 +48,19 @@ const ja: Partial<Messages> = {
     cabin: { economy: "エコノミー", premiumEconomy: "プレミアムエコノミー", business: "ビジネス", first: "ファーストクラス" },
     flight1: "フライト1", flight2: "フライト2", from: "出発", to: "到着", flyingFrom: "出発地", flyingTo: "目的地",
     swapAirports: "空港を入れ替え", cabinClass: "キャビンクラス",
-  },
+    staysGuestMobile: "{rooms} {roomsLabel} - {adults} {adultsLabel} - {children} {childrenLabel}",
+    staysGuestDesktop: "{adults} {adultsLabel} - {children} {childrenLabel}",
+    staysRoomsLine: "{rooms} {roomsLabel}",
+    passengersLine: "{count} {passengerLabel}",
+    passengersCabinLine: "{count} {passengerLabel}, {cabin}",
+    closeGuestSelector: "Close guest selector",
+    closePassengerSelector: "Close passenger selector",
+    mobileSearch: {
+      searchAirport: "Search Airport",
+      searchPlaces: "Search for Places or Properties",
+      allAirports: "All Airports",
+      clearSearch: "Clear search",
+    },  },
   crypto: {
     subtitle: "暗号資産対応の予約", title: "ここなら安心してお支払いいただけます。",
     body: "暗号資産ネイティブの旅行プラットフォームとして、100種類以上の暗号資産で世界中の旅行をシームレスに支払えます。",
@@ -84,7 +96,7 @@ const ja: Partial<Messages> = {
   footer: {
     exploreHotels: "世界の最高のホテルを探索", exploreSubtitle: "訪れるべき国・地域・都市を発見",
     countries: "国", regions: "地域", cities: "都市",
-    sections: { travala: "TRAVALA", support: "サポート", resources: "リソース" },
+    sections: { travala: "TRAVALA", support: "SUPPORT", resources: "RESOURCES", community: "COMMUNITY" },
     links: {
       priceGuarantee: "価格保証", mobileApp: "モバイルアプリ", businessTravel: "出張旅行",
       helpCenter: "ヘルプセンター", myTrip: "マイトリップ", terms: "利用規約", privacy: "プライバシー", cookies: "Cookieポリシー",

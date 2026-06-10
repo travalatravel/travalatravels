@@ -4,11 +4,13 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import SearchSuggestions from "./SearchSuggestions";
+import MobileSearchOverlay from "./MobileSearchOverlay";
 import type { SearchSuggestion } from "@/lib/travala-suggest";
 import { ASSETS } from "@/data/site-data";
 import { defaultStayDates } from "@/lib/travala-price";
 import FlightSearchForm from "./FlightSearchForm";
 import { useTranslations } from "@/i18n/useTranslations";
+import { LOCALE_BCP47 } from "@/i18n/config";
 import { searchStaysPath } from "@/lib/seo-paths";
 import {
   formatDesktopDate,
@@ -35,7 +37,8 @@ export default function SearchForm({
 }) {
   const router = useRouter();
   const urlParams = useSearchParams();
-  const { messages: m } = useTranslations();
+  const { locale, messages: m, fmt } = useTranslations();
+  const dateLocale = LOCALE_BCP47[locale];
   const defaults = defaultStayDates();
   const [type, setType] = useState(defaultType);
   const [query, setQuery] = useState(defaultQuery);
@@ -65,6 +68,7 @@ export default function SearchForm({
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [suggestLoading, setSuggestLoading] = useState(false);
   const [suggestOpen, setSuggestOpen] = useState(false);
+  const [mobileOverlayOpen, setMobileOverlayOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -105,13 +109,13 @@ export default function SearchForm({
   }, []);
 
   useEffect(() => {
-    if (!suggestOpen) return;
+    if (!suggestOpen && !mobileOverlayOpen) return;
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => void fetchSuggestions(query, type), 200);
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [query, type, suggestOpen, fetchSuggestions]);
+  }, [query, type, suggestOpen, mobileOverlayOpen, fetchSuggestions]);
 
   useEffect(() => {
     setSuggestions([]);
@@ -141,6 +145,7 @@ export default function SearchForm({
     dateParams.set("guests", String(guests + children));
     dateParams.set("rooms", String(rooms));
     setSuggestOpen(false);
+    setMobileOverlayOpen(false);
 
     if (type === "flights") {
       const params = new URLSearchParams({ type });
@@ -183,8 +188,8 @@ export default function SearchForm({
     }
   };
 
-  const checkInFmt = formatDesktopDate(checkIn, m.common.selectDate);
-  const checkOutFmt = formatDesktopDate(checkOut, m.common.selectDate);
+  const checkInFmt = formatDesktopDate(checkIn, m.common.selectDate, dateLocale);
+  const checkOutFmt = formatDesktopDate(checkOut, m.common.selectDate, dateLocale);
 
   const handleTabChange = (tab: string) => {
     setType(tab);
@@ -201,6 +206,16 @@ export default function SearchForm({
     );
   }
 
+  const roomsLabel = (n: number) => (n === 1 ? m.common.room : m.common.rooms);
+  const adultsLabel = (n: number) => (n === 1 ? m.common.adult : m.common.adults);
+  const childrenLabel = (n: number) => (n === 1 ? m.common.child : m.common.children);
+
+  const guestRows = [
+    { key: "rooms" as const, label: m.common.rooms, value: rooms, set: setRooms, min: 1, max: 8 },
+    { key: "adults" as const, label: m.common.adults, value: guests, set: setGuests, min: 1, max: 20 },
+    { key: "children" as const, label: m.common.children, value: children, set: setChildren, min: 0, max: 10 },
+  ];
+
   const dateIcon = (
     <Image src={ASSETS.datepickerIcon} alt="" width={24} height={24} className="shrink-0 opacity-70" unoptimized />
   );
@@ -215,15 +230,26 @@ export default function SearchForm({
         <Image src={ASSETS.userIcon} alt="" width={24} height={24} className="shrink-0" unoptimized />
         <div className="min-w-0">
           <div className="text-sm font-medium text-gray-700 lg:hidden">
-            {rooms} room{rooms !== 1 ? "s" : ""} - {guests} adult{guests !== 1 ? "s" : ""} - {children} child
-            {children !== 1 ? "ren" : ""}
+            {fmt(m.search.staysGuestMobile, {
+              rooms,
+              roomsLabel: roomsLabel(rooms),
+              adults: guests,
+              adultsLabel: adultsLabel(guests),
+              children,
+              childrenLabel: childrenLabel(children),
+            })}
           </div>
           <div className="hidden lg:block">
             <div className="text-sm font-semibold text-[#1a1a1a]">
-              {guests} Adult{guests !== 1 ? "s" : ""} - {children} Child{children !== 1 ? "ren" : ""}
+              {fmt(m.search.staysGuestDesktop, {
+                adults: guests,
+                adultsLabel: adultsLabel(guests),
+                children,
+                childrenLabel: childrenLabel(children),
+              })}
             </div>
             <div className="text-xs text-gray-500">
-              {rooms} room{rooms !== 1 ? "s" : ""}
+              {fmt(m.search.staysRoomsLine, { rooms, roomsLabel: roomsLabel(rooms) })}
             </div>
           </div>
         </div>
@@ -232,23 +258,19 @@ export default function SearchForm({
         <>
           <button
             type="button"
-            aria-label="Close guest selector"
+            aria-label={m.search.closeGuestSelector}
             className="fixed inset-0 z-40 bg-black/30 lg:hidden"
             onClick={() => setRoomOpen(false)}
           />
           <div className="fixed inset-x-4 bottom-4 z-50 max-h-[70vh] overflow-y-auto rounded-2xl border border-gray-200 bg-white p-4 shadow-xl lg:absolute lg:inset-x-auto lg:bottom-auto lg:left-0 lg:top-full lg:mt-2 lg:w-64 lg:max-h-none lg:rounded-lg">
-            {[
-              { label: "Rooms", value: rooms, set: setRooms, max: 8 },
-              { label: "Adults", value: guests, set: setGuests, max: 20 },
-              { label: "Children", value: children, set: setChildren, max: 10 },
-            ].map((row) => (
-              <div key={row.label} className="mb-3 flex items-center justify-between last:mb-0">
+            {guestRows.map((row) => (
+              <div key={row.key} className="mb-3 flex items-center justify-between last:mb-0">
                 <span className="text-sm text-gray-700">{row.label}</span>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     className="flex h-11 w-11 items-center justify-center rounded-lg border border-gray-200 text-lg leading-none lg:h-8 lg:w-8 lg:rounded"
-                    onClick={() => row.set(Math.max(row.label === "Adults" ? 1 : 0, row.value - 1))}
+                    onClick={() => row.set(Math.max(row.min, row.value - 1))}
                   >
                     −
                   </button>
@@ -268,7 +290,7 @@ export default function SearchForm({
               onClick={() => setRoomOpen(false)}
               className="mt-4 w-full rounded-xl bg-[#9eb8f5] py-3 text-sm font-bold uppercase text-[#1E2E5E] lg:hidden"
             >
-              Done
+              {m.common.done}
             </button>
           </div>
         </>
@@ -285,7 +307,17 @@ export default function SearchForm({
           : "w-full flex-1 rounded-xl border border-gray-200 bg-[#eef3f8] px-3 py-2 sm:min-w-[240px] sm:rounded-none sm:border-0 sm:bg-transparent sm:px-0 sm:py-0"
       }`}
     >
-      <div className="flex min-h-[44px] items-center gap-3 lg:min-h-0">
+      <button
+        type="button"
+        onClick={() => setMobileOverlayOpen(true)}
+        className="flex min-h-[44px] w-full items-center gap-3 text-left lg:hidden"
+      >
+        <Image src={ASSETS.searchIcon} alt="" width={22} height={22} className="shrink-0" unoptimized />
+        <span className={`min-w-0 flex-1 truncate text-base font-medium ${query ? "text-[#1a1a1a]" : "text-gray-400"}`}>
+          {query || m.search.placeholders.stays}
+        </span>
+      </button>
+      <div className="hidden min-h-[44px] items-center gap-3 lg:flex lg:min-h-0">
         <Image src={ASSETS.searchIcon} alt="" width={22} height={22} className="shrink-0" unoptimized />
         <input
           ref={inputRef}
@@ -306,14 +338,16 @@ export default function SearchForm({
         />
       </div>
       {suggestOpen && (
-        <SearchSuggestions
-          suggestions={suggestions}
-          loading={suggestLoading}
-          query={query}
-          activeIndex={activeIndex}
-          onSelect={selectSuggestion}
-          onHover={setActiveIndex}
-        />
+        <div className="hidden lg:block">
+          <SearchSuggestions
+            suggestions={suggestions}
+            loading={suggestLoading}
+            query={query}
+            activeIndex={activeIndex}
+            onSelect={selectSuggestion}
+            onHover={setActiveIndex}
+          />
+        </div>
       )}
     </div>
   );
@@ -329,6 +363,7 @@ export default function SearchForm({
           checkOut={checkOut}
           checkInLabel={m.common.checkIn}
           checkOutLabel={m.common.checkOut}
+          locale={dateLocale}
           onCheckInClick={() => checkInRef.current?.showPicker?.() ?? checkInRef.current?.focus()}
           onCheckOutClick={() => checkOutRef.current?.showPicker?.() ?? checkOutRef.current?.focus()}
           checkInInput={
@@ -471,6 +506,17 @@ export default function SearchForm({
           {isHero ? heroContent : compactContent}
         </SearchFormPanel>
       </SearchFormShell>
+      <MobileSearchOverlay
+        open={mobileOverlayOpen}
+        title={m.search.mobileSearch.searchPlaces}
+        placeholder={m.search.placeholders.stays}
+        query={query}
+        onQueryChange={setQuery}
+        suggestions={suggestions}
+        loading={suggestLoading}
+        onSelect={selectSuggestion}
+        onClose={() => setMobileOverlayOpen(false)}
+      />
     </form>
   );
 }

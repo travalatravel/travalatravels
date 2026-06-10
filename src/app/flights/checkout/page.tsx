@@ -66,7 +66,7 @@ function CheckoutContent() {
     title: bundleHotel
       ? `${f.airline} + Hotel · ${route}`
       : `${f.airline} · ${route}`,
-    description: bundleHotel ? "Flight + hotel bundle" : "Live flight booking",
+    description: bundleHotel ? m.common.flightPlusHotelBundle : m.common.liveFlightBooking,
     location: route,
     city: f.from,
     country: f.to,

@@ -8,22 +8,22 @@ export const SEARCH_TABS = [
   { key: "flights", labelKey: "flights" as const, icon: Plane },
 ] as const;
 
-export function formatDesktopDate(iso: string, fallback = "Select date") {
+export function formatDesktopDate(iso: string, fallback = "Select date", locale = "en-GB") {
   if (!iso) return { full: fallback, day: "" };
   const d = new Date(`${iso}T12:00:00`);
   return {
-    full: d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
-    day: d.toLocaleDateString("en-GB", { weekday: "long" }),
+    full: d.toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" }),
+    day: d.toLocaleDateString(locale, { weekday: "long" }),
   };
 }
 
-export function formatMobileDate(iso: string) {
+export function formatMobileDate(iso: string, locale = "en-GB") {
   if (!iso) return { dayNum: "—", weekday: "", month: "" };
   const d = new Date(`${iso}T12:00:00`);
   return {
     dayNum: String(d.getDate()),
-    weekday: d.toLocaleDateString("en-GB", { weekday: "short" }),
-    month: d.toLocaleDateString("en-GB", { month: "short" }),
+    weekday: d.toLocaleDateString(locale, { weekday: "short" }),
+    month: d.toLocaleDateString(locale, { month: "short" }),
   };
 }
 
@@ -198,6 +198,7 @@ export function MobileDateRange({
   onCheckOutClick,
   checkInInput,
   checkOutInput,
+  locale = "en-GB",
 }: {
   checkIn: string;
   checkOut: string;
@@ -207,9 +208,10 @@ export function MobileDateRange({
   onCheckOutClick: () => void;
   checkInInput: React.ReactNode;
   checkOutInput: React.ReactNode;
+  locale?: string;
 }) {
-  const inFmt = formatMobileDate(checkIn);
-  const outFmt = formatMobileDate(checkOut);
+  const inFmt = formatMobileDate(checkIn, locale);
+  const outFmt = formatMobileDate(checkOut, locale);
 
   return (
     <div className="flex overflow-hidden rounded-xl bg-[#eef3f8] lg:hidden">

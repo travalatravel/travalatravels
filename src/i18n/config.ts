@@ -19,6 +19,24 @@ export type Locale = (typeof LOCALES)[number];
 
 export const DEFAULT_LOCALE: Locale = "en";
 
+/** BCP 47 tags for `Intl` date/time formatting */
+export const LOCALE_BCP47: Record<Locale, string> = {
+  en: "en-GB",
+  de: "de-DE",
+  es: "es-ES",
+  fr: "fr-FR",
+  it: "it-IT",
+  pt: "pt-PT",
+  nl: "nl-NL",
+  ja: "ja-JP",
+  zh: "zh-CN",
+  ko: "ko-KR",
+  ru: "ru-RU",
+  pl: "pl-PL",
+  tr: "tr-TR",
+  ar: "ar-SA",
+};
+
 export const LOCALE_COOKIE = "locale";
 
 export type LocaleMeta = {

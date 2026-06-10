@@ -3,6 +3,7 @@
 import { Plane, Building2 } from "lucide-react";
 import { formatUsd } from "@/lib/pricing";
 import type { Booking } from "@/lib/types";
+import { useTranslations } from "@/i18n/useTranslations";
 
 export default function BundlePaymentSummary({
   flightBooking,
@@ -11,12 +12,13 @@ export default function BundlePaymentSummary({
   flightBooking: Booking;
   hotelBooking: Booking;
 }) {
+  const { messages: m } = useTranslations();
   const total = flightBooking.totalPrice + hotelBooking.totalPrice;
 
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div className="border-b border-slate-100 bg-[#1a5f94] px-5 py-4 text-white">
-        <p className="text-xs font-semibold uppercase tracking-wide text-white/70">Flight + Hotel</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-white/70">{m.bundle.flightPlusHotel}</p>
         <p className="mt-1 text-2xl font-bold">{formatUsd(total)}</p>
       </div>
       <div className="space-y-3 p-5 text-sm">
@@ -39,7 +41,7 @@ export default function BundlePaymentSummary({
           <p className="font-semibold text-[#1a1a1a]">{formatUsd(hotelBooking.totalPrice)}</p>
         </div>
         <div className="flex items-center justify-between border-t border-slate-100 pt-3">
-          <span className="font-semibold text-[#1a1a1a]">Total</span>
+          <span className="font-semibold text-[#1a1a1a]">{m.orderSummary.total}</span>
           <span className="text-xl font-bold text-[#1a1a1a]">{formatUsd(total)}</span>
         </div>
       </div>

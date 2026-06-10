@@ -48,7 +48,19 @@ const ar: Partial<Messages> = {
     cabin: { economy: "الدرجة الاقتصادية", premiumEconomy: "اقتصادية مميزة", business: "درجة رجال الأعمال", first: "الدرجة الأولى" },
     flight1: "رحلة 1", flight2: "رحلة 2", from: "من", to: "إلى", flyingFrom: "المغادرة من", flyingTo: "الطيران إلى",
     swapAirports: "تبديل المطارات", cabinClass: "درجة المقصورة",
-  },
+    staysGuestMobile: "{rooms} {roomsLabel} - {adults} {adultsLabel} - {children} {childrenLabel}",
+    staysGuestDesktop: "{adults} {adultsLabel} - {children} {childrenLabel}",
+    staysRoomsLine: "{rooms} {roomsLabel}",
+    passengersLine: "{count} {passengerLabel}",
+    passengersCabinLine: "{count} {passengerLabel}, {cabin}",
+    closeGuestSelector: "Close guest selector",
+    closePassengerSelector: "Close passenger selector",
+    mobileSearch: {
+      searchAirport: "Search Airport",
+      searchPlaces: "Search for Places or Properties",
+      allAirports: "All Airports",
+      clearSearch: "Clear search",
+    },  },
   crypto: {
     subtitle: "حجوزات صديقة للعملات المشفرة", title: "أموالك مرحب بها هنا.",
     body: "نفخر بأننا المنصة السياحية الرائدة للعملات المشفرة. ادفع لرحلاتك في أي مكان بالعالم بأكثر من 100 عملة مشفرة.",
@@ -84,7 +96,7 @@ const ar: Partial<Messages> = {
   footer: {
     exploreHotels: "استكشف أفضل الفنادق في العالم", exploreSubtitle: "اكتشف أفضل الدول والمناطق والمدن للزيارة",
     countries: "الدول", regions: "المناطق", cities: "المدن",
-    sections: { travala: "TRAVALA", support: "الدعم", resources: "الموارد" },
+    sections: { travala: "TRAVALA", support: "SUPPORT", resources: "RESOURCES", community: "COMMUNITY" },
     links: {
       priceGuarantee: "ضمان السعر", mobileApp: "تطبيق الجوال", businessTravel: "سفر الأعمال",
       helpCenter: "مركز المساعدة", myTrip: "رحلتي", terms: "الشروط والأحكام", privacy: "سياسة الخصوصية", cookies: "سياسة ملفات تعريف الارتباط",

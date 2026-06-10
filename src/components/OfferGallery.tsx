@@ -9,6 +9,7 @@ import {
   travalaSlugFromOffer,
 } from "@/lib/travala-image";
 import type { OfferType } from "@/lib/types";
+import { useTranslations } from "@/i18n/useTranslations";
 
 type Props = {
   title: string;
@@ -52,6 +53,7 @@ export default function OfferGallery({
   city,
   country,
 }: Props) {
+  const { messages: m } = useTranslations();
   const [photos, setPhotos] = useState<string[]>([fallbackImage]);
   const [active, setActive] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -90,7 +92,7 @@ export default function OfferGallery({
       <div className="relative aspect-[4/3] max-h-[min(52vw,240px)] w-full min-w-0 overflow-hidden rounded-xl bg-gray-100 sm:max-h-none sm:aspect-[16/10] sm:rounded-2xl md:aspect-[16/9]">
         <Image
           src={current}
-          alt={`${title} — photo ${active + 1}`}
+          alt={`${title} — ${m.common.photo} ${active + 1}`}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 66vw"
           className="object-cover"
@@ -104,7 +106,7 @@ export default function OfferGallery({
               type="button"
               onClick={prev}
               className="absolute left-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur sm:left-3 sm:h-10 sm:w-10"
-              aria-label="Previous photo"
+              aria-label={m.common.previousPhoto}
             >
               <ChevronLeft size={18} className="sm:h-[22px] sm:w-[22px]" />
             </button>
@@ -112,7 +114,7 @@ export default function OfferGallery({
               type="button"
               onClick={next}
               className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur sm:right-3 sm:h-10 sm:w-10"
-              aria-label="Next photo"
+              aria-label={m.common.nextPhoto}
             >
               <ChevronRight size={18} className="sm:h-[22px] sm:w-[22px]" />
             </button>
@@ -143,7 +145,7 @@ export default function OfferGallery({
             >
               <Image
                 src={src}
-                alt={`${title} thumbnail ${i + 1}`}
+                alt={`${title} ${m.common.thumbnail} ${i + 1}`}
                 fill
                 sizes="80px"
                 className="object-cover"

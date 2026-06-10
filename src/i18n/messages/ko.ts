@@ -48,7 +48,19 @@ const ko: Partial<Messages> = {
     cabin: { economy: "이코노미", premiumEconomy: "프리미엄 이코노미", business: "비즈니스", first: "퍼스트 클래스" },
     flight1: "항공 1", flight2: "항공 2", from: "출발", to: "도착", flyingFrom: "출발지", flyingTo: "목적지",
     swapAirports: "공항 바꾸기", cabinClass: "좌석 등급",
-  },
+    staysGuestMobile: "{rooms} {roomsLabel} - {adults} {adultsLabel} - {children} {childrenLabel}",
+    staysGuestDesktop: "{adults} {adultsLabel} - {children} {childrenLabel}",
+    staysRoomsLine: "{rooms} {roomsLabel}",
+    passengersLine: "{count} {passengerLabel}",
+    passengersCabinLine: "{count} {passengerLabel}, {cabin}",
+    closeGuestSelector: "Close guest selector",
+    closePassengerSelector: "Close passenger selector",
+    mobileSearch: {
+      searchAirport: "Search Airport",
+      searchPlaces: "Search for Places or Properties",
+      allAirports: "All Airports",
+      clearSearch: "Clear search",
+    },  },
   crypto: {
     subtitle: "암호화폐 친화적 예약", title: "여기서도 안심하고 결제하세요.",
     body: "암호화폐 기반 여행 플랫폼의 선두주자입니다. 100개 이상의 암호화폐로 전 세계 여행을 간편하게 결제하세요.",
@@ -84,7 +96,7 @@ const ko: Partial<Messages> = {
   footer: {
     exploreHotels: "세계 최고의 호텔 탐색", exploreSubtitle: "방문할 최고의 국가, 지역, 도시를 발견",
     countries: "국가", regions: "지역", cities: "도시",
-    sections: { travala: "TRAVALA", support: "지원", resources: "리소스" },
+    sections: { travala: "TRAVALA", support: "SUPPORT", resources: "RESOURCES", community: "COMMUNITY" },
     links: {
       priceGuarantee: "가격 보장", mobileApp: "모바일 앱", businessTravel: "출장",
       helpCenter: "고객센터", myTrip: "내 여행", terms: "이용약관", privacy: "개인정보", cookies: "쿠키 정책",

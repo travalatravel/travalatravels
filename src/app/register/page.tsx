@@ -7,12 +7,14 @@ import Image from "next/image";
 import { ASSETS } from "@/data/site-data";
 import { useAuth } from "@/context/AuthContext";
 import AuthLayout from "@/components/AuthLayout";
+import { useTranslations } from "@/i18n/useTranslations";
 
 function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/";
   const { register } = useAuth();
+  const { messages: m } = useTranslations();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -38,14 +40,14 @@ function RegisterForm() {
       <div className="w-full rounded-2xl bg-white p-5 shadow-lg sm:p-8">
         <div className="mb-8 text-center">
           <Image src={ASSETS.logoBlack} alt="Travala" width={140} height={36} className="mx-auto" unoptimized />
-          <h1 className="mt-6 text-xl font-bold text-[#1a1a1a]">Create your account</h1>
-          <p className="mt-1 text-sm text-gray-500">Join millions of crypto travelers</p>
+          <h1 className="mt-6 text-xl font-bold text-[#1a1a1a]">{m.auth.createAccount}</h1>
+          <p className="mt-1 text-sm text-gray-500">{m.auth.joinSubtitle}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</p>}
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Full Name</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">{m.auth.name}</label>
             <input
               type="text"
               required
@@ -53,22 +55,22 @@ function RegisterForm() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#2D83C2]"
-              placeholder="John Doe"
+              placeholder={m.auth.namePlaceholder}
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Email</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">{m.auth.email}</label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#2D83C2]"
-              placeholder="your@email.com"
+              placeholder={m.auth.emailPlaceholder}
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Password</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">{m.auth.password}</label>
             <input
               type="password"
               required
@@ -76,7 +78,7 @@ function RegisterForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#2D83C2]"
-              placeholder="Min. 6 characters"
+              placeholder={m.auth.passwordMinPlaceholder}
             />
           </div>
           <button
@@ -84,18 +86,18 @@ function RegisterForm() {
             disabled={loading}
             className="w-full rounded-xl bg-[#2D83C2] py-3 text-sm font-semibold text-[#1a1a1a] hover:bg-[#1a5f94] disabled:opacity-50"
           >
-            {loading ? "Creating account..." : "Register"}
+            {loading ? m.auth.creatingAccount : m.auth.register}
           </button>
         </form>
 
         <p className="mt-6 text-center text-sm text-gray-500">
-          Already have an account?{" "}
+          {m.auth.hasAccount}{" "}
           <Link href={`/login${redirect !== "/" ? `?redirect=${redirect}` : ""}`} className="font-semibold text-[#2D83C2] hover:underline">
-            Log in
+            {m.auth.login}
           </Link>
         </p>
         <Link href="/" className="mt-4 block text-center text-sm text-gray-400 hover:text-gray-600">
-          ← Back to home
+          {m.auth.backToHome}
         </Link>
       </div>
       </div>
@@ -104,8 +106,10 @@ function RegisterForm() {
 }
 
 export default function RegisterPage() {
+  const { messages: m } = useTranslations();
+
   return (
-    <Suspense fallback={<AuthLayout><div className="py-20 text-center">Loading...</div></AuthLayout>}>
+    <Suspense fallback={<AuthLayout><div className="py-20 text-center">{m.common.loading}</div></AuthLayout>}>
       <RegisterForm />
     </Suspense>
   );

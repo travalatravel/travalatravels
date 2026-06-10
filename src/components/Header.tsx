@@ -15,33 +15,36 @@ const NAV_HREFS = [
 ];
 
 function Logo({ variant }: { variant: "home" | "default" }) {
-  const [imgError, setImgError] = useState(false);
+  const [mobileError, setMobileError] = useState(false);
+  const [desktopError, setDesktopError] = useState(false);
   const isHome = variant === "home";
 
-  if (imgError) {
-    return (
-      <Image
-        src={ASSETS.logoMint}
-        alt="Travala"
-        width={120}
-        height={32}
-        className="h-7 w-auto"
-        unoptimized
-      />
-    );
-  }
+  const mobileSrc = mobileError ? ASSETS.logoMint : ASSETS.logoWhite;
+  const desktopSrc = desktopError ? ASSETS.logoMint : isHome ? ASSETS.logoBlack : ASSETS.logoWhite;
 
   return (
-    <Image
-      src={isHome ? ASSETS.logoBlack : ASSETS.logoWhite}
-      alt="Travala"
-      width={186}
-      height={40}
-      className="h-6 w-auto sm:h-7 lg:h-7"
-      priority
-      onError={() => setImgError(true)}
-      unoptimized
-    />
+    <>
+      <Image
+        src={mobileSrc}
+        alt="Travala"
+        width={120}
+        height={28}
+        className="h-5 w-auto lg:hidden"
+        priority
+        onError={() => setMobileError(true)}
+        unoptimized
+      />
+      <Image
+        src={desktopSrc}
+        alt="Travala"
+        width={186}
+        height={40}
+        className="hidden h-7 w-auto lg:block"
+        priority
+        onError={() => setDesktopError(true)}
+        unoptimized
+      />
+    </>
   );
 }
 
@@ -59,20 +62,20 @@ export default function Header({ variant = "default" }: { variant?: "home" | "de
   }, [menuOpen]);
 
   const shellCls = isHome
-    ? "sticky top-0 z-50 w-full bg-white shadow-sm lg:mx-8 lg:rounded-b-xl"
-    : "sticky top-0 z-50 w-full bg-[#1a5f94] shadow-lg";
+    ? "sticky top-0 z-50 w-full bg-[#250834] shadow-sm lg:mx-8 lg:rounded-b-xl lg:bg-white"
+    : "sticky top-0 z-50 w-full bg-[#250834] shadow-lg lg:bg-[#1a5f94]";
 
   const navLinkCls = isHome
     ? "rounded-full border border-gray-300 px-2.5 py-1 text-[13px] font-semibold text-[#220a32] transition hover:border-[#2D83C2]"
     : "rounded-md px-2.5 py-1 text-xs font-medium text-white transition hover:bg-white/15";
 
   const utilBtnCls = isHome
-    ? "rounded-md px-2 py-1 text-xs font-semibold text-[#220a32] hover:bg-gray-100"
-    : "rounded-md px-2 py-1 text-xs font-semibold text-white hover:bg-white/15";
+    ? "rounded-md px-1.5 py-0.5 text-[10px] font-semibold text-white hover:bg-white/15 sm:px-2 sm:py-1 sm:text-xs lg:text-[#220a32] lg:hover:bg-gray-100"
+    : "rounded-md px-1.5 py-0.5 text-[10px] font-semibold text-white hover:bg-white/15 sm:px-2 sm:py-1 sm:text-xs";
 
   const registerCls = isHome
-    ? "rounded-md border border-[#2D83C2] bg-[#2D83C2] px-2.5 py-1 text-xs font-semibold text-white hover:bg-[#1a5f94]"
-    : "rounded-md border border-white/30 bg-white px-2.5 py-1 text-xs font-semibold text-[#2D83C2] hover:bg-white/90";
+    ? "rounded-md border border-[#2D83C2] bg-[#2D83C2] px-1.5 py-0.5 text-[10px] font-semibold text-white hover:bg-[#1a5f94] sm:px-2.5 sm:py-1 sm:text-xs"
+    : "rounded-md border border-white/30 bg-white px-1.5 py-0.5 text-[10px] font-semibold text-[#2D83C2] hover:bg-white/90 sm:px-2.5 sm:py-1 sm:text-xs";
 
   return (
     <header className={shellCls}>
@@ -105,7 +108,7 @@ export default function Header({ variant = "default" }: { variant?: "home" | "de
           </div>
 
           {loading ? (
-            <div className={`h-7 w-16 animate-pulse rounded-md ${isHome ? "bg-gray-200" : "bg-white/20"}`} />
+            <div className={`h-6 w-14 animate-pulse rounded-md sm:h-7 sm:w-16 ${isHome ? "bg-white/20 lg:bg-gray-200" : "bg-white/20"}`} />
           ) : user ? (
             <div className="hidden items-center gap-1 sm:flex">
               <Link href="/my-trips" className={`flex items-center gap-1 ${utilBtnCls}`}>
@@ -117,21 +120,28 @@ export default function Header({ variant = "default" }: { variant?: "home" | "de
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-1.5">
-              <Link href="/login" className={`${utilBtnCls} whitespace-nowrap`}>
-                {m.auth.login}
-              </Link>
-              <Link href="/register" className={`${registerCls} whitespace-nowrap`}>
-                {m.auth.register}
-              </Link>
-            </div>
+            <>
+              <div className="flex items-center md:hidden">
+                <Link href="/login" className={`${utilBtnCls} whitespace-nowrap`}>
+                  {m.auth.login}
+                </Link>
+              </div>
+              <div className="hidden items-center gap-1.5 md:flex">
+                <Link href="/login" className={`${utilBtnCls} whitespace-nowrap`}>
+                  {m.auth.login}
+                </Link>
+                <Link href="/register" className={`${registerCls} whitespace-nowrap`}>
+                  {m.auth.register}
+                </Link>
+              </div>
+            </>
           )}
 
           <div className="flex items-center gap-1 md:hidden">
             <LanguageSwitcher variant={variant} compact />
             <button
               type="button"
-              className={`flex-shrink-0 rounded-md p-1 ${isHome ? "text-[#220a32] hover:bg-gray-100" : "text-white hover:bg-white/15"}`}
+              className={`flex-shrink-0 rounded-md p-1 text-white hover:bg-white/15 ${isHome ? "lg:text-[#220a32] lg:hover:bg-gray-100" : ""}`}
               onClick={() => setMenuOpen(!menuOpen)}
               aria-label={menuOpen ? m.common.closeMenu : m.common.openMenu}
             >
@@ -142,16 +152,12 @@ export default function Header({ variant = "default" }: { variant?: "home" | "de
       </div>
 
       {menuOpen && (
-        <div
-          className={`max-h-[calc(100dvh-3rem)] overflow-y-auto border-t px-3 py-3 shadow-lg md:hidden ${
-            isHome ? "border-gray-200 bg-white" : "border-white/10 bg-[#1a5f94]"
-          }`}
-        >
+        <div className="max-h-[calc(100dvh-3rem)] overflow-y-auto border-t border-white/10 bg-[#250834] px-3 py-3 shadow-lg md:hidden">
           {NAV_HREFS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className={`block border-b py-3 ${isHome ? "border-gray-100 text-[#220a32]" : "border-white/5 text-white"}`}
+              className="block border-b border-white/5 py-3 text-white"
               onClick={() => setMenuOpen(false)}
             >
               {m.nav[link.key]}
@@ -159,10 +165,10 @@ export default function Header({ variant = "default" }: { variant?: "home" | "de
           ))}
 
           {user ? (
-            <div className={`mt-3 border-t pt-3 ${isHome ? "border-gray-200" : "border-white/10"}`}>
+            <div className="mt-3 border-t border-white/10 pt-3">
               <Link
                 href="/my-trips"
-                className={`block py-2 ${isHome ? "text-[#220a32]" : "text-white"}`}
+                className="block py-2 text-white"
                 onClick={() => setMenuOpen(false)}
               >
                 {m.auth.myTrips} ({user.name})
@@ -173,25 +179,23 @@ export default function Header({ variant = "default" }: { variant?: "home" | "de
                   logout();
                   setMenuOpen(false);
                 }}
-                className={isHome ? "text-gray-500" : "text-white/70"}
+                className="text-white/70"
               >
                 {m.auth.logout}
               </button>
             </div>
           ) : (
-            <div className={`mt-3 flex gap-2 border-t pt-3 ${isHome ? "border-gray-200" : "border-white/10"}`}>
+            <div className="mt-3 flex gap-2 border-t border-white/10 pt-3">
               <Link
                 href="/login"
-                className={`flex-1 rounded-lg border py-2 text-center text-sm ${
-                  isHome ? "border-gray-300 text-[#220a32]" : "border-white/30 text-white"
-                }`}
+                className="flex-1 rounded-lg border border-white/30 py-1.5 text-center text-xs text-white"
                 onClick={() => setMenuOpen(false)}
               >
                 {m.auth.login}
               </Link>
               <Link
                 href="/register"
-                className="flex-1 rounded-lg bg-[#2D83C2] py-2 text-center text-sm font-semibold text-white"
+                className="flex-1 rounded-lg bg-[#2D83C2] py-1.5 text-center text-xs font-semibold text-white"
                 onClick={() => setMenuOpen(false)}
               >
                 {m.auth.register}

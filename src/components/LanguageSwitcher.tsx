@@ -47,8 +47,8 @@ export default function LanguageSwitcher({
   };
 
   const btnCls = isHome
-    ? "rounded-md px-2 py-1 text-xs font-semibold text-[#220a32] hover:bg-gray-100"
-    : "rounded-md px-2 py-1 text-xs text-white hover:bg-white/15";
+    ? "rounded-md px-1.5 py-0.5 text-[10px] font-semibold text-white hover:bg-white/15 sm:px-2 sm:py-1 sm:text-xs lg:text-[#220a32] lg:hover:bg-gray-100"
+    : "rounded-md px-1.5 py-0.5 text-[10px] text-white hover:bg-white/15 sm:px-2 sm:py-1 sm:text-xs";
 
   return (
     <div ref={ref} className="relative">

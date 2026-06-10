@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import type { Booking } from "@/lib/types";
 import { PAYMENT_STATUS_COLORS } from "@/lib/types";
-import { GATEWAY_NAME } from "@/lib/payments";
 import { useTranslations } from "@/i18n/useTranslations";
 import type { CryptoQuote } from "@/lib/crypto-rates";
 import CoinIcon, { type CoinId } from "@/components/CoinIcon";
@@ -151,8 +150,8 @@ export default function CryptoGatewayPanel({
     return (
       <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-center">
         <AlertCircle className="mx-auto text-amber-600" size={28} />
-        <p className="mt-3 font-semibold text-amber-900">Payment wallet not configured</p>
-        <p className="mt-1 text-sm text-amber-700">Please contact support to complete this booking.</p>
+        <p className="mt-3 font-semibold text-amber-900">{p.walletNotConfigured}</p>
+        <p className="mt-1 text-sm text-amber-700">{p.contactSupport}</p>
       </div>
     );
   }
@@ -242,7 +241,7 @@ export default function CryptoGatewayPanel({
             <div className="flex items-center gap-2 text-slate-500">
               <Lock size={14} />
               <span className="text-xs font-medium uppercase tracking-wider">
-                {GATEWAY_NAME}
+                {m.common.gatewayName}
               </span>
             </div>
             <h2 className="mt-1 text-xl font-semibold tracking-tight text-slate-900">

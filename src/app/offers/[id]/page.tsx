@@ -15,19 +15,21 @@ import SiteChrome from "@/components/SiteChrome";
 import PriceDisplay from "@/components/PriceDisplay";
 import { useAuth } from "@/context/AuthContext";
 import type { Offer } from "@/lib/types";
-import { TYPE_LABELS } from "@/lib/types";
+import { offerTypeLabel } from "@/i18n/display-labels";
 import type { LivePriceResult } from "@/lib/travala-price";
 import { defaultStayDates } from "@/lib/travala-price";
-import { CRYPTO_PAYMENT_METHODS, GATEWAY_NAME } from "@/lib/payments";
+import { CRYPTO_PAYMENT_METHODS } from "@/lib/payments";
 import CryptoMethodPicker from "@/components/CryptoMethodPicker";
 import { applySalePrice, getOfferPricing, formatUsd } from "@/lib/pricing";
 import { Tag } from "lucide-react";
+import { useTranslations } from "@/i18n/useTranslations";
 
 function OfferDetailContent() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuth();
+  const { messages: m, fmt } = useTranslations();
   const [offer, setOffer] = useState<Offer | null>(null);
   const [loading, setLoading] = useState(true);
   const [checkIn, setCheckIn] = useState("");
@@ -134,11 +136,11 @@ function OfferDetailContent() {
       return;
     }
     if (!checkIn || !checkOut) {
-      setError("Please select check-in and check-out dates.");
+      setError(m.offerPage.selectDates);
       return;
     }
     if (offer.type === "HOTEL" && !selectedRoom) {
-      setError("Please select a room type from the list below.");
+      setError(m.offerPage.selectRoomType);
       return;
     }
     const params = new URLSearchParams({
@@ -178,8 +180,8 @@ function OfferDetailContent() {
   if (!offer) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4">
-        <p className="text-gray-500">Offer not found</p>
-        <Link href="/search" className="text-[#2D83C2] hover:underline">Back to search</Link>
+        <p className="text-gray-500">{m.offerPage.offerNotFound}</p>
+        <Link href="/search" className="text-[#2D83C2] hover:underline">{m.checkout.backToSearch}</Link>
       </div>
     );
   }
@@ -193,7 +195,7 @@ function OfferDetailContent() {
       <div className="w-full min-w-0 overflow-x-hidden">
       <main className="mx-auto w-full min-w-0 max-w-6xl px-3 py-6 pb-28 sm:px-4 sm:py-8 lg:px-6 lg:pb-8">
         <Link href="/search" className="mb-4 inline-flex items-center gap-1 text-sm text-[#2D83C2] hover:underline sm:mb-6">
-          <ArrowLeft size={16} /> Back to search
+          <ArrowLeft size={16} /> {m.checkout.backToSearch}
         </Link>
 
         <div className="grid w-full min-w-0 grid-cols-1 gap-5 lg:grid-cols-3 lg:gap-8">
@@ -208,14 +210,14 @@ function OfferDetailContent() {
             />
             <div className="mt-4 min-w-0 sm:mt-6">
               <span className="rounded-full bg-[#2D83C2]/10 px-3 py-1 text-xs font-semibold text-[#2D83C2]">
-                {TYPE_LABELS[offer.type]}
+                {offerTypeLabel(m, offer.type)}
               </span>
               <h1 className="mt-3 break-words text-lg font-bold text-[#1a1a1a] sm:text-2xl md:text-3xl">
                 {isFlight && flightMeta?.airline ? `${flightMeta.airline} · ${flightMeta.from} → ${flightMeta.to}` : offer.title}
               </h1>
               <div className="mt-2 flex min-w-0 items-start gap-1 text-sm text-gray-500">
                 {isFlight ? <Plane size={16} className="mt-0.5 flex-shrink-0" /> : <MapPin size={16} className="mt-0.5 flex-shrink-0" />}
-                <span className="break-words">{isFlight ? `${flightMeta?.from || offer.city} to ${flightMeta?.to || offer.country}` : offer.location}</span>
+                <span className="break-words">{isFlight ? `${flightMeta?.from || offer.city} ${m.common.routeTo} ${flightMeta?.to || offer.country}` : offer.location}</span>
               </div>
               {offer.stars && !isFlight && (
                 <div className="mt-2 flex gap-0.5">
@@ -255,14 +257,14 @@ function OfferDetailContent() {
                 <div className="flex items-center gap-2 bg-[#2D83C2] px-3 py-2.5 text-white sm:px-4">
                   <Tag size={14} className="flex-shrink-0" />
                   <span className="text-xs font-semibold sm:text-sm">
-                    Save {pricing.discountPct}% — Best price guarantee
+                    {fmt(m.common.savePctGuarantee, { pct: pricing.discountPct })}
                   </span>
                 </div>
               )}
               <div className="min-w-0 p-3 sm:p-6">
               {livePrice?.source === "travala" && (
                 <span className="mb-2 inline-block rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
-                  Live rate · locked for 15 min
+                  {m.offerPage.liveRateLocked}
                 </span>
               )}
               <div className={priceLoading ? "opacity-50" : ""}>
@@ -279,7 +281,7 @@ function OfferDetailContent() {
               </div>
               {selectedRoom ? (
                 <div className="mt-3 min-w-0 rounded-xl border border-[#2D83C2]/20 bg-blue-50/50 p-3">
-                  <p className="text-[11px] font-semibold uppercase tracking-wide text-[#2D83C2]">Selected room</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-[#2D83C2]">{m.offerPage.selectedRoom}</p>
                   <p className="mt-1 break-words text-sm font-semibold text-[#1a1a1a]">{selectedRoom.packageName}</p>
                   {selectedRoom.bedDescription && (
                     <p className="text-xs text-gray-500">{selectedRoom.bedDescription}</p>
@@ -287,37 +289,41 @@ function OfferDetailContent() {
                   {selectedRoom.mealType && (
                     <p className="mt-1 text-xs text-gray-500">
                       {selectedRoom.mealType}
-                      {selectedRoom.refundable ? " · Refundable" : " · Non-refundable"}
+                      {selectedRoom.refundable ? m.offerPage.refundableSuffix : m.offerPage.nonRefundableSuffix}
                     </p>
                   )}
                 </div>
               ) : (
                 offer.type === "HOTEL" && (
-                  <p className="mt-2 text-xs text-[#2D83C2]">Select a room type below to see your rate.</p>
+                  <p className="mt-2 text-xs text-[#2D83C2]">{m.offerPage.selectRoomBelow}</p>
                 )
               )}
               {!selectedRoom && livePrice?.mealType && (
-                <p className="mt-1 text-xs text-gray-500">{livePrice.mealType}{livePrice.refundable ? " · Refundable" : ""}</p>
+                <p className="mt-1 text-xs text-gray-500">{livePrice.mealType}{livePrice.refundable ? m.offerPage.refundableSuffix : ""}</p>
               )}
 
               <div className="mt-4 min-w-0 space-y-3 sm:mt-5">
                 {isFlight && (
                   <div className="rounded-xl border border-[#2D83C2]/15 bg-blue-50/40 p-3 text-sm">
-                    <p className="font-semibold text-[#1a1a1a]">{CABIN_LABELS[cabin]}</p>
+                    <p className="font-semibold text-[#1a1a1a]">{m.search.cabin[cabin === "premium_economy" ? "premiumEconomy" : cabin as "economy" | "business" | "first"]}</p>
                     <p className="text-xs text-gray-500">
-                      {flightPax} passenger{flightPax !== 1 ? "s" : ""} · {trip === "roundtrip" ? "Round trip" : trip === "oneway" ? "One way" : "Multi-city"}
+                      {fmt(m.search.passengersLine, {
+                        count: flightPax,
+                        passengerLabel: flightPax === 1 ? m.common.passenger : m.common.passengers,
+                      })}{" "}
+                      · {m.search.tripTypes[trip === "multicity" ? "multicity" : trip]}
                     </p>
                   </div>
                 )}
                 {(offer.type === "HOTEL" || offer.type === "CAR_RENTAL") && (
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <div className="min-w-0">
-                      <label className="text-xs font-medium text-gray-500">Check-in</label>
+                      <label className="text-xs font-medium text-gray-500">{m.common.checkIn}</label>
                       <input type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)}
                         className="mt-1 w-full min-w-0 max-w-full rounded-xl border border-gray-200 px-2 py-2 text-sm outline-none focus:border-[#2D83C2] sm:px-3 sm:py-2.5" />
                     </div>
                     <div className="min-w-0">
-                      <label className="text-xs font-medium text-gray-500">Check-out</label>
+                      <label className="text-xs font-medium text-gray-500">{m.common.checkOut}</label>
                       <input type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)}
                         className="mt-1 w-full min-w-0 max-w-full rounded-xl border border-gray-200 px-2 py-2 text-sm outline-none focus:border-[#2D83C2] sm:px-3 sm:py-2.5" />
                     </div>
@@ -326,13 +332,13 @@ function OfferDetailContent() {
                 {isFlight && (
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <div className="min-w-0">
-                      <label className="text-xs font-medium text-gray-500">Depart</label>
+                      <label className="text-xs font-medium text-gray-500">{m.common.depart}</label>
                       <input type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)}
                         className="mt-1 w-full min-w-0 max-w-full rounded-xl border border-gray-200 px-2 py-2 text-sm outline-none focus:border-[#2D83C2] sm:px-3 sm:py-2.5" />
                     </div>
                     {trip === "roundtrip" && (
                       <div className="min-w-0">
-                        <label className="text-xs font-medium text-gray-500">Return</label>
+                        <label className="text-xs font-medium text-gray-500">{m.common.return}</label>
                         <input type="date" value={checkOut} min={checkIn} onChange={(e) => setCheckOut(e.target.value)}
                           className="mt-1 w-full min-w-0 max-w-full rounded-xl border border-gray-200 px-2 py-2 text-sm outline-none focus:border-[#2D83C2] sm:px-3 sm:py-2.5" />
                       </div>
@@ -341,22 +347,22 @@ function OfferDetailContent() {
                 )}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="min-w-0">
-                    <label className="text-xs font-medium text-gray-500">{isFlight ? "Passengers" : "Guests"}</label>
+                    <label className="text-xs font-medium text-gray-500">{isFlight ? m.common.passengers : m.common.guests}</label>
                     <input type="number" min={1} max={20} value={isFlight ? flightPax : guests} disabled={isFlight}
                       onChange={(e) => setGuests(+e.target.value)}
                       className="mt-1 w-full min-w-0 rounded-xl border border-gray-200 px-2 py-2 text-sm outline-none focus:border-[#2D83C2] disabled:bg-gray-50 sm:px-3 sm:py-2.5" />
                   </div>
                   {offer.type === "HOTEL" && (
                     <div className="min-w-0">
-                      <label className="text-xs font-medium text-gray-500">Rooms</label>
+                      <label className="text-xs font-medium text-gray-500">{m.common.rooms}</label>
                       <input type="number" min={1} max={10} value={rooms} onChange={(e) => setRooms(+e.target.value)}
                         className="mt-1 w-full min-w-0 rounded-xl border border-gray-200 px-2 py-2 text-sm outline-none focus:border-[#2D83C2] sm:px-3 sm:py-2.5" />
                     </div>
                   )}
                 </div>
                 <div className="min-w-0">
-                  <label className="text-xs font-medium text-gray-500">Payment method</label>
-                  <p className="mt-0.5 mb-2 break-words text-[11px] text-gray-400">{GATEWAY_NAME}</p>
+                  <label className="text-xs font-medium text-gray-500">{m.common.paymentMethod}</label>
+                  <p className="mt-0.5 mb-2 break-words text-[11px] text-gray-400">{m.common.gatewayName}</p>
                   <CryptoMethodPicker value={paymentMethod} onChange={setPaymentMethod} />
                 </div>
               </div>
@@ -364,7 +370,13 @@ function OfferDetailContent() {
               <div className="mt-4 min-w-0 rounded-xl border border-[#2D83C2]/15 bg-[#2D83C2]/5 p-3 sm:mt-5">
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                   <span className="text-sm font-semibold text-[#1a1a1a] sm:text-base">
-                    Your price{livePrice?.nights ? ` · ${livePrice.nights} nights` : isFlight ? ` · ${flightPax} pax` : ""}
+                    {m.offerPage.yourPrice}
+                    {livePrice?.nights || isFlight
+                      ? fmt(m.offerPage.nightsAndPax, {
+                          nights: livePrice?.nights ?? 0,
+                          pax: isFlight ? flightPax : guests,
+                        })
+                      : ""}
                   </span>
                   <span className={`text-xl font-bold text-[#1a1a1a] sm:text-2xl ${priceLoading ? "opacity-50" : ""}`}>
                     {priceLoading ? "…" : formatUsd(calcTotal())}
@@ -372,7 +384,10 @@ function OfferDetailContent() {
                 </div>
                 {totalPricing && totalPricing.savings > 0 && (
                   <p className="mt-1 break-words text-xs text-[#2D83C2]">
-                    You save {formatUsd(totalPricing.savings)} (was {formatUsd(calcBaseTotal())})
+                    {fmt(m.offerPage.wasSaving, {
+                      save: formatUsd(totalPricing.savings),
+                      was: formatUsd(calcBaseTotal()),
+                    })}
                   </p>
                 )}
               </div>
@@ -383,19 +398,19 @@ function OfferDetailContent() {
                 onClick={handleContinue}
                 className="mt-4 hidden w-full rounded-xl bg-[#2D83C2] py-3.5 text-sm font-bold text-white shadow-lg transition hover:bg-[#1a5f94] sm:block sm:py-4"
               >
-                {user ? (isFlight ? "Continue — passenger details →" : "Continue — enter guest details →") : "Log in to book"}
+                {user ? (isFlight ? m.common.continuePassengers : m.offerPage.continueGuestDetails) : m.auth.logInToBook}
               </button>
               <p className="mt-2 text-center text-[10px] text-gray-400">
-                {isFlight ? "Fare rules apply · Price held for 15 minutes" : "Free cancellation on select rates · Price held for 15 minutes"}
+                {isFlight ? m.common.fareRules : m.offerPage.freeCancellationHint}
               </p>
               </div>
 
               {!user && (
                 <p className="mt-2 text-center text-xs text-gray-400">
                   <Link href={`/register?redirect=/offers/${id}`} className="text-[#2D83C2] hover:underline">
-                    Create an account
+                    {m.offerPage.createAccountToBook}
                   </Link>{" "}
-                  to book
+                  {m.offerPage.toBook}
                 </p>
               )}
             </div>
@@ -407,7 +422,7 @@ function OfferDetailContent() {
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-3 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] backdrop-blur pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden">
         <div className="mx-auto flex w-full min-w-0 max-w-6xl items-center gap-2 sm:gap-3">
           <div className="min-w-0 flex-1">
-            <p className="truncate text-xs text-gray-500">Your price</p>
+            <p className="truncate text-xs text-gray-500">{m.offerPage.yourPrice}</p>
             <p className="text-lg font-bold text-[#1a1a1a]">
               {priceLoading ? "…" : formatUsd(calcTotal())}
             </p>
@@ -416,7 +431,7 @@ function OfferDetailContent() {
             onClick={handleContinue}
             className="flex-shrink-0 rounded-xl bg-[#2D83C2] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#1a5f94] sm:px-5 sm:py-3"
           >
-            {user ? "Book →" : "Log in"}
+            {user ? m.offerPage.bookArrow : m.auth.signIn}
           </button>
         </div>
       </div>
