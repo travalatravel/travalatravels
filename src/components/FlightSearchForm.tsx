@@ -277,6 +277,7 @@ export default function FlightSearchForm({
     });
     setActiveField(null);
     clearOutboundToken();
+    clearOfferToken();
     router.push(`/search?${params.toString()}`);
   };
 

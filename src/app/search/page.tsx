@@ -41,7 +41,7 @@ function FlightSearchResults() {
   const dateLocale = LOCALE_BCP47[locale];
   const searchParams = useSearchParams();
   const [liveFlights, setLiveFlights] = useState<LiveFlightOffer[]>([]);
-  const [flightSource, setFlightSource] = useState<"sky-scrapper" | "market" | null>(null);
+  const [flightSource, setFlightSource] = useState<"sky-scrapper" | null>(null);
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState<SortOption>("recommended");
   const [flightError, setFlightError] = useState("");
@@ -162,23 +162,12 @@ function FlightSearchResults() {
 
     const controller = new AbortController();
 
-    fetch(`/api/flights/search?${params}&prefer=market`, { signal: controller.signal })
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.flights?.length) {
-          setLiveFlights(data.flights);
-          setFlightSource("market");
-          setLoading(false);
-        }
-      })
-      .catch(() => {});
-
     fetch(`/api/flights/search?${params}`, { signal: controller.signal })
       .then((r) => r.json())
       .then((data) => {
         if (data.error) setFlightError(data.error);
         setLiveFlights(data.flights || []);
-        setFlightSource(data.source || null);
+        setFlightSource(data.source === "sky-scrapper" ? "sky-scrapper" : null);
       })
       .catch(() => {
         if (!controller.signal.aborted) {
@@ -258,11 +247,6 @@ function FlightSearchResults() {
                 {flightSource === "sky-scrapper" && (
                   <span className="ml-2 rounded bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-800">
                     {m.common.liveRatesOff}
-                  </span>
-                )}
-                {flightSource === "market" && (
-                  <span className="ml-2 rounded bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800">
-                    {m.common.estimatedRates}
                   </span>
                 )}
               </p>

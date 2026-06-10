@@ -8,7 +8,7 @@ type SkyRecord = Record<string, unknown>;
 const airportCache = new Map<string, AirportRef>();
 
 /** Well-known Skyscanner IDs — avoids extra searchAirport requests */
-const KNOWN_AIRPORTS: Record<string, AirportRef> = {
+export const KNOWN_AIRPORTS: Record<string, AirportRef> = {
   LON: { skyId: "LOND", entityId: "27544008" },
   PAR: { skyId: "PARI", entityId: "27539733" },
   NYC: { skyId: "NYCA", entityId: "27537542" },

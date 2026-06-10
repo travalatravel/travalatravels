@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { resolveIataCode } from "@/lib/iata-codes";
-import { generateMarketFlights } from "@/lib/flight-market-engine";
+import { KNOWN_AIRPORTS } from "@/lib/sky-scrapper-airports";
 import { searchSkyScrapperFlights, skyScrapperConfigured } from "@/lib/sky-scrapper-flights";
 import type { CabinClass, TripType } from "@/lib/flight-types";
 import type { LiveFlightOffer } from "@/lib/live-flight-types";
@@ -30,8 +30,6 @@ export async function GET(request: Request) {
   const infants = Math.max(0, parseInt(searchParams.get("infants") || "0", 10));
   const sort = searchParams.get("sort") || "price-asc";
   const leg = searchParams.get("leg") || "";
-  const prefer = searchParams.get("prefer") || "";
-
   const fromCode = resolveIataCode(from, fromCodeHint);
   const toCode = resolveIataCode(to, toCodeHint);
 
@@ -88,27 +86,8 @@ export async function GET(request: Request) {
     };
   }
 
-  if (prefer === "market") {
-    const flights = generateMarketFlights(searchInput);
-    if (sort === "price-desc") {
-      flights.sort((a, b) => b.salePrice - a.salePrice);
-    } else {
-      flights.sort((a, b) => a.salePrice - b.salePrice);
-    }
-    return NextResponse.json({
-      flights,
-      total: flights.length,
-      source: "market",
-      liveConfigured: skyScrapperConfigured(),
-      fromCode,
-      toCode,
-      leg: leg || null,
-      discountPct: 30,
-    });
-  }
-
   let flights: LiveFlightOffer[] = [];
-  let source: "sky-scrapper" | "market" = "market";
+  let source: "sky-scrapper" | "none" = "none";
 
   if (skyScrapperConfigured()) {
     const live = await searchSkyScrapperFlights(searchInput);
@@ -119,8 +98,19 @@ export async function GET(request: Request) {
   }
 
   if (!flights.length) {
-    flights = generateMarketFlights(searchInput);
-    source = "market";
+    return NextResponse.json({
+      error: skyScrapperConfigured()
+        ? "No live flights found for this route. Try different airports or dates."
+        : "Live flight search is not configured.",
+      flights: [],
+      total: 0,
+      source: "none",
+      liveConfigured: skyScrapperConfigured(),
+      fromCode,
+      toCode,
+      leg: leg || null,
+      discountPct: 30,
+    });
   }
 
   if (sort === "price-desc") {

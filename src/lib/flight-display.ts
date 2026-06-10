@@ -1,4 +1,10 @@
 import type { CabinClass, FlightMetadata, FlightSearchParams, TripType } from "./flight-types";
+import { KNOWN_AIRPORTS } from "./sky-scrapper-airports";
+
+function knownSkyIds(code?: string) {
+  if (!code) return undefined;
+  return KNOWN_AIRPORTS[code.trim().toUpperCase()];
+}
 
 const CABIN_MULTIPLIER: Record<CabinClass, number> = {
   economy: 1,
@@ -76,15 +82,22 @@ export function matchesFlightRoute(
 }
 
 export function buildFlightSearchQuery(params: FlightSearchParams): URLSearchParams {
+  const fromKnown = knownSkyIds(params.fromCode);
+  const toKnown = knownSkyIds(params.toCode);
+  const fromSkyId = params.fromSkyId || fromKnown?.skyId;
+  const fromEntityId = params.fromEntityId || fromKnown?.entityId;
+  const toSkyId = params.toSkyId || toKnown?.skyId;
+  const toEntityId = params.toEntityId || toKnown?.entityId;
+
   const sp = new URLSearchParams({ type: "flights" });
   if (params.from) sp.set("from", params.from);
   if (params.to) sp.set("to", params.to);
   if (params.fromCode) sp.set("fromCode", params.fromCode);
   if (params.toCode) sp.set("toCode", params.toCode);
-  if (params.fromSkyId) sp.set("fromSkyId", params.fromSkyId);
-  if (params.fromEntityId) sp.set("fromEntityId", params.fromEntityId);
-  if (params.toSkyId) sp.set("toSkyId", params.toSkyId);
-  if (params.toEntityId) sp.set("toEntityId", params.toEntityId);
+  if (fromSkyId) sp.set("fromSkyId", fromSkyId);
+  if (fromEntityId) sp.set("fromEntityId", fromEntityId);
+  if (toSkyId) sp.set("toSkyId", toSkyId);
+  if (toEntityId) sp.set("toEntityId", toEntityId);
   sp.set("depart", params.depart);
   if (params.return && params.trip === "roundtrip") sp.set("return", params.return);
   sp.set("trip", params.trip);

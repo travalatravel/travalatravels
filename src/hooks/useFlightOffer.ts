@@ -20,7 +20,7 @@ export function useFlightOffer(searchParams: ReadonlyURLSearchParams) {
     if (resolvedToken) {
       const decoded = decodeFlightToken(resolvedToken);
       setFlight(decoded ? normalizeFlightPayload(decoded) : null);
-      setToken(tokenParam);
+      setToken(resolvedToken);
       setError(decoded ? "" : "Invalid flight token");
       setLoading(false);
       return;

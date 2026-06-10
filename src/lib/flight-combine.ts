@@ -1,5 +1,23 @@
 import { decodeFlightToken, encodeFlightToken, type FlightTokenPayload } from "./flight-token";
-import type { FlightLeg, LiveFlightOffer } from "./live-flight-types";
+import type { FlightLeg, LiveFlightOffer, LiveFlightSegment } from "./live-flight-types";
+
+function slimSegments(offer: LiveFlightOffer): LiveFlightSegment[] {
+  const first = offer.segments?.[0];
+  if (first) return [first];
+  return [
+    {
+      airline: offer.airline,
+      airlineCode: offer.airlineCode,
+      from: offer.from,
+      fromCode: offer.fromCode,
+      to: offer.to,
+      toCode: offer.toCode,
+      departAt: offer.departAt,
+      arriveAt: offer.arriveAt,
+      duration: offer.duration,
+    },
+  ];
+}
 
 function legFromPayload(payload: FlightTokenPayload): FlightLeg {
   if (payload.outbound) return payload.outbound;
@@ -65,7 +83,7 @@ export function combineFlightOffers(
     adults: pax.adults,
     children: pax.children,
     infants: pax.infants,
-    segments: [...(outboundOffer.segments || []), ...(returnOffer.segments || [])],
+    segments: [...slimSegments(outboundOffer), ...slimSegments(returnOffer)],
   });
 }
 
