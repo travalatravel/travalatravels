@@ -153,7 +153,7 @@ export default function PageViewsPanel({
                   <td className="px-4 py-3">
                     <p className="font-mono font-medium text-[#1a1a1a]">
                       {view.path}
-                      {view.query && <span className="text-gray-400">{view.query}</span>}
+                      {view.query && <span className="text-gray-400">?{view.query}</span>}
                     </p>
                   </td>
                   <td className="px-4 py-3">

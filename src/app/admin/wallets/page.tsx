@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, Clock, User } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { z } from "zod";
+import { Plus, Pencil, Trash2, Clock, User, Download, Upload } from "lucide-react";
 import type { CryptoWallet } from "@/lib/types";
+import { walletBackupFileSchema, WALLET_CURRENCIES } from "@/lib/wallet-backup";
 
 type WalletRow = CryptoWallet & { _count?: { bookings: number } };
 
-const CURRENCIES = ["BTC", "ETH", "USDC", "USDT", "SOL"];
+const CURRENCIES = [...WALLET_CURRENCIES];
 
 export default function AdminWalletsPage() {
   const [wallets, setWallets] = useState<WalletRow[]>([]);
@@ -14,12 +16,63 @@ export default function AdminWalletsPage() {
   const [editing, setEditing] = useState<WalletRow | null>(null);
   const [form, setForm] = useState({ currency: "BTC", label: "", address: "", network: "", isActive: true });
   const [error, setError] = useState("");
+  const [importMsg, setImportMsg] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const load = () => {
     fetch("/api/admin/wallets").then((r) => r.json()).then((d) => setWallets(d.wallets || []));
   };
 
   useEffect(() => { load(); }, []);
+
+  const handleExport = async () => {
+    setImportMsg("");
+    const res = await fetch("/api/admin/wallets/export");
+    if (!res.ok) {
+      setError("Export failed");
+      return;
+    }
+    const blob = await res.blob();
+    const disposition = res.headers.get("Content-Disposition") || "";
+    const match = disposition.match(/filename="([^"]+)"/);
+    const filename = match?.[1] || "travala-wallets.json";
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportFile = async (file: File) => {
+    setError("");
+    setImportMsg("");
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      const fileData = walletBackupFileSchema.parse(parsed);
+
+      const res = await fetch("/api/admin/wallets/import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ file: fileData }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Import failed");
+        return;
+      }
+
+      setWallets(data.wallets || []);
+      setImportMsg(`Import complete: ${data.created} created, ${data.updated} updated (${data.total} total).`);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        setError(err.issues[0]?.message || "Invalid wallet backup file");
+        return;
+      }
+      setError("Invalid wallet backup file");
+    }
+  };
 
   const openCreate = () => {
     setEditing(null);
@@ -59,15 +112,45 @@ export default function AdminWalletsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-[#1a1a1a]">Crypto Wallets</h1>
           <p className="mt-1 text-gray-500">Manage payment wallet addresses</p>
         </div>
-        <button onClick={openCreate} className="flex items-center gap-2 rounded-xl bg-[#2D83C2] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1a5f94]">
-          <Plus size={16} /> Add Wallet
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={handleExport}
+            className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+          >
+            <Download size={16} /> Export JSON
+          </button>
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+          >
+            <Upload size={16} /> Import JSON
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="application/json,.json"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) void handleImportFile(file);
+              e.target.value = "";
+            }}
+          />
+          <button onClick={openCreate} className="flex items-center gap-2 rounded-xl bg-[#2D83C2] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1a5f94]">
+            <Plus size={16} /> Add Wallet
+          </button>
+        </div>
       </div>
+
+      {importMsg && <p className="mt-4 rounded-xl bg-green-50 px-4 py-3 text-sm text-green-700">{importMsg}</p>}
+      {error && !showForm && <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">{error}</p>}
 
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">

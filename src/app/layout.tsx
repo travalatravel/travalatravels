@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { Inter, Satisfy } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
 import ViewTracker from "@/components/ViewTracker";
+import ServerPageViewTracker from "@/components/ServerPageViewTracker";
 import SiteAnalytics from "@/components/SiteAnalytics";
 import { LocaleProvider } from "@/i18n/LocaleProvider";
 import { LOCALE_META } from "@/i18n/config";
@@ -71,6 +72,7 @@ export default async function RootLayout({
     <html lang={locale} dir={dir}>
       <body className={`${inter.variable} ${satisfy.variable} min-w-0 overflow-x-hidden antialiased`}>
         <SiteAnalytics />
+        <ServerPageViewTracker />
         <LocaleProvider locale={locale}>
           <AuthProvider>
             <Suspense fallback={null}>

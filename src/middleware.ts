@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { isAutomatedClient } from "@/lib/bot-detection";
-import { shouldTrackPath } from "@/lib/view-tracking";
+import { shouldTrackPath, VISITOR_COOKIE } from "@/lib/view-tracking";
 import { LOCALE_COOKIE } from "@/i18n/config";
 import { resolveLocaleFromRequest } from "@/i18n/detect";
 
@@ -41,7 +41,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url, 301);
   }
 
-  const { pathname, search } = request.nextUrl;
+  const { pathname } = request.nextUrl;
 
   if (isPublicApi(pathname)) {
     if (request.method === "OPTIONS") {
@@ -55,7 +55,25 @@ export function middleware(request: NextRequest) {
     return response;
   }
 
-  const response = NextResponse.next();
+  const isTrackableHtmlVisit =
+    request.method === "GET" &&
+    !isAutomatedClient(request.headers.get("user-agent")) &&
+    shouldTrackPath(pathname) &&
+    (request.headers.get("accept") || "").includes("text/html");
+
+  let sessionId = request.cookies.get(VISITOR_COOKIE)?.value;
+  if (isTrackableHtmlVisit && !sessionId) {
+    sessionId = crypto.randomUUID();
+  }
+
+  const requestHeaders = new Headers(request.headers);
+  if (isTrackableHtmlVisit && sessionId) {
+    requestHeaders.set("x-visitor-id", sessionId);
+    requestHeaders.set("x-track-path", pathname);
+    requestHeaders.set("x-track-query", request.nextUrl.search.slice(1));
+  }
+
+  const response = NextResponse.next({ request: { headers: requestHeaders } });
   response.headers.set("X-Robots-Tag", "all");
 
   if (!request.cookies.get(LOCALE_COOKIE)) {
@@ -69,31 +87,14 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  if (
-    request.method === "GET" &&
-    !isAutomatedClient(request.headers.get("user-agent")) &&
-    shouldTrackPath(pathname) &&
-    (request.headers.get("accept") || "").includes("text/html")
-  ) {
-    const trackUrl = new URL("/api/track/view", request.url);
-    const body = JSON.stringify({
-      path: pathname,
-      query: search || null,
-      referrer: request.headers.get("referer"),
-      source: "middleware",
+  if (isTrackableHtmlVisit && sessionId && !request.cookies.get(VISITOR_COOKIE)) {
+    response.cookies.set(VISITOR_COOKIE, sessionId, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 365,
+      path: "/",
     });
-
-    void fetch(trackUrl.toString(), {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-track-ip":
-          request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "",
-        "x-track-user-agent": request.headers.get("user-agent") || "",
-        cookie: request.headers.get("cookie") || "",
-      },
-      body,
-    }).catch(() => {});
   }
 
   return response;

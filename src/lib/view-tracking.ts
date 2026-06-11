@@ -2,8 +2,9 @@ import { cookies } from "next/headers";
 import { prisma } from "./prisma";
 import { getSessionFromRequest } from "./auth";
 
-const VISITOR_COOKIE = "travala_vid";
-const DEDUP_MS = 4000;
+export const VISITOR_COOKIE = "travala_vid";
+/** Covers server render + client beacon for the same page load */
+const DEDUP_MS = 30_000;
 
 const SKIP_PREFIXES = ["/api/", "/admin", "/_next/"];
 
@@ -23,7 +24,8 @@ export function sanitizePath(path: unknown) {
 
 export function sanitizeQuery(query: unknown) {
   if (typeof query !== "string" || !query) return null;
-  return query.slice(0, 1000);
+  const normalized = query.startsWith("?") ? query.slice(1) : query;
+  return normalized.slice(0, 1000) || null;
 }
 
 export function clientIp(request: Request) {
@@ -50,6 +52,18 @@ export function parseDevice(userAgent: string | null) {
 }
 
 async function getOrCreateVisitorId(request: Request) {
+  const fromMiddleware = request.headers.get("x-visitor-id");
+  if (fromMiddleware) return fromMiddleware;
+
+  const cookieHeader = request.headers.get("cookie") || "";
+  const fromHeader = cookieHeader
+    .split(";")
+    .map((part) => part.trim())
+    .find((part) => part.startsWith(`${VISITOR_COOKIE}=`))
+    ?.slice(VISITOR_COOKIE.length + 1);
+
+  if (fromHeader) return decodeURIComponent(fromHeader);
+
   const cookieStore = await cookies();
   const existing = cookieStore.get(VISITOR_COOKIE)?.value;
   if (existing) return existing;
@@ -70,7 +84,7 @@ export async function recordPageView(input: {
   path: string;
   query?: string | null;
   referrer?: string | null;
-  source: "middleware" | "client";
+  source: "server" | "middleware" | "client";
   sessionId?: string;
 }) {
   const path = sanitizePath(input.path);
@@ -87,7 +101,6 @@ export async function recordPageView(input: {
       sessionId,
       path,
       query,
-      source: input.source,
       createdAt: { gte: new Date(Date.now() - DEDUP_MS) },
     },
     select: { id: true },

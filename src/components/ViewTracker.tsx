@@ -25,6 +25,7 @@ function trackView(path: string, query: string, referrer: string | null) {
     headers: { "Content-Type": "application/json" },
     body: payload,
     keepalive: true,
+    credentials: "same-origin",
   });
 }
 
@@ -33,23 +34,24 @@ export default function ViewTracker() {
   const searchParams = useSearchParams();
   const query = searchParams.toString();
   const fullQuery = query ? `?${query}` : "";
-  const isFirst = useRef(true);
   const lastTracked = useRef("");
+  const tracking = useRef(false);
 
   useEffect(() => {
     if (!pathname || pathname.startsWith("/admin")) return;
     if (typeof navigator !== "undefined" && isAutomatedClient(navigator.userAgent)) return;
 
     const key = `${pathname}${fullQuery}`;
-    if (isFirst.current) {
-      isFirst.current = false;
-      lastTracked.current = key;
-      return;
-    }
-    if (lastTracked.current === key) return;
+    if (lastTracked.current === key && tracking.current) return;
 
     lastTracked.current = key;
-    trackView(pathname, fullQuery, document.referrer || null);
+    tracking.current = true;
+
+    trackView(pathname, query, document.referrer || null);
+
+    return () => {
+      tracking.current = false;
+    };
   }, [pathname, fullQuery]);
 
   return null;

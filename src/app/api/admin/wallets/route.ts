@@ -2,9 +2,10 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { withAdmin } from "@/lib/admin";
+import { WALLET_CURRENCIES } from "@/lib/wallet-backup";
 
 const walletSchema = z.object({
-  currency: z.enum(["BTC", "ETH", "USDC", "USDT", "SOL"]),
+  currency: z.enum(WALLET_CURRENCIES),
   label: z.string().min(2),
   address: z.string().min(10),
   network: z.string().min(2),

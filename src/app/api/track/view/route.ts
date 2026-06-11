@@ -14,7 +14,10 @@ export async function POST(request: Request) {
       path,
       query: typeof body.query === "string" ? body.query : null,
       referrer: typeof body.referrer === "string" ? body.referrer : null,
-      source: body.source === "middleware" ? "middleware" : "client",
+      source:
+        body.source === "server" || body.source === "middleware"
+          ? body.source
+          : "client",
       sessionId: typeof body.sessionId === "string" ? body.sessionId : undefined,
     });
 
