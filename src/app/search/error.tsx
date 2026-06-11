@@ -12,6 +12,16 @@ export default function SearchError({
 }) {
   useEffect(() => {
     console.error(error);
+
+    // After a deploy the browser may hold old HTML referencing JS chunks
+    // that no longer exist — reload once to pick up the new build.
+    const isStaleChunk =
+      error.name === "ChunkLoadError" ||
+      /Loading chunk|chunk failed|dynamically imported module/i.test(error.message || "");
+    if (isStaleChunk && !sessionStorage.getItem("search-chunk-reload")) {
+      sessionStorage.setItem("search-chunk-reload", "1");
+      window.location.reload();
+    }
   }, [error]);
 
   return (
