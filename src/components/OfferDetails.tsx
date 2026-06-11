@@ -16,6 +16,7 @@ type Props = {
   selectedRoomId?: string | null;
   onSelectRoom?: (room: OfferRoomOption) => void;
   onRoomsLoaded?: (rooms: OfferRoomOption[]) => void;
+  hideRooms?: boolean;
 };
 
 function SectionBlock({ title, children }: { title: string; children: ReactNode }) {
@@ -37,6 +38,7 @@ export default function OfferDetails({
   selectedRoomId,
   onSelectRoom,
   onRoomsLoaded,
+  hideRooms = false,
 }: Props) {
   const { messages: m, fmt } = useTranslations();
   const [details, setDetails] = useState<OfferDetailsData | null>(null);
@@ -140,7 +142,7 @@ export default function OfferDetails({
         </SectionBlock>
       )}
 
-      {details?.rooms && details.rooms.length > 0 && (
+      {!hideRooms && details?.rooms && details.rooms.length > 0 && (
         <SectionBlock title={m.offerDetails.availableRooms}>
           <p className="mb-4 text-sm text-gray-500">{m.offerDetails.selectRoomHint}</p>
           <div className="space-y-3">

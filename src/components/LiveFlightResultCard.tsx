@@ -1,19 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo } from "react";
 import { Luggage } from "lucide-react";
 import type { FlightLeg, LiveFlightOffer } from "@/lib/live-flight-types";
 import { getFlightPricing } from "@/lib/flight-pricing";
 import { buildFlightOfferHref, type FlightOfferSearchContext } from "@/lib/flight-offer-link";
-import { combineFlightOffers, combineRoundtripTokens } from "@/lib/flight-combine";
-import {
-  saveOutboundOffer,
-  saveOutboundToken,
-  readOutboundOffer,
-  readOutboundToken,
-  saveOfferToken,
-} from "@/lib/flight-selection-storage";
+import { buildOutboundContinueUrl, buildReturnOfferUrl } from "@/lib/flight-roundtrip-nav";
+import { saveOutboundOffer, saveOutboundToken } from "@/lib/flight-selection-storage";
 import { tokenFromOffer } from "@/lib/flight-token";
 import { formatUsd } from "@/lib/pricing";
 import { useTranslations } from "@/i18n/useTranslations";
@@ -94,33 +88,20 @@ function FlightLegRow({
           onError={(e) => {
             const img = e.currentTarget;
             img.style.display = "none";
-            const fallback = img.nextElementSibling as HTMLElement | null;
-            if (fallback) fallback.style.display = "flex";
           }}
         />
-        <div
-          className="hidden h-10 w-10 items-center justify-center rounded bg-gray-100 text-[10px] font-bold text-gray-600"
-          style={{ display: "none" }}
-        >
-          {leg.airlineCode}
-        </div>
       </div>
-
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
           <span className="text-[10px] font-bold uppercase tracking-wide text-[#2D83C2]">{label}</span>
           <span className="text-[10px] text-gray-400">·</span>
           <span className="text-[10px] font-medium text-gray-500">{formatLegDate(leg.departAt, dateLocale)}</span>
-          <span className="text-[10px] text-gray-400 sm:hidden">·</span>
-          <span className="text-[10px] font-medium text-gray-600 sm:hidden">{leg.airline}</span>
         </div>
-
         <div className="mt-2 grid grid-cols-[auto_1fr_auto] items-center gap-2 sm:gap-3">
           <div className="text-center sm:text-left">
             <p className="text-base font-bold text-[#1a1a1a] sm:text-lg">{formatTime(leg.departAt, dateLocale)}</p>
             <p className="text-[10px] font-semibold text-gray-500 sm:text-xs">{leg.fromCode}</p>
           </div>
-
           <div className="flex min-w-0 flex-col items-center px-1">
             <p className="text-[10px] font-medium text-gray-500">{leg.duration}</p>
             <div className="relative mt-1 flex w-full max-w-[140px] items-center sm:max-w-[180px]">
@@ -132,17 +113,12 @@ function FlightLegRow({
               {stopsLabel(leg.stops, direct, stop, stopsPlural)}
             </p>
           </div>
-
           <div className="text-center sm:text-right">
             <p className="text-base font-bold text-[#1a1a1a] sm:text-lg">{formatTime(leg.arriveAt, dateLocale)}</p>
             <p className="text-[10px] font-semibold text-gray-500 sm:text-xs">{leg.toCode}</p>
           </div>
         </div>
-
-        <p className="mt-1 hidden text-xs text-gray-500 sm:block">
-          {leg.airline}
-          {leg.flightNumber ? ` · ${leg.flightNumber}` : ""}
-        </p>
+        <p className="mt-1 hidden text-xs text-gray-500 sm:block">{leg.airline}</p>
       </div>
     </div>
   );
@@ -150,43 +126,25 @@ function FlightLegRow({
 
 export type FlightSelectionLeg = "outbound" | "return" | null;
 
-function buildOfferUrl(
-  searchContext: FlightOfferSearchContext,
-  outbound: FlightLeg,
-  token: string,
-) {
-  const params = new URLSearchParams({
-    token,
-    from: searchContext.from,
-    to: searchContext.to,
-    fromCode: searchContext.fromCode || outbound.fromCode,
-    toCode: searchContext.toCode || outbound.toCode,
-    depart: searchContext.depart,
-    trip: "roundtrip",
-    cabin: searchContext.cabin,
-    adults: String(searchContext.adults),
-    children: String(searchContext.children),
-    infants: String(searchContext.infants),
-  });
-  if (searchContext.returnDate) params.set("return", searchContext.returnDate);
-  if (searchContext.addHotel) params.set("addHotel", "1");
-  return `/flights/offer?${params.toString()}`;
+function saveOutbound(flight: LiveFlightOffer, pax: { adults: number; children: number; infants: number }) {
+  const token = flight.offerToken || tokenFromOffer(flight, pax);
+  saveOutboundOffer(flight);
+  saveOutboundToken(token);
 }
 
 export default function LiveFlightResultCard({
   flight,
   searchContext,
   selectionLeg = null,
-  outboundToken,
   outboundOffer,
+  searchQuery = "",
 }: {
   flight: LiveFlightOffer;
   searchContext: FlightOfferSearchContext;
   selectionLeg?: FlightSelectionLeg;
-  outboundToken?: string;
-  outboundOffer?: LiveFlightOffer;
+  outboundOffer?: LiveFlightOffer | null;
+  searchQuery?: string;
 }) {
-  const [selectError, setSelectError] = useState("");
   const { locale, messages: m } = useTranslations();
   const dateLocale = LOCALE_BCP47[locale];
   const pricing = getFlightPricing(flight.sourcePrice);
@@ -194,72 +152,37 @@ export default function LiveFlightResultCard({
   const returnLeg = resolveReturn(flight);
   const c = m.common;
 
-  const displayLeg =
-    selectionLeg === "return" && returnLeg
-      ? returnLeg
-      : selectionLeg === "return"
-        ? outbound
-        : outbound;
-
-  const legLabel =
-    selectionLeg === "return" ? c.returnFlight : selectionLeg === "outbound" ? c.departure : c.departure;
-
-  const href = buildFlightOfferHref(flight, searchContext);
-
   const pax = {
     adults: searchContext.adults,
     children: searchContext.children,
     infants: searchContext.infants,
   };
 
-  const resolveToken = (offer: LiveFlightOffer) =>
-    offer.offerToken || tokenFromOffer(offer, pax);
+  const displayLeg =
+    selectionLeg === "return" && returnLeg ? returnLeg : outbound;
 
-  const handleSelect = () => {
-    setSelectError("");
+  const legLabel =
+    selectionLeg === "return" ? c.returnFlight : selectionLeg === "outbound" ? c.departure : c.departure;
 
-    if (selectionLeg === "outbound") {
-      saveOutboundOffer(flight);
-      saveOutboundToken(resolveToken(flight));
-      const params = new URLSearchParams(window.location.search);
-      params.delete("outboundToken");
-      params.set("type", "flights");
-      params.set("pickReturn", "1");
-      window.location.href = `/search?${params.toString()}`;
-      return;
-    }
+  const outboundHref = useMemo(() => {
+    if (selectionLeg !== "outbound") return null;
+    return buildOutboundContinueUrl(searchQuery || (typeof window !== "undefined" ? window.location.search : ""));
+  }, [selectionLeg, searchQuery]);
 
-    if (selectionLeg === "return") {
-      const savedOutbound = outboundOffer || readOutboundOffer();
-      const outTok = outboundToken || readOutboundToken();
-      const returnTok = resolveToken(flight);
+  const returnHref = useMemo(() => {
+    if (selectionLeg !== "return" || !outboundOffer) return null;
+    return buildReturnOfferUrl(outboundOffer, flight, searchContext, pax);
+  }, [selectionLeg, outboundOffer, flight, searchContext, pax]);
 
-      let combined: string | null = null;
-      if (savedOutbound) {
-        try {
-          combined = combineFlightOffers(savedOutbound, flight, pax);
-        } catch {
-          combined = null;
-        }
-      }
-      if (!combined && outTok && returnTok) {
-        combined = combineRoundtripTokens(outTok, returnTok);
-      }
-
-      if (!combined) {
-        setSelectError(m.searchPage.returnSelectFailed);
-        return;
-      }
-
-      try {
-        saveOfferToken(combined);
-      } catch {
-        // URL carries token — sessionStorage is optional
-      }
-
-      window.location.href = buildOfferUrl(searchContext, outbound, combined);
-    }
-  };
+  const defaultHref = buildFlightOfferHref(flight, searchContext);
+  const href =
+    selectionLeg === "outbound" && outboundHref
+      ? outboundHref
+      : selectionLeg === "return" && returnHref
+        ? returnHref
+        : selectionLeg
+          ? null
+          : defaultHref;
 
   const cardBody = (
     <div className="flex flex-col lg:flex-row">
@@ -288,41 +211,38 @@ export default function LiveFlightResultCard({
           </span>
           <span>{cabinClassLabel(m, flight.cabin)}</span>
         </div>
-        {selectError && (
-          <p className="mt-2 text-xs font-medium text-red-600">{selectError}</p>
+        {selectionLeg === "return" && !returnHref && (
+          <p className="mt-2 text-xs font-medium text-red-600">{m.searchPage.returnSelectFailed}</p>
         )}
       </div>
-
       <div className="flex shrink-0 flex-row items-center justify-between gap-4 border-t border-gray-100 bg-[#f8fafc] px-4 py-3 sm:px-5 lg:w-52 lg:flex-col lg:items-end lg:justify-center lg:border-l lg:border-t-0 lg:py-4">
         <div className="text-left lg:text-right">
           <p className="text-xl font-bold text-[#1a1a1a] sm:text-2xl">{formatUsd(pricing.salePrice)}</p>
           <p className="text-xs text-gray-400 line-through">{formatUsd(pricing.originalPrice)}</p>
           <p className="text-[10px] font-semibold text-emerald-600">-{pricing.discountPct}%</p>
         </div>
-        <span className="rounded-lg bg-[#2D83C2] px-5 py-2.5 text-sm font-semibold text-white transition group-hover:bg-[#1a5f94] group-active:bg-[#1a5f94]">
+        <span className="rounded-lg bg-[#2D83C2] px-5 py-2.5 text-sm font-semibold text-white transition group-hover:bg-[#1a5f94]">
           {c.select}
         </span>
       </div>
     </div>
   );
 
-  if (selectionLeg) {
+  if (!href) {
     return (
-      <button
-        type="button"
-        onClick={handleSelect}
-        className="group block w-full cursor-pointer border border-gray-200 bg-white text-left transition hover:border-[#2D83C2]/50 hover:shadow-sm active:border-[#2D83C2]"
-        style={{ touchAction: "auto" }}
-      >
-        {cardBody}
-      </button>
+      <div className="block w-full border border-gray-200 bg-gray-50 opacity-60">{cardBody}</div>
     );
   }
 
   return (
     <Link
       href={href}
-      className="group block border border-gray-200 bg-white transition hover:border-[#2D83C2]/50 hover:shadow-sm"
+      prefetch={false}
+      onPointerDown={() => {
+        if (selectionLeg === "outbound") saveOutbound(flight, pax);
+      }}
+      className="group block w-full border border-gray-200 bg-white transition hover:border-[#2D83C2]/50 hover:shadow-sm active:border-[#2D83C2]"
+      style={{ touchAction: "auto" }}
     >
       {cardBody}
     </Link>

@@ -3,8 +3,7 @@
 import { useEffect, useMemo, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { decodeFlightToken } from "@/lib/flight-token";
-import { readOutboundToken, readOutboundOffer, clearOutboundToken } from "@/lib/flight-selection-storage";
+import { readOutboundOffer, clearOutboundToken } from "@/lib/flight-selection-storage";
 import { LOCALE_BCP47 } from "@/i18n/config";
 import SiteChrome from "@/components/SiteChrome";
 import SearchForm from "@/components/SearchForm";
@@ -63,54 +62,35 @@ function FlightSearchResults() {
   const infants = Math.max(0, parseInt(searchParams.get("infants") || "0", 10));
   const addHotel = searchParams.get("addHotel") === "1";
   const pickReturn = searchParams.get("pickReturn") === "1";
-  const [storedOutbound, setStoredOutbound] = useState("");
-  const [storedOutboundOffer, setStoredOutboundOffer] = useState<LiveFlightOffer | null>(null);
+  const [storedOutboundOffer, setStoredOutboundOffer] = useState<LiveFlightOffer | null>(() => {
+    if (typeof window === "undefined") return null;
+    return pickReturn ? readOutboundOffer() : null;
+  });
   useEffect(() => {
-    if (pickReturn) {
-      setStoredOutbound(readOutboundToken());
-      setStoredOutboundOffer(readOutboundOffer());
-    } else {
-      setStoredOutbound("");
-      setStoredOutboundOffer(null);
-    }
+    if (pickReturn) setStoredOutboundOffer(readOutboundOffer());
+    else setStoredOutboundOffer(null);
   }, [pickReturn]);
-  const outboundToken = pickReturn
-    ? storedOutbound || searchParams.get("outboundToken") || ""
-    : searchParams.get("outboundToken") || "";
+  const outboundOfferForCards = pickReturn ? (storedOutboundOffer || readOutboundOffer()) : null;
   const isRoundtripSelect = trip === "roundtrip" && Boolean(returnDate);
   const selectionLeg = !isRoundtripSelect
     ? null
     : !pickReturn
       ? ("outbound" as const)
       : ("return" as const);
-  const selectedOutbound = outboundToken ? decodeFlightToken(outboundToken) : null;
-  const selectedOutboundLeg = storedOutboundOffer
-    ? storedOutboundOffer.outbound || {
-        airline: storedOutboundOffer.airline,
-        airlineCode: storedOutboundOffer.airlineCode,
-        from: storedOutboundOffer.from,
-        to: storedOutboundOffer.to,
-        fromCode: storedOutboundOffer.fromCode,
-        toCode: storedOutboundOffer.toCode,
-        departAt: storedOutboundOffer.departAt,
-        arriveAt: storedOutboundOffer.arriveAt,
-        duration: storedOutboundOffer.duration,
-        stops: storedOutboundOffer.stops,
+  const selectedOutboundLeg = outboundOfferForCards
+    ? outboundOfferForCards.outbound || {
+        airline: outboundOfferForCards.airline,
+        airlineCode: outboundOfferForCards.airlineCode,
+        from: outboundOfferForCards.from,
+        to: outboundOfferForCards.to,
+        fromCode: outboundOfferForCards.fromCode,
+        toCode: outboundOfferForCards.toCode,
+        departAt: outboundOfferForCards.departAt,
+        arriveAt: outboundOfferForCards.arriveAt,
+        duration: outboundOfferForCards.duration,
+        stops: outboundOfferForCards.stops,
       }
-    : selectedOutbound?.outbound || (selectedOutbound
-      ? {
-          airline: selectedOutbound.airline,
-          airlineCode: selectedOutbound.airlineCode,
-          from: selectedOutbound.from,
-          to: selectedOutbound.to,
-          fromCode: selectedOutbound.fromCode,
-          toCode: selectedOutbound.toCode,
-          departAt: selectedOutbound.departAt,
-          arriveAt: selectedOutbound.arriveAt,
-          duration: selectedOutbound.duration,
-          stops: selectedOutbound.stops,
-        }
-      : null);
+    : null;
 
   const canLiveSearch = Boolean(from && to && depart);
 
@@ -314,8 +294,8 @@ function FlightSearchResults() {
                   flight={flight}
                   searchContext={flightSearchContext}
                   selectionLeg={selectionLeg}
-                  outboundToken={outboundToken || undefined}
-                  outboundOffer={storedOutboundOffer || undefined}
+                  outboundOffer={outboundOfferForCards}
+                  searchQuery={searchParams.toString()}
                 />
               ))}
             </div>

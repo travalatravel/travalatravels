@@ -46,8 +46,13 @@ export async function GET(request: Request) {
   }
 
   const fromSky =
-    fromSkyId && fromEntityId ? { skyId: fromSkyId, entityId: fromEntityId } : undefined;
-  const toSky = toSkyId && toEntityId ? { skyId: toSkyId, entityId: toEntityId } : undefined;
+    fromSkyId && fromEntityId
+      ? { skyId: fromSkyId, entityId: fromEntityId }
+      : KNOWN_AIRPORTS[fromCode];
+  const toSky =
+    toSkyId && toEntityId
+      ? { skyId: toSkyId, entityId: toEntityId }
+      : KNOWN_AIRPORTS[toCode];
 
   let searchInput = {
     fromCode,

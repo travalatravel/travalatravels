@@ -1,12 +1,11 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import SiteChrome from "@/components/SiteChrome";
 import BookingCheckoutForm from "@/components/BookingCheckoutForm";
 import BookingOrderSummary from "@/components/BookingOrderSummary";
-import { useAuth } from "@/context/AuthContext";
 import type { Offer } from "@/lib/types";
 import { applySalePrice } from "@/lib/pricing";
 import { priceForFlight } from "@/lib/flight-display";
@@ -18,8 +17,6 @@ function CheckoutContent() {
   const { messages: m } = useTranslations();
   const { id } = useParams<{ id: string }>();
   const searchParams = useSearchParams();
-  const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
   const [offer, setOffer] = useState<Offer | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -43,18 +40,13 @@ function CheckoutContent() {
     : undefined;
 
   useEffect(() => {
-    if (authLoading) return;
-    if (!user) {
-      router.push(`/login?redirect=/offers/${id}/checkout?${searchParams.toString()}`);
-      return;
-    }
     fetch(`/api/offers/${id}`)
       .then((r) => r.json())
       .then((d) => setOffer(d.offer))
       .finally(() => setLoading(false));
-  }, [id, user, authLoading, router, searchParams]);
+  }, [id]);
 
-  if (authLoading || loading) {
+  if (loading) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2D83C2] border-t-transparent" />

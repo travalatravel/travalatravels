@@ -6,6 +6,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import OfferGallery from "@/components/OfferGallery";
 import OfferDetails from "@/components/OfferDetails";
+import OfferRoomPicker from "@/components/OfferRoomPicker";
 import { Star, MapPin, ArrowLeft, Plane } from "lucide-react";
 import FlightOfferDetails from "@/components/FlightOfferDetails";
 import { parseFlightMetadata, priceForFlight } from "@/lib/flight-display";
@@ -13,13 +14,10 @@ import type { CabinClass, TripType } from "@/lib/flight-types";
 import { CABIN_LABELS } from "@/lib/flight-types";
 import SiteChrome from "@/components/SiteChrome";
 import PriceDisplay from "@/components/PriceDisplay";
-import { useAuth } from "@/context/AuthContext";
 import type { Offer } from "@/lib/types";
 import { offerTypeLabel } from "@/i18n/display-labels";
 import type { LivePriceResult } from "@/lib/travala-price";
 import { defaultStayDates } from "@/lib/travala-price";
-import { CRYPTO_PAYMENT_METHODS } from "@/lib/payments";
-import CryptoMethodPicker from "@/components/CryptoMethodPicker";
 import { applySalePrice, getOfferPricing, formatUsd } from "@/lib/pricing";
 import { Tag } from "lucide-react";
 import { useTranslations } from "@/i18n/useTranslations";
@@ -28,7 +26,6 @@ function OfferDetailContent() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user } = useAuth();
   const { messages: m, fmt } = useTranslations();
   const [offer, setOffer] = useState<Offer | null>(null);
   const [loading, setLoading] = useState(true);
@@ -38,7 +35,6 @@ function OfferDetailContent() {
   const [rooms, setRooms] = useState(1);
   const [livePrice, setLivePrice] = useState<LivePriceResult | null>(null);
   const [priceLoading, setPriceLoading] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<(typeof CRYPTO_PAYMENT_METHODS)[number]>("CRYPTO_BTC");
   const [selectedRoom, setSelectedRoom] = useState<OfferRoomOption | null>(null);
   const [error, setError] = useState("");
 
@@ -131,10 +127,6 @@ function OfferDetailContent() {
 
   const handleContinue = () => {
     if (!offer) return;
-    if (!user) {
-      router.push(`/login?redirect=/offers/${id}`);
-      return;
-    }
     if (!checkIn || !checkOut) {
       setError(m.offerPage.selectDates);
       return;
@@ -148,7 +140,6 @@ function OfferDetailContent() {
       checkOut: checkOut || checkIn,
       guests: String(offer.type === "FLIGHT" ? flightPax : guests),
       rooms: String(rooms),
-      paymentMethod,
     });
     if (offer.type === "FLIGHT") {
       params.set("depart", checkIn);
@@ -236,17 +227,29 @@ function OfferDetailContent() {
                   returnDate={trip === "roundtrip" ? checkOut : undefined}
                 />
               ) : (
-                <OfferDetails
-                  offerId={offer.id}
-                  checkIn={checkIn}
-                  checkOut={checkOut}
-                  guests={guests}
-                  rooms={rooms}
-                  fallbackDescription={offer.description}
-                  selectedRoomId={selectedRoom?.id ?? null}
-                  onSelectRoom={setSelectedRoom}
-                  onRoomsLoaded={handleRoomsLoaded}
-                />
+                <>
+                  <div className="mt-4">
+                    <OfferRoomPicker
+                      offerId={offer.id}
+                      checkIn={checkIn}
+                      checkOut={checkOut}
+                      guests={guests}
+                      rooms={rooms}
+                      selectedRoomId={selectedRoom?.id ?? null}
+                      onSelectRoom={setSelectedRoom}
+                      onRoomsLoaded={handleRoomsLoaded}
+                    />
+                  </div>
+                  <OfferDetails
+                    offerId={offer.id}
+                    checkIn={checkIn}
+                    checkOut={checkOut}
+                    guests={guests}
+                    rooms={rooms}
+                    fallbackDescription={offer.description}
+                    hideRooms
+                  />
+                </>
               )}
             </div>
           </div>
@@ -360,11 +363,6 @@ function OfferDetailContent() {
                     </div>
                   )}
                 </div>
-                <div className="min-w-0">
-                  <label className="text-xs font-medium text-gray-500">{m.common.paymentMethod}</label>
-                  <p className="mt-0.5 mb-2 break-words text-[11px] text-gray-400">{m.common.gatewayName}</p>
-                  <CryptoMethodPicker value={paymentMethod} onChange={setPaymentMethod} />
-                </div>
               </div>
 
               <div className="mt-4 min-w-0 rounded-xl border border-[#2D83C2]/15 bg-[#2D83C2]/5 p-3 sm:mt-5">
@@ -398,21 +396,12 @@ function OfferDetailContent() {
                 onClick={handleContinue}
                 className="mt-4 hidden w-full rounded-xl bg-[#2D83C2] py-3.5 text-sm font-bold text-white shadow-lg transition hover:bg-[#1a5f94] sm:block sm:py-4"
               >
-                {user ? (isFlight ? m.common.continuePassengers : m.offerPage.continueGuestDetails) : m.auth.logInToBook}
+                {isFlight ? m.common.continuePassengers : m.offerPage.continueGuestDetails}
               </button>
               <p className="mt-2 text-center text-[10px] text-gray-400">
                 {isFlight ? m.common.fareRules : m.offerPage.freeCancellationHint}
               </p>
               </div>
-
-              {!user && (
-                <p className="mt-2 text-center text-xs text-gray-400">
-                  <Link href={`/register?redirect=/offers/${id}`} className="text-[#2D83C2] hover:underline">
-                    {m.offerPage.createAccountToBook}
-                  </Link>{" "}
-                  {m.offerPage.toBook}
-                </p>
-              )}
             </div>
           </div>
         </div>
@@ -431,7 +420,7 @@ function OfferDetailContent() {
             onClick={handleContinue}
             className="flex-shrink-0 rounded-xl bg-[#2D83C2] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#1a5f94] sm:px-5 sm:py-3"
           >
-            {user ? m.offerPage.bookArrow : m.auth.signIn}
+            {m.offerPage.bookArrow}
           </button>
         </div>
       </div>

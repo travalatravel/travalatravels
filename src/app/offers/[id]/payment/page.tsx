@@ -1,14 +1,13 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import SiteChrome from "@/components/SiteChrome";
 import CryptoGatewayPanel from "@/components/CryptoGatewayPanel";
 import BookingOrderSummary from "@/components/BookingOrderSummary";
 import BundlePaymentSummary from "@/components/BundlePaymentSummary";
 import BookingGuestSummary from "@/components/BookingGuestSummary";
-import { useAuth } from "@/context/AuthContext";
 import { useTranslations } from "@/i18n/useTranslations";
 import type { Booking } from "@/lib/types";
 import { ArrowLeft } from "lucide-react";
@@ -16,43 +15,34 @@ import { ArrowLeft } from "lucide-react";
 function PaymentContent() {
   const { id } = useParams<{ id: string }>();
   const searchParams = useSearchParams();
-  const router = useRouter();
   const { messages: m } = useTranslations();
   const c = m.checkout;
-  const { user, loading: authLoading } = useAuth();
   const bookingId = searchParams.get("bookingId");
   const bundleId = searchParams.get("bundleId");
+  const access = searchParams.get("access") || "";
   const [booking, setBooking] = useState<Booking | null>(null);
   const [bundleBooking, setBundleBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
 
   const refresh = () => {
     if (!bookingId) return;
-    fetch("/api/bookings")
+    const qs = new URLSearchParams();
+    if (access) qs.set("access", access);
+    if (bundleId) qs.set("bundleId", bundleId);
+    fetch(`/api/bookings/${bookingId}/payment?${qs}`)
       .then((r) => r.json())
       .then((d) => {
-        const list = (d.bookings as Booking[] | undefined) ?? [];
-        const found = list.find((b) => b.id === bookingId);
-        setBooking(found ?? null);
-        if (bundleId) {
-          setBundleBooking(list.find((b) => b.id === bundleId) ?? null);
-        } else {
-          setBundleBooking(null);
-        }
+        setBooking(d.booking ?? null);
+        setBundleBooking(d.bundleBooking ?? null);
       })
       .finally(() => setLoading(false));
   };
 
   useEffect(() => {
-    if (authLoading) return;
-    if (!user) {
-      router.push(`/login?redirect=/offers/${id}/payment?bookingId=${bookingId}`);
-      return;
-    }
     refresh();
-  }, [user, authLoading, bookingId, id, router]);
+  }, [bookingId, access, bundleId]);
 
-  if (authLoading || loading) {
+  if (loading) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2D83C2] border-t-transparent" />
@@ -64,8 +54,8 @@ function PaymentContent() {
     return (
       <div className="mx-auto max-w-lg px-4 py-16 text-center">
         <p className="text-gray-500">{c.bookingNotFound}</p>
-        <Link href="/my-trips" className="mt-4 inline-block text-[#2D83C2] hover:underline">
-          {m.paymentPage.myTrips}
+        <Link href={`/offers/${id}`} className="mt-4 inline-block text-[#2D83C2] hover:underline">
+          {m.checkout.backToOffer}
         </Link>
       </div>
     );
@@ -108,6 +98,7 @@ function PaymentContent() {
             onPaid={refresh}
             bundleBookingId={bundleId || undefined}
             bundleTotal={bundleTotal}
+            accessToken={access || undefined}
           />
         </div>
         <div className="order-1 lg:order-2 lg:col-span-1">

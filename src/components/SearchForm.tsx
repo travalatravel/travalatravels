@@ -12,6 +12,7 @@ import FlightSearchForm from "./FlightSearchForm";
 import { useTranslations } from "@/i18n/useTranslations";
 import { LOCALE_BCP47 } from "@/i18n/config";
 import { searchStaysPath } from "@/lib/seo-paths";
+import { filterPopularCities } from "@/data/popular-cities";
 import {
   formatDesktopDate,
   MobileDateRange,
@@ -87,6 +88,11 @@ export default function SearchForm({
 
   const fetchSuggestions = useCallback(async (value: string, searchType: string) => {
     const trimmed = value.trim();
+    if (trimmed.length < 2 && searchType === "stays") {
+      setSuggestions(filterPopularCities(trimmed, 12));
+      setSuggestLoading(false);
+      return;
+    }
     if (trimmed.length < 1) {
       setSuggestions([]);
       setSuggestLoading(false);
@@ -113,6 +119,11 @@ export default function SearchForm({
 
   useEffect(() => {
     if (!suggestOpen && !mobileOverlayOpen) return;
+    if (type === "stays" && !query.trim()) {
+      setSuggestions(filterPopularCities("", 12));
+      setSuggestLoading(false);
+      return;
+    }
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => void fetchSuggestions(query, type), 200);
     return () => {
@@ -325,7 +336,12 @@ export default function SearchForm({
             setQuery(e.target.value);
             setSuggestOpen(true);
           }}
-          onFocus={() => setSuggestOpen(true)}
+          onFocus={() => {
+            setSuggestOpen(true);
+            if (type === "stays" && !query.trim()) {
+              setSuggestions(filterPopularCities("", 12));
+            }
+          }}
           onKeyDown={handleKeyDown}
           placeholder={m.search.placeholders.stays}
           autoComplete="off"

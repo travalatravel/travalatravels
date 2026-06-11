@@ -213,6 +213,7 @@ export default function BookingCheckoutForm({
 
     const payQs = new URLSearchParams({ bookingId: data.booking.id });
     if (data.bundleBookingId) payQs.set("bundleId", data.bundleBookingId);
+    if (data.accessToken) payQs.set("access", data.accessToken);
     const payPath = isFlight
       ? `/flights/payment?${payQs.toString()}`
       : `/offers/${offer.id}/payment?${payQs.toString()}`;
