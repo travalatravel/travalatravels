@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { Users, CalendarCheck, Wallet, DollarSign, Clock, Eye } from "lucide-react";
 import type { Booking } from "@/lib/types";
 import { PAYMENT_STATUS_COLORS, PAYMENT_STATUS_LABELS } from "@/lib/types";
+import PageViewsPanel from "@/components/admin/PageViewsPanel";
 
 type Stats = {
   users: number;
@@ -50,12 +50,6 @@ export default function AdminDashboard() {
           <h1 className="text-2xl font-bold text-[#1a1a1a]">Dashboard</h1>
           <p className="mt-1 text-gray-500">Overview of your Travala platform</p>
         </div>
-        <Link
-          href="/admin/views"
-          className="rounded-xl bg-[#2D83C2] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5f94]"
-        >
-          View all traffic
-        </Link>
       </div>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -108,6 +102,13 @@ export default function AdminDashboard() {
             </tbody>
           </table>
         </div>
+      </div>
+
+      <div className="mt-8">
+        <PageViewsPanel
+          title="All Page Views"
+          description="Every tracked visit on the public site — filter by path or browse pages"
+        />
       </div>
     </div>
   );
