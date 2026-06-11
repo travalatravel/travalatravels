@@ -67,23 +67,40 @@ function CopyField({
   );
 }
 
-function StepIndicator({ step, current }: { step: number; current: number }) {
+function StepIndicator({
+  step,
+  display,
+  current,
+  label,
+}: {
+  step: number;
+  display: number;
+  current: number;
+  label: string;
+}) {
   const done = current > step;
   const active = current === step;
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-col items-center gap-1.5">
       <div
-        className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold ${
+        className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold transition ${
           done
-            ? "bg-emerald-600 text-white"
+            ? "bg-emerald-500 text-white"
             : active
-              ? "bg-[#1a5f94] text-white"
-              : "bg-slate-100 text-slate-400"
+              ? "bg-white text-[#1a5f94] ring-4 ring-white/25"
+              : "bg-white/15 text-white/50"
         }`}
       >
-        {done ? <Check size={14} /> : step}
+        {done ? <Check size={14} /> : display}
       </div>
+      <span
+        className={`hidden whitespace-nowrap text-[10px] font-medium sm:block ${
+          active ? "text-white" : done ? "text-emerald-300" : "text-white/40"
+        }`}
+      >
+        {label}
+      </span>
     </div>
   );
 }
@@ -101,8 +118,12 @@ export default function CryptoGatewayPanel({
   bundleTotal?: number;
   accessToken?: string;
 }) {
+  const QUOTE_REFRESH_SECONDS = 60;
+
   const [quote, setQuote] = useState<CryptoQuote | null>(null);
   const [quoteLoading, setQuoteLoading] = useState(true);
+  const [quoteCountdown, setQuoteCountdown] = useState(QUOTE_REFRESH_SECONDS);
+  const [quoteTick, setQuoteTick] = useState(0);
   const [paidUi, setPaidUi] = useState<"idle" | "verifying" | "done">("idle");
   const [payError, setPayError] = useState("");
   const { messages: m, fmt } = useTranslations();
@@ -125,8 +146,26 @@ export default function CryptoGatewayPanel({
       .then((r) => r.json())
       .then((data) => setQuote(data.quote ?? null))
       .catch(() => setQuote(null))
-      .finally(() => setQuoteLoading(false));
-  }, [wallet, payUsd]);
+      .finally(() => {
+        setQuoteLoading(false);
+        setQuoteCountdown(QUOTE_REFRESH_SECONDS);
+      });
+  }, [wallet, payUsd, quoteTick]);
+
+  // Crypto rates move — refresh the quote every 60s while awaiting payment
+  useEffect(() => {
+    if (!wallet || booking.paymentStatus !== "PENDING") return;
+    const interval = setInterval(() => {
+      setQuoteCountdown((s) => {
+        if (s <= 1) {
+          setQuoteTick((t) => t + 1);
+          return QUOTE_REFRESH_SECONDS;
+        }
+        return s - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [wallet, booking.paymentStatus]);
 
   const handlePaid = async () => {
     setPayError("");
@@ -177,10 +216,19 @@ export default function CryptoGatewayPanel({
             : quote.cryptoAmount.toFixed(2)
     : null;
 
-  const qrData =
-    wallet.currency === "BTC" && cryptoAmount
-      ? `bitcoin:${wallet.address}?amount=${cryptoAmount}`
-      : wallet.address;
+  const URI_SCHEME: Record<string, string> = {
+    BTC: "bitcoin",
+    ETH: "ethereum",
+    LTC: "litecoin",
+    SOL: "solana",
+  };
+  const scheme = URI_SCHEME[wallet.currency];
+  const walletUri = scheme
+    ? `${scheme}:${wallet.address}${
+        wallet.currency === "BTC" && cryptoAmount ? `?amount=${cryptoAmount}` : ""
+      }`
+    : null;
+  const qrData = walletUri ?? wallet.address;
 
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=8&data=${encodeURIComponent(qrData)}`;
 
@@ -243,20 +291,20 @@ export default function CryptoGatewayPanel({
 
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-      {/* Header */}
-      <div className="border-b border-slate-100 px-4 py-4 sm:px-6 sm:py-5">
+      {/* Header — dark gateway bar */}
+      <div className="bg-gradient-to-br from-[#13294b] via-[#173a63] to-[#1a5f94] px-4 py-5 sm:px-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <div className="flex items-center gap-2 text-slate-500">
-              <Lock size={14} />
-              <span className="text-xs font-medium uppercase tracking-wider">
-                {m.common.gatewayName}
+            <div className="flex items-center gap-2 text-sky-200/80">
+              <Lock size={13} />
+              <span className="text-[11px] font-semibold uppercase tracking-widest">
+                {p.secureCheckout} · {m.common.gatewayName}
               </span>
             </div>
-            <h2 className="mt-1 text-xl font-semibold tracking-tight text-slate-900">
+            <h2 className="mt-1.5 text-xl font-semibold tracking-tight text-white">
               {p.cryptoPayment}
             </h2>
-            <p className="mt-0.5 font-mono text-xs text-slate-400">
+            <p className="mt-1 font-mono text-[11px] text-sky-200/60">
               REF {booking.id.slice(0, 12).toUpperCase()}
             </p>
           </div>
@@ -267,24 +315,24 @@ export default function CryptoGatewayPanel({
           </span>
         </div>
 
-        {/* Steps */}
-        <div className="mt-5 flex items-center gap-3">
-          <StepIndicator step={1} current={step} />
-          <div className={`h-px flex-1 ${step > 1 ? "bg-emerald-300" : "bg-slate-200"}`} />
-          <StepIndicator step={2} current={step} />
-          <div className={`h-px flex-1 ${step > 2 ? "bg-emerald-300" : "bg-slate-200"}`} />
-          <StepIndicator step={3} current={step} />
-          <span className="ml-1 hidden text-xs text-slate-400 sm:inline">
-            {step === 2 ? p.stepSend : step === 3 ? p.stepVerification : p.stepComplete}
-          </span>
+        {/* Steps: 2 = send payment, 3 = verification, 4 = complete */}
+        <div className="mt-5 flex items-start gap-3">
+          <StepIndicator step={2} display={1} current={step} label={p.stepSend} />
+          <div className={`mt-3.5 h-px flex-1 ${step > 2 ? "bg-emerald-400/70" : "bg-white/20"}`} />
+          <StepIndicator step={3} display={2} current={step} label={p.stepVerification} />
+          <div className={`mt-3.5 h-px flex-1 ${step > 3 ? "bg-emerald-400/70" : "bg-white/20"}`} />
+          <StepIndicator step={4} display={3} current={step} label={p.stepComplete} />
         </div>
+        <p className="mt-2 text-center text-[11px] font-medium text-sky-100/90 sm:hidden">
+          {step === 2 ? p.stepSend : step === 3 ? p.stepVerification : p.stepComplete}
+        </p>
       </div>
 
       <div className="grid gap-0 lg:grid-cols-5">
         {/* Order summary */}
         <div className="border-b border-slate-100 bg-slate-50/80 p-6 lg:col-span-2 lg:border-b-0 lg:border-r">
           <p className="text-[11px] font-medium uppercase tracking-wider text-slate-400">
-            Order summary
+            {p.orderSummary}
           </p>
           <h3 className="mt-2 font-semibold text-slate-900 leading-snug">
             {booking.offer.title}
@@ -330,6 +378,12 @@ export default function CryptoGatewayPanel({
             {quoteLoading && (
               <p className="mt-2 text-sm text-slate-400">{p.calculatingRate}</p>
             )}
+            {booking.paymentStatus === "PENDING" && !quoteLoading && quote && (
+              <p className="mt-2 flex items-center gap-1.5 text-[11px] text-slate-400">
+                <Clock size={12} />
+                {fmt(p.rateAutoRefresh, { s: quoteCountdown })}
+              </p>
+            )}
           </div>
         </div>
 
@@ -367,7 +421,7 @@ export default function CryptoGatewayPanel({
                 onClick={onPaid}
                 className="mt-6 text-sm font-medium text-[#2D83C2] hover:underline"
               >
-                Refresh status
+                {p.refreshStatus}
               </button>
             </div>
           ) : (
@@ -386,6 +440,15 @@ export default function CryptoGatewayPanel({
                       />
                     </div>
                     <p className="mt-2 text-center text-[11px] text-slate-400">{p.scanQr}</p>
+                    {walletUri && (
+                      <a
+                        href={walletUri}
+                        className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-[#2D83C2]/30 bg-[#eef5fc] px-3 py-2 text-xs font-semibold text-[#1a5f94] transition hover:bg-[#dcecfa] sm:w-auto"
+                      >
+                        <ExternalLink size={13} />
+                        {p.openInWallet}
+                      </a>
+                    )}
                   </div>
 
                   <div className="w-full flex-1 space-y-4">
@@ -421,8 +484,9 @@ export default function CryptoGatewayPanel({
                   type="button"
                   onClick={handlePaid}
                   disabled={paidUi !== "idle"}
-                  className="mt-4 w-full rounded-xl bg-[#1a5f94] py-3.5 text-sm font-bold text-white transition hover:bg-[#162347] disabled:opacity-50"
+                  className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#1a5f94] py-4 text-sm font-bold text-white shadow-sm transition hover:bg-[#13294b] disabled:opacity-50"
                 >
+                  <Lock size={15} />
                   {p.paidButton}
                 </button>
               </div>

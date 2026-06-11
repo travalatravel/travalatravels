@@ -599,6 +599,10 @@ const en = {
     thankYouBooking: "Thank you for your booking!",
     emailConfirmationNote:
       "Once your transaction is confirmed, you will receive your booking confirmation by email.",
+    secureCheckout: "Secure checkout",
+    openInWallet: "Open in wallet app",
+    rateAutoRefresh: "Rate refreshes in {s}s",
+    rateRefreshing: "Updating rate…",
   },
   orderSummary: {
     total: "Total",

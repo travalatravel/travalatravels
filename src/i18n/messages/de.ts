@@ -385,6 +385,10 @@ const de: DeepPartial<Messages> = {
     thankYouBooking: "Vielen Dank für Ihre Buchung!",
     emailConfirmationNote:
       "Sobald Ihre Transaktion bestätigt wurde, erhalten Sie Ihre Buchungsbestätigung per E-Mail.",
+    secureCheckout: "Sicherer Checkout",
+    openInWallet: "In Wallet-App öffnen",
+    rateAutoRefresh: "Kurs aktualisiert sich in {s}s",
+    rateRefreshing: "Kurs wird aktualisiert…",
   },
   orderSummary: {
     total: "Gesamt",

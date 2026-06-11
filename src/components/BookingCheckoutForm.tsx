@@ -222,15 +222,12 @@ export default function BookingCheckoutForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <Section
-        title="Who is this booking for?"
-        subtitle="Select whether you are travelling privately or booking on behalf of a company."
-      >
+      <Section title={c.bookingForTitle} subtitle={c.bookingForSubtitle}>
         <div className="grid gap-3 sm:grid-cols-2">
           {(
             [
-              { id: "PRIVATE" as const, icon: User, label: "Private", desc: "Leisure / personal travel" },
-              { id: "BUSINESS" as const, icon: Building2, label: "Business", desc: "Company invoice & VAT details" },
+              { id: "PRIVATE" as const, icon: User, label: c.private, desc: c.privateDesc },
+              { id: "BUSINESS" as const, icon: Building2, label: c.business, desc: c.businessDesc },
             ] as const
           ).map(({ id, icon: Icon, label, desc }) => (
             <button

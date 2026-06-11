@@ -140,7 +140,9 @@ export function SearchFormShell({
   if (isHero) {
     return (
       <div className="mx-auto w-full max-w-[90%] sm:max-w-[342px] lg:max-w-none">
-        <div className="overflow-hidden rounded-b-lg bg-white shadow-[0_3px_6px_rgba(0,0,0,0.16)] lg:rounded-t-lg lg:shadow-[0_3px_6px_rgba(0,0,0,0.16)]">
+        {/* overflow-hidden would clip the absolutely-positioned suggestion
+            dropdown on desktop — keep it only on mobile for the rounded corners */}
+        <div className="overflow-hidden rounded-b-lg bg-white shadow-[0_3px_6px_rgba(0,0,0,0.16)] lg:overflow-visible lg:rounded-t-lg lg:shadow-[0_3px_6px_rgba(0,0,0,0.16)]">
           {children}
         </div>
       </div>
