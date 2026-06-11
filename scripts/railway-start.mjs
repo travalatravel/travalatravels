@@ -10,6 +10,28 @@ const isRailway = Boolean(process.env.RAILWAY_ENVIRONMENT);
 
 function resolveDatabaseUrl() {
   const raw = process.env.DATABASE_URL?.trim();
+  // Persistent volume mounted in Railway (e.g. /data) — always prefer it,
+  // otherwise SQLite lands on the ephemeral container disk and every
+  // deploy wipes bookings, users and seeded offers.
+  const volume = process.env.RAILWAY_VOLUME_MOUNT_PATH?.trim();
+
+  if (isRailway && volume) {
+    const volumeUrl = `file:${volume.replace(/\/+$/, "")}/production.db`;
+    if (!raw || !raw.startsWith("file:")) {
+      console.warn(`Using persistent volume database → ${volumeUrl}`);
+      return raw && !raw.startsWith("file:") ? raw : volumeUrl;
+    }
+    const filePath = raw.slice("file:".length);
+    const insideVolume = filePath.startsWith(volume);
+    if (!insideVolume) {
+      console.warn(
+        `⚠ DATABASE_URL (${raw}) points outside the mounted volume (${volume}) → using ${volumeUrl}`,
+      );
+      return volumeUrl;
+    }
+    return raw;
+  }
+
   if (!raw) {
     const fallback = isRailway ? "file:/app/prisma/production.db" : "file:./prisma/production.db";
     console.warn(`⚠ DATABASE_URL not set → using ${fallback}`);
