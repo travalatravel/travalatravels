@@ -25,7 +25,6 @@ export default function LanguageSwitcher({
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const current = LOCALE_META[locale];
-  const isHome = variant === "home";
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
@@ -46,9 +45,8 @@ export default function LanguageSwitcher({
     router.refresh();
   };
 
-  const btnCls = isHome
-    ? "rounded-md px-1.5 py-0.5 text-[10px] font-semibold text-white hover:bg-white/15 sm:px-2 sm:py-1 sm:text-xs lg:text-[#220a32] lg:hover:bg-gray-100"
-    : "rounded-md px-1.5 py-0.5 text-[10px] text-white hover:bg-white/15 sm:px-2 sm:py-1 sm:text-xs";
+  const btnCls =
+    "rounded-md px-1.5 py-0.5 text-[10px] font-semibold text-white hover:bg-white/15 sm:px-2 sm:py-1 sm:text-xs lg:text-[#220a32] lg:hover:bg-gray-100";
 
   return (
     <div ref={ref} className="relative">
@@ -67,9 +65,7 @@ export default function LanguageSwitcher({
       {open && (
         <div
           role="listbox"
-          className={`absolute right-0 top-[calc(100%+0.35rem)] z-[60] max-h-[min(20rem,70vh)] min-w-[11rem] overflow-y-auto rounded-xl border py-1 shadow-2xl ${
-            isHome ? "border-gray-200 bg-white" : "border-white/10 bg-[#1a5f94]"
-          }`}
+          className={`absolute right-0 top-[calc(100%+0.35rem)] z-[60] max-h-[min(20rem,70vh)] min-w-[11rem] overflow-y-auto rounded-xl border border-gray-200 bg-white py-1 shadow-2xl`}
         >
           {LOCALES.map((code) => {
             const meta = LOCALE_META[code];
@@ -82,13 +78,9 @@ export default function LanguageSwitcher({
                 aria-selected={active}
                 onClick={() => selectLocale(code)}
                 className={`flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm transition ${
-                  isHome
-                    ? active
-                      ? "bg-[#eef5fc] font-semibold text-[#2D83C2]"
-                      : "text-gray-800 hover:bg-gray-50"
-                    : active
-                      ? "bg-white/15 font-semibold text-white"
-                      : "text-white/90 hover:bg-white/10"
+                  active
+                    ? "bg-[#eef5fc] font-semibold text-[#2D83C2]"
+                    : "text-gray-800 hover:bg-gray-50"
                 }`}
               >
                 <LocaleFlag code={meta.flag} className="h-3.5 w-[21px] rounded-[2px] object-cover shadow-sm" />

@@ -14,13 +14,12 @@ const NAV_HREFS = [
   { key: "flights" as const, href: "/flights", badge: false },
 ];
 
-function Logo({ variant }: { variant: "home" | "default" }) {
+function Logo() {
   const [mobileError, setMobileError] = useState(false);
   const [desktopError, setDesktopError] = useState(false);
-  const isHome = variant === "home";
 
   const mobileSrc = mobileError ? ASSETS.logoMint : ASSETS.logoWhite;
-  const desktopSrc = desktopError ? ASSETS.logoMint : isHome ? ASSETS.logoBlack : ASSETS.logoWhite;
+  const desktopSrc = desktopError ? ASSETS.logoMint : ASSETS.logoBlack;
 
   return (
     <>
@@ -74,26 +73,25 @@ export default function Header({ variant = "default" }: { variant?: "home" | "de
 
   const shellCls = isHome
     ? "sticky top-0 z-50 w-full bg-[#250834] shadow-sm lg:mx-8 lg:rounded-b-xl lg:bg-white"
-    : "sticky top-0 z-50 w-full bg-[#250834] shadow-lg lg:bg-[#1a5f94]";
+    : "sticky top-0 z-50 w-full bg-[#250834] shadow-lg lg:bg-white lg:shadow-sm";
 
   const navLinkCls = isHome
     ? "rounded-full border border-gray-300 px-2.5 py-1 text-[13px] font-semibold text-[#220a32] transition hover:border-[#2D83C2]"
-    : "rounded-md px-2.5 py-1 text-xs font-medium text-white transition hover:bg-white/15";
+    : "rounded-md px-2.5 py-1 text-xs font-medium text-white transition hover:bg-white/15 lg:rounded-full lg:border lg:border-gray-300 lg:text-[13px] lg:font-semibold lg:text-[#220a32] lg:hover:border-[#2D83C2] lg:hover:bg-transparent";
 
-  const utilBtnCls = isHome
-    ? "rounded-md px-1.5 py-0.5 text-[10px] font-semibold text-white hover:bg-white/15 sm:px-2 sm:py-1 sm:text-xs lg:text-[#220a32] lg:hover:bg-gray-100"
-    : "rounded-md px-1.5 py-0.5 text-[10px] font-semibold text-white hover:bg-white/15 sm:px-2 sm:py-1 sm:text-xs";
+  const utilBtnCls =
+    "rounded-md px-1.5 py-0.5 text-[10px] font-semibold text-white hover:bg-white/15 sm:px-2 sm:py-1 sm:text-xs lg:text-[#220a32] lg:hover:bg-gray-100";
 
   const registerCls = isHome
     ? "rounded-md border border-[#2D83C2] bg-[#2D83C2] px-1.5 py-0.5 text-[10px] font-semibold text-white hover:bg-[#1a5f94] sm:px-2.5 sm:py-1 sm:text-xs"
-    : "rounded-md border border-white/30 bg-white px-1.5 py-0.5 text-[10px] font-semibold text-[#2D83C2] hover:bg-white/90 sm:px-2.5 sm:py-1 sm:text-xs";
+    : "rounded-md border border-white/30 bg-white px-1.5 py-0.5 text-[10px] font-semibold text-[#2D83C2] hover:bg-white/90 sm:px-2.5 sm:py-1 sm:text-xs lg:border-[#2D83C2] lg:bg-[#2D83C2] lg:text-white lg:hover:bg-[#1a5f94]";
 
   return (
     <header className={shellCls}>
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-2 lg:px-4">
         <div className="flex min-w-0 items-center gap-2 lg:gap-3">
           <Link href="/" className="min-w-0 flex-shrink-0">
-            <Logo variant={variant} />
+            <Logo />
           </Link>
 
           <nav className="hidden items-center gap-1.5 md:flex">
@@ -119,7 +117,7 @@ export default function Header({ variant = "default" }: { variant?: "home" | "de
           </div>
 
           {loading ? (
-            <div className={`h-6 w-14 animate-pulse rounded-md sm:h-7 sm:w-16 ${isHome ? "bg-white/20 lg:bg-gray-200" : "bg-white/20"}`} />
+            <div className="h-6 w-14 animate-pulse rounded-md bg-white/20 sm:h-7 sm:w-16 lg:bg-gray-200" />
           ) : user ? (
             <div className="hidden items-center gap-1 sm:flex">
               <Link href="/my-trips" className={`flex items-center gap-1 ${utilBtnCls}`}>
@@ -152,7 +150,7 @@ export default function Header({ variant = "default" }: { variant?: "home" | "de
             <LanguageSwitcher variant={variant} compact />
             <button
               type="button"
-              className={`flex-shrink-0 rounded-md p-1 text-white hover:bg-white/15 ${isHome ? "lg:text-[#220a32] lg:hover:bg-gray-100" : ""}`}
+              className={`flex-shrink-0 rounded-md p-1 text-white hover:bg-white/15 lg:text-[#220a32] lg:hover:bg-gray-100`}
               onClick={() => setMenuOpen(!menuOpen)}
               aria-label={menuOpen ? m.common.closeMenu : m.common.openMenu}
             >
