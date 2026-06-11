@@ -6,7 +6,11 @@ import { Luggage } from "lucide-react";
 import type { FlightLeg, LiveFlightOffer } from "@/lib/live-flight-types";
 import { getFlightPricing } from "@/lib/flight-pricing";
 import { buildFlightOfferHref, type FlightOfferSearchContext } from "@/lib/flight-offer-link";
-import { buildOutboundContinueUrl, buildReturnOfferUrl } from "@/lib/flight-roundtrip-nav";
+import {
+  buildOutboundContinueUrl,
+  buildReturnOfferUrl,
+  buildReturnOfferUrlFromTokens,
+} from "@/lib/flight-roundtrip-nav";
 import { saveOutboundOffer, saveOutboundToken } from "@/lib/flight-selection-storage";
 import { tokenFromOffer } from "@/lib/flight-token";
 import { formatUsd } from "@/lib/pricing";
@@ -137,12 +141,14 @@ export default function LiveFlightResultCard({
   searchContext,
   selectionLeg = null,
   outboundOffer,
+  outboundToken = "",
   searchQuery = "",
 }: {
   flight: LiveFlightOffer;
   searchContext: FlightOfferSearchContext;
   selectionLeg?: FlightSelectionLeg;
   outboundOffer?: LiveFlightOffer | null;
+  outboundToken?: string;
   searchQuery?: string;
 }) {
   const { locale, messages: m } = useTranslations();
@@ -166,13 +172,22 @@ export default function LiveFlightResultCard({
 
   const outboundHref = useMemo(() => {
     if (selectionLeg !== "outbound") return null;
-    return buildOutboundContinueUrl(searchQuery || (typeof window !== "undefined" ? window.location.search : ""));
-  }, [selectionLeg, searchQuery]);
+    const token = flight.offerToken || tokenFromOffer(flight, pax);
+    const q = searchQuery || (typeof window !== "undefined" ? window.location.search : "");
+    return buildOutboundContinueUrl(q, token);
+  }, [selectionLeg, searchQuery, flight, pax]);
 
   const returnHref = useMemo(() => {
-    if (selectionLeg !== "return" || !outboundOffer) return null;
-    return buildReturnOfferUrl(outboundOffer, flight, searchContext, pax);
-  }, [selectionLeg, outboundOffer, flight, searchContext, pax]);
+    if (selectionLeg !== "return") return null;
+    if (outboundToken) {
+      const fromTokens = buildReturnOfferUrlFromTokens(outboundToken, flight, searchContext, pax);
+      if (fromTokens) return fromTokens;
+    }
+    if (outboundOffer) {
+      return buildReturnOfferUrl(outboundOffer, flight, searchContext, pax);
+    }
+    return null;
+  }, [selectionLeg, outboundToken, outboundOffer, flight, searchContext, pax]);
 
   const defaultHref = buildFlightOfferHref(flight, searchContext);
   const href =
@@ -238,7 +253,7 @@ export default function LiveFlightResultCard({
     <Link
       href={href}
       prefetch={false}
-      onPointerDown={() => {
+      onClick={() => {
         if (selectionLeg === "outbound") saveOutbound(flight, pax);
       }}
       className="group block w-full border border-gray-200 bg-white transition hover:border-[#2D83C2]/50 hover:shadow-sm active:border-[#2D83C2]"

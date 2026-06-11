@@ -66,6 +66,39 @@ export function decodeFlightToken(token: string): FlightTokenPayload | null {
   }
 }
 
+/** Kleineres Token für URL-Parameter (vermeidet Längenlimits) */
+export function compactFlightToken(token: string): string {
+  const data = decodeFlightToken(token);
+  if (!data) return token;
+
+  const leg = data.outbound;
+  const slimSegments = data.segments?.length ? [data.segments[0]] : [];
+
+  return encodeFlightToken({
+    id: data.id,
+    airline: leg?.airline ?? data.airline,
+    airlineCode: leg?.airlineCode ?? data.airlineCode,
+    from: leg?.from ?? data.from,
+    to: leg?.to ?? data.to,
+    fromCode: leg?.fromCode ?? data.fromCode,
+    toCode: leg?.toCode ?? data.toCode,
+    departAt: leg?.departAt ?? data.departAt,
+    arriveAt: leg?.arriveAt ?? data.arriveAt,
+    duration: leg?.duration ?? data.duration,
+    stops: leg?.stops ?? data.stops,
+    outbound: leg,
+    sourcePrice: data.sourcePrice,
+    salePrice: data.salePrice,
+    currency: data.currency,
+    cabin: data.cabin,
+    trip: data.trip,
+    adults: data.adults,
+    children: data.children,
+    infants: data.infants,
+    segments: slimSegments,
+  });
+}
+
 export function tokenFromOffer(
   offer: LiveFlightOffer,
   pax: { adults: number; children: number; infants: number },

@@ -3,7 +3,9 @@
 import { useEffect, useMemo, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { readOutboundOffer, clearOutboundToken } from "@/lib/flight-selection-storage";
+import { readOutboundOffer, readOutboundToken, clearOutboundToken } from "@/lib/flight-selection-storage";
+import { outboundLegFromToken } from "@/lib/flight-roundtrip-nav";
+import { decodeFlightToken } from "@/lib/flight-token";
 import { LOCALE_BCP47 } from "@/i18n/config";
 import SiteChrome from "@/components/SiteChrome";
 import SearchForm from "@/components/SearchForm";
@@ -62,35 +64,38 @@ function FlightSearchResults() {
   const infants = Math.max(0, parseInt(searchParams.get("infants") || "0", 10));
   const addHotel = searchParams.get("addHotel") === "1";
   const pickReturn = searchParams.get("pickReturn") === "1";
-  const [storedOutboundOffer, setStoredOutboundOffer] = useState<LiveFlightOffer | null>(() => {
-    if (typeof window === "undefined") return null;
-    return pickReturn ? readOutboundOffer() : null;
-  });
-  useEffect(() => {
-    if (pickReturn) setStoredOutboundOffer(readOutboundOffer());
-    else setStoredOutboundOffer(null);
-  }, [pickReturn]);
-  const outboundOfferForCards = pickReturn ? (storedOutboundOffer || readOutboundOffer()) : null;
+  const outboundToken = (() => {
+    const fromUrl = searchParams.get("outTok") || "";
+    if (fromUrl && decodeFlightToken(fromUrl)) return fromUrl;
+    if (pickReturn) {
+      const stored = readOutboundToken();
+      if (stored && decodeFlightToken(stored)) return stored;
+    }
+    return "";
+  })();
+  const outboundOfferForCards = pickReturn ? readOutboundOffer() : null;
   const isRoundtripSelect = trip === "roundtrip" && Boolean(returnDate);
   const selectionLeg = !isRoundtripSelect
     ? null
     : !pickReturn
       ? ("outbound" as const)
       : ("return" as const);
-  const selectedOutboundLeg = outboundOfferForCards
-    ? outboundOfferForCards.outbound || {
-        airline: outboundOfferForCards.airline,
-        airlineCode: outboundOfferForCards.airlineCode,
-        from: outboundOfferForCards.from,
-        to: outboundOfferForCards.to,
-        fromCode: outboundOfferForCards.fromCode,
-        toCode: outboundOfferForCards.toCode,
-        departAt: outboundOfferForCards.departAt,
-        arriveAt: outboundOfferForCards.arriveAt,
-        duration: outboundOfferForCards.duration,
-        stops: outboundOfferForCards.stops,
-      }
-    : null;
+  const selectedOutboundLeg =
+    (outboundToken ? outboundLegFromToken(outboundToken) : null) ||
+    (outboundOfferForCards
+      ? outboundOfferForCards.outbound || {
+          airline: outboundOfferForCards.airline,
+          airlineCode: outboundOfferForCards.airlineCode,
+          from: outboundOfferForCards.from,
+          to: outboundOfferForCards.to,
+          fromCode: outboundOfferForCards.fromCode,
+          toCode: outboundOfferForCards.toCode,
+          departAt: outboundOfferForCards.departAt,
+          arriveAt: outboundOfferForCards.arriveAt,
+          duration: outboundOfferForCards.duration,
+          stops: outboundOfferForCards.stops,
+        }
+      : null);
 
   const canLiveSearch = Boolean(from && to && depart);
 
@@ -234,6 +239,12 @@ function FlightSearchResults() {
           </div>
         </div>
 
+        {selectionLeg === "return" && !outboundToken && !selectedOutboundLeg && (
+          <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+            {m.searchPage.returnSelectFailed}
+          </div>
+        )}
+
         {selectionLeg === "return" && selectedOutboundLeg && (
           <div className="mt-6 rounded-xl border border-[#2D83C2]/30 bg-[#eef5fc] p-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
@@ -254,6 +265,7 @@ function FlightSearchResults() {
                 href={(() => {
                   const p = new URLSearchParams(searchParams.toString());
                   p.delete("outboundToken");
+                  p.delete("outTok");
                   p.delete("pickReturn");
                   return `/search?${p.toString()}`;
                 })()}
@@ -295,6 +307,7 @@ function FlightSearchResults() {
                   searchContext={flightSearchContext}
                   selectionLeg={selectionLeg}
                   outboundOffer={outboundOfferForCards}
+                  outboundToken={outboundToken}
                   searchQuery={searchParams.toString()}
                 />
               ))}
