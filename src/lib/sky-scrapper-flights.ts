@@ -158,12 +158,14 @@ function buildSearchUrl(
     children: number;
     infants: number;
   },
-  path: "v2" | "v1complete",
+  path: "v1" | "v1complete" | "v2",
 ) {
   const endpoint =
-    path === "v2"
-      ? `/api/v2/flights/searchFlights`
-      : `/api/v1/flights/searchFlightsComplete`;
+    path === "v1"
+      ? `/api/v1/flights/searchFlights`
+      : path === "v2"
+        ? `/api/v2/flights/searchFlights`
+        : `/api/v1/flights/searchFlightsComplete`;
   const url = new URL(`https://${rapidApiHost()}${endpoint}`);
   url.searchParams.set("originSkyId", origin.skyId);
   url.searchParams.set("destinationSkyId", dest.skyId);
@@ -341,13 +343,20 @@ async function runSearch(
   if (cached) return cached;
 
   return dedupeSearch(key, async () => {
+    // Basic RapidAPI plans usually include v1 only (v2 often returns 403).
     let itineraries = await fetchItineraries(
-      buildSearchUrl(origin, dest, input, "v2"),
+      buildSearchUrl(origin, dest, input, "v1"),
     );
 
     if (!itineraries.length) {
       itineraries = await fetchItineraries(
         buildSearchUrl(origin, dest, input, "v1complete"),
+      );
+    }
+
+    if (!itineraries.length) {
+      itineraries = await fetchItineraries(
+        buildSearchUrl(origin, dest, input, "v2"),
       );
     }
 
