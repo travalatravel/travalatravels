@@ -33,13 +33,13 @@ function base64UrlEncode(bytes: Uint8Array): string {
   return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
 }
 
+// NOTE: never use Buffer with "base64url" here — the browser Buffer
+// polyfill bundled by Next.js does not support that encoding and throws
+// "Unknown encoding: base64url" at runtime. atob/btoa work everywhere.
 function base64UrlDecode(token: string): string {
   let b64 = token.replace(/-/g, "+").replace(/_/g, "/");
   const pad = b64.length % 4;
   if (pad) b64 += "=".repeat(4 - pad);
-  if (typeof Buffer !== "undefined") {
-    return Buffer.from(b64, "base64").toString("utf8");
-  }
   const binary = atob(b64);
   const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
@@ -48,9 +48,6 @@ function base64UrlDecode(token: string): string {
 
 export function encodeFlightToken(payload: FlightTokenPayload): string {
   const json = JSON.stringify(payload);
-  if (typeof Buffer !== "undefined") {
-    return Buffer.from(json, "utf8").toString("base64url");
-  }
   return base64UrlEncode(new TextEncoder().encode(json));
 }
 
