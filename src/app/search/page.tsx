@@ -151,11 +151,19 @@ function FlightSearchResults() {
     const timeout = window.setTimeout(() => controller.abort(), 35000);
 
     fetch(`/api/flights/search?${params}`, { signal: controller.signal })
-      .then((r) => r.json())
+      .then(async (r) => {
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok && !data.error) {
+          throw new Error("flight search failed");
+        }
+        return data;
+      })
       .then((data) => {
         if (data.error) {
           setFlightError(data.retryable ? m.searchPage.apiUnavailable : data.error);
           setRetryable(Boolean(data.retryable));
+        } else {
+          setRetryable(false);
         }
         setLiveFlights(data.flights || []);
         setFlightSource(data.source === "sky-scrapper" ? "sky-scrapper" : null);

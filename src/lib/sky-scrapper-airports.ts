@@ -185,27 +185,24 @@ export async function resolveAirport(keyword: string, iataCode: string): Promise
   const cached = getCachedAirport(cacheKey);
   if (cached) return cached;
 
-  if (rapidApiConfigured() && canUseAirportSuggestApi()) {
-    const q = iataCode.trim() || keyword.trim();
-    if (q) {
-      const suggestions = await suggestSkyScrapperAirports(q, 4);
-      const iata = iataCode.trim().toUpperCase();
-      const match =
-        (iata && suggestions.find((s) => s.iata?.toUpperCase() === iata)) ||
-        suggestions[0];
-      if (match?.skyId && match?.entityId) {
-        const ref = { skyId: match.skyId, entityId: match.entityId };
-        setCachedAirport(cacheKey, ref);
-        return ref;
-      }
-    }
-  }
-
   const local = findKnownAirport(keyword, iataCode);
   if (local) {
     setCachedAirport(cacheKey, local);
     return local;
   }
 
-  return null;
+  if (!rapidApiConfigured() || !canUseAirportSuggestApi()) return null;
+
+  const q = iataCode.trim() || keyword.trim();
+  if (!q) return null;
+
+  const suggestions = await suggestSkyScrapperAirports(q, 4);
+  const iata = iataCode.trim().toUpperCase();
+  const match =
+    (iata && suggestions.find((s) => s.iata?.toUpperCase() === iata)) || suggestions[0];
+  if (!match?.skyId || !match?.entityId) return null;
+
+  const ref = { skyId: match.skyId, entityId: match.entityId };
+  setCachedAirport(cacheKey, ref);
+  return ref;
 }

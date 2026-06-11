@@ -156,6 +156,10 @@ export default function FlightSearchForm({
     if (urlParams.get("to")) setTo(urlParams.get("to")!);
     if (urlParams.get("fromCode")) setFromCode(urlParams.get("fromCode")!);
     if (urlParams.get("toCode")) setToCode(urlParams.get("toCode")!);
+    if (urlParams.get("fromSkyId")) setFromSkyId(urlParams.get("fromSkyId")!);
+    if (urlParams.get("fromEntityId")) setFromEntityId(urlParams.get("fromEntityId")!);
+    if (urlParams.get("toSkyId")) setToSkyId(urlParams.get("toSkyId")!);
+    if (urlParams.get("toEntityId")) setToEntityId(urlParams.get("toEntityId")!);
     if (urlParams.get("depart")) setDepart(urlParams.get("depart")!);
     if (urlParams.get("return")) setReturnDate(urlParams.get("return")!);
     if (urlParams.get("adults")) setAdults(Math.max(1, parseInt(urlParams.get("adults")!, 10)));
@@ -278,7 +282,9 @@ export default function FlightSearchForm({
     setActiveField(null);
     clearOutboundToken();
     clearOfferToken();
-    router.push(`/search?${params.toString()}`);
+    const target = `/search?${params.toString()}`;
+    // Full navigation avoids intermittent Next.js RSC 500 on client-side flight search.
+    window.location.assign(target);
   };
 
   const selectDateLabel = m.common.selectDate;
