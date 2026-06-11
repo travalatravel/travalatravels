@@ -58,6 +58,7 @@ export async function POST(
       data: {
         txHash: txHash || null,
         paymentStatus: "AWAITING_CONFIRMATION",
+        paidClickedAt: new Date(),
       },
     });
 

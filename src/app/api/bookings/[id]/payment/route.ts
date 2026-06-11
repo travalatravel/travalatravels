@@ -7,6 +7,7 @@ import {
   CRYPTO_WALLET_LOOKUP,
   type CryptoPaymentMethod,
 } from "@/lib/payments";
+import { verifyBtcBooking } from "@/lib/btc-verify";
 
 export async function GET(
   request: Request,
@@ -16,7 +17,7 @@ export async function GET(
   const access = new URL(request.url).searchParams.get("access") || "";
   const bundleId = new URL(request.url).searchParams.get("bundleId") || "";
 
-  const booking = await prisma.booking.findUnique({
+  let booking = await prisma.booking.findUnique({
     where: { id },
     include: { offer: true, wallet: true },
   });
@@ -30,6 +31,18 @@ export async function GET(
 
   if (!ownsBooking && !hasAccess) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // BTC: auto-verify the payment on-chain while awaiting confirmation
+  if (booking.paymentStatus === "AWAITING_CONFIRMATION" && booking.wallet?.currency === "BTC") {
+    await verifyBtcBooking(id, bundleId || undefined);
+    booking = await prisma.booking.findUnique({
+      where: { id },
+      include: { offer: true, wallet: true },
+    });
+    if (!booking) {
+      return NextResponse.json({ error: "Booking not found" }, { status: 404 });
+    }
   }
 
   let bundleBooking = null;

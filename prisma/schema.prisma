@@ -110,6 +110,10 @@ model Booking {
   additionalGuests  String?
   txHash            String?
   paidAt            DateTime?
+  expectedSats      Int?
+  expectedQuotedAt  DateTime?
+  paidClickedAt     DateTime?
+  lastChainCheckAt  DateTime?
   createdAt         DateTime      @default(now())
   user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   offer         Offer         @relation(fields: [offerId], references: [id], onDelete: Cascade)

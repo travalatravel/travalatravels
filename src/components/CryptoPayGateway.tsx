@@ -138,12 +138,17 @@ export default function CryptoPayGateway({
   useEffect(() => {
     if (!wallet) return;
     setQuoteLoading(true);
-    fetch(`/api/crypto/quote?currency=${wallet.currency}&usd=${payUsd}`)
+    const params = new URLSearchParams({
+      currency: wallet.currency,
+      usd: String(payUsd),
+      bookingId: booking.id,
+    });
+    fetch(`/api/crypto/quote?${params}`)
       .then((r) => r.json())
       .then((data) => setQuote(data.quote ?? null))
       .catch(() => setQuote(null))
       .finally(() => setQuoteLoading(false));
-  }, [wallet, payUsd, quoteTick]);
+  }, [wallet, payUsd, quoteTick, booking.id]);
 
   // 15-minute payment window — when it elapses, refresh the rate and restart
   useEffect(() => {
@@ -159,6 +164,14 @@ export default function CryptoPayGateway({
     }, 1000);
     return () => clearInterval(interval);
   }, [pending]);
+
+  // While awaiting confirmation, poll every 30s — the server verifies the
+  // BTC payment on-chain (mempool.space) and flips the status to PAID.
+  useEffect(() => {
+    if (booking.paymentStatus !== "AWAITING_CONFIRMATION") return;
+    const interval = setInterval(() => onPaid(), 30000);
+    return () => clearInterval(interval);
+  }, [booking.paymentStatus, onPaid]);
 
   const cryptoAmount =
     quote && wallet ? formatCryptoAmount(quote.cryptoAmount, wallet.currency) : null;
@@ -231,6 +244,8 @@ export default function CryptoPayGateway({
       }
       setPaidUi("done");
       onPaid();
+      // Close the thank-you modal so the live verification status is visible
+      setTimeout(() => setPaidUi("idle"), 5000);
     } catch {
       setPayError(p.submissionFailed);
       setPaidUi("idle");
