@@ -11,10 +11,12 @@ import {
   setCachedSearch,
 } from "./sky-scrapper-cache";
 import {
+  findKnownAirport,
   resolveAirport,
   skyScrapperAirportConfigured,
   type AirportRef,
 } from "./sky-scrapper-airports";
+import { canUseV2FlightSearch, rapidApiSearchRetries } from "./rapidapi-plan";
 
 type SkyRecord = Record<string, unknown>;
 
@@ -216,7 +218,10 @@ function searchCacheKey(
 }
 
 async function fetchItineraries(url: string): Promise<Record<string, unknown>[]> {
-  const res = await rapidApiFetch(url, { timeoutMs: 25000, retries: 2 });
+  const res = await rapidApiFetch(url, {
+    timeoutMs: 25000,
+    retries: rapidApiSearchRetries(),
+  });
   if (!res.ok) return [];
   const json = (await res.json()) as { data?: { itineraries?: Record<string, unknown>[] } };
   return json.data?.itineraries || [];
@@ -343,18 +348,18 @@ async function runSearch(
   if (cached) return cached;
 
   return dedupeSearch(key, async () => {
-    // Basic RapidAPI plans usually include v1 only (v2 often returns 403).
+    // Basic plan ($9.99): exactly one v1 call — v2/v1complete return 403.
     let itineraries = await fetchItineraries(
       buildSearchUrl(origin, dest, input, "v1"),
     );
 
-    if (!itineraries.length) {
+    if (!itineraries.length && canUseV2FlightSearch()) {
       itineraries = await fetchItineraries(
         buildSearchUrl(origin, dest, input, "v1complete"),
       );
     }
 
-    if (!itineraries.length) {
+    if (!itineraries.length && canUseV2FlightSearch()) {
       itineraries = await fetchItineraries(
         buildSearchUrl(origin, dest, input, "v2"),
       );

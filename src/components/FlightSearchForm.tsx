@@ -142,7 +142,7 @@ export default function FlightSearchForm({
       setActiveIndex(-1);
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") return;
-      setSuggestions([]);
+      setSuggestions(filterPopularAirports(trimmed, 8));
     } finally {
       if (!controller.signal.aborted) setSuggestLoading(false);
     }

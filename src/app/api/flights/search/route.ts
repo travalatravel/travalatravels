@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { resolveIataCode } from "@/lib/iata-codes";
-import { KNOWN_AIRPORTS } from "@/lib/sky-scrapper-airports";
+import { findKnownAirport } from "@/lib/sky-scrapper-airports";
 import { searchSkyScrapperFlights, skyScrapperConfigured } from "@/lib/sky-scrapper-flights";
 import type { CabinClass, TripType } from "@/lib/flight-types";
 import type { LiveFlightOffer } from "@/lib/live-flight-types";
@@ -48,11 +48,11 @@ export async function GET(request: Request) {
   const fromSky =
     fromSkyId && fromEntityId
       ? { skyId: fromSkyId, entityId: fromEntityId }
-      : KNOWN_AIRPORTS[fromCode];
+      : findKnownAirport(from, fromCode) ?? undefined;
   const toSky =
     toSkyId && toEntityId
       ? { skyId: toSkyId, entityId: toEntityId }
-      : KNOWN_AIRPORTS[toCode];
+      : findKnownAirport(to, toCode) ?? undefined;
 
   let searchInput = {
     fromCode,

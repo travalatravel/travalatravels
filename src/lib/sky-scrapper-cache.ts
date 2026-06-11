@@ -3,7 +3,7 @@ type CacheEntry<T> = { value: T; expiresAt: number };
 const searchCache = new Map<string, CacheEntry<unknown>>();
 const inFlight = new Map<string, Promise<unknown>>();
 
-const SEARCH_TTL_MS = 12 * 60 * 1000;
+const SEARCH_TTL_MS = 30 * 60 * 1000;
 const AIRPORT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 function read<T>(map: Map<string, CacheEntry<T>>, key: string): T | null {
