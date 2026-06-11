@@ -105,7 +105,7 @@ export async function GET(request: Request) {
   if (!flights.length) {
     return NextResponse.json({
       error: skyScrapperConfigured()
-        ? "No live flights found for this route. Try different airports or dates."
+        ? "Live flight search temporarily unavailable. Please try again in a moment."
         : "Live flight search is not configured.",
       flights: [],
       total: 0,
@@ -115,6 +115,7 @@ export async function GET(request: Request) {
       toCode,
       leg: leg || null,
       discountPct: 30,
+      retryable: skyScrapperConfigured(),
     });
   }
 

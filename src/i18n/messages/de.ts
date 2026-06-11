@@ -199,6 +199,9 @@ const de: DeepPartial<Messages> = {
     loadingLiveRatesProgress: "Live-Preise: {loaded} von {total} aktualisiert…",
     enterRoute: "Bitte Abflug- und Zielflughafen eingeben, um Flüge zu suchen.",
     noFlightsFound: "Keine Flüge für diese Route gefunden. Andere Flughäfen oder Daten versuchen.",
+    apiUnavailable:
+      "Die Live-Flugsuche ist gerade überlastet oder vorübergehend nicht erreichbar. Bitte in ein paar Sekunden erneut versuchen.",
+    retrySearch: "Erneut suchen",
     noResultsFound: "Keine Ergebnisse gefunden. Anderen Suchbegriff versuchen.",
     tryFlights: "Versuchen: London → Paris, New York → London, Dubai → Bangkok",
     tryStays: "Versuchen: London, Paris, Dubai, Las Vegas, Tokio, Barcelona",

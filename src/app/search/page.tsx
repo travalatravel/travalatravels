@@ -46,6 +46,8 @@ function FlightSearchResults() {
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState<SortOption>("recommended");
   const [flightError, setFlightError] = useState("");
+  const [retryable, setRetryable] = useState(false);
+  const [retryTick, setRetryTick] = useState(0);
 
   const from = searchParams.get("from") || "";
   const to = searchParams.get("to") || "";
@@ -146,25 +148,34 @@ function FlightSearchResults() {
     if (selectionLeg === "return") params.set("leg", "return");
 
     const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 35000);
 
     fetch(`/api/flights/search?${params}`, { signal: controller.signal })
       .then((r) => r.json())
       .then((data) => {
-        if (data.error) setFlightError(data.error);
+        if (data.error) {
+          setFlightError(data.retryable ? m.searchPage.apiUnavailable : data.error);
+          setRetryable(Boolean(data.retryable));
+        }
         setLiveFlights(data.flights || []);
         setFlightSource(data.source === "sky-scrapper" ? "sky-scrapper" : null);
       })
       .catch(() => {
         if (!controller.signal.aborted) {
           setLiveFlights([]);
-          setFlightError(m.searchPage.noFlightsFound);
+          setFlightError(m.searchPage.apiUnavailable);
+          setRetryable(true);
         }
       })
       .finally(() => {
+        window.clearTimeout(timeout);
         if (!controller.signal.aborted) setLoading(false);
       });
 
-    return () => controller.abort();
+    return () => {
+      window.clearTimeout(timeout);
+      controller.abort();
+    };
   }, [
     canLiveSearch,
     from,
@@ -184,6 +195,8 @@ function FlightSearchResults() {
     infants,
     selectionLeg,
     m.searchPage.noFlightsFound,
+    m.searchPage.apiUnavailable,
+    retryTick,
   ]);
 
   const sortedFlights = useMemo(() => sortFlights(liveFlights, sort), [liveFlights, sort]);
@@ -295,6 +308,15 @@ function FlightSearchResults() {
             <p className="text-gray-500">
               {flightError || (!canLiveSearch ? m.searchPage.enterRoute : m.searchPage.noFlightsFound)}
             </p>
+            {retryable && canLiveSearch && (
+              <button
+                type="button"
+                onClick={() => setRetryTick((t) => t + 1)}
+                className="mt-4 rounded-lg bg-[#2D83C2] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#1a5f94]"
+              >
+                {m.searchPage.retrySearch}
+              </button>
+            )}
             <p className="mt-2 text-sm text-gray-400">{m.searchPage.tryFlights}</p>
           </div>
         ) : (

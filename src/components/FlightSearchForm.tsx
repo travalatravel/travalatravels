@@ -168,7 +168,7 @@ export default function FlightSearchForm({
   useEffect(() => {
     if (!activeField) return;
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => void fetchSuggestions(fieldQuery), 300);
+    debounceRef.current = setTimeout(() => void fetchSuggestions(fieldQuery), 450);
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };

@@ -13,7 +13,7 @@ export const POPULAR_AIRPORTS: SearchSuggestion[] = [
   { id: "pop-fra", label: "Frankfurt", subtitle: "Germany", kind: "city", query: "Frankfurt", searchQuery: "Frankfurt", iata: "FRA", skyId: "FRAA", entityId: "27534206" },
   { id: "pop-ams", label: "Amsterdam", subtitle: "Netherlands", kind: "city", query: "Amsterdam", searchQuery: "Amsterdam", iata: "AMS", skyId: "AMSA", entityId: "27534067" },
   { id: "pop-bcn", label: "Barcelona", subtitle: "Spain", kind: "city", query: "Barcelona", searchQuery: "Barcelona", iata: "BCN", skyId: "BCNA", entityId: "27548283" },
-  { id: "pop-syd", label: "Sydney", subtitle: "Australia", kind: "city", query: "Sydney", searchQuery: "Sydney", iata: "SYD", skyId: "SYDA", entityId: "27546111" },
+  { id: "pop-syd", label: "Sydney", subtitle: "Australia", kind: "city", query: "Sydney", searchQuery: "Sydney", iata: "SYD", skyId: "SYDA", entityId: "27544850" },
   { id: "pop-ber", label: "Berlin", subtitle: "Germany", kind: "city", query: "Berlin", searchQuery: "Berlin", iata: "BER", skyId: "BER", entityId: "95673383" },
   { id: "pop-muc", label: "Munich", subtitle: "Germany", kind: "city", query: "Munich", searchQuery: "Munich", iata: "MUC", skyId: "MUC", entityId: "95673491" },
   { id: "pop-rom", label: "Rome", subtitle: "Italy", kind: "city", query: "Rome", searchQuery: "Rome", iata: "ROM", skyId: "ROMA", entityId: "27539793" },

@@ -413,6 +413,9 @@ const en = {
     loadingLiveRatesProgress: "Live rates: {loaded} of {total} updated…",
     enterRoute: "Enter departure and destination airports to search flights.",
     noFlightsFound: "No flights found for this route. Try different airports or dates.",
+    apiUnavailable:
+      "Live flight search is temporarily overloaded or unavailable. Please try again in a few seconds.",
+    retrySearch: "Search again",
     noResultsFound: "No results found. Try a different search term.",
     tryFlights: "Try: London → Paris, New York → London, Dubai → Bangkok",
     tryStays: "Try: London, Paris, Dubai, Las Vegas, Tokyo, Barcelona",

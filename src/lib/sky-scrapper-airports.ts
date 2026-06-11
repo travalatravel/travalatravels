@@ -1,11 +1,10 @@
+import { POPULAR_AIRPORTS } from "@/data/popular-airports";
 import type { SearchSuggestion } from "./travala-suggest";
-
-const HOST = process.env.RAPIDAPI_FLIGHT_HOST || "sky-scrapper.p.rapidapi.com";
+import { rapidApiConfigured, rapidApiFetch, rapidApiHost } from "./rapidapi-fetch";
+import { getCachedAirport, setCachedAirport } from "./sky-scrapper-cache";
 
 export type AirportRef = { skyId: string; entityId: string };
 type SkyRecord = Record<string, unknown>;
-
-const airportCache = new Map<string, AirportRef>();
 
 /** Well-known Skyscanner IDs — avoids extra searchAirport requests */
 export const KNOWN_AIRPORTS: Record<string, AirportRef> = {
@@ -20,7 +19,7 @@ export const KNOWN_AIRPORTS: Record<string, AirportRef> = {
   FRA: { skyId: "FRAA", entityId: "27534206" },
   AMS: { skyId: "AMSA", entityId: "27534067" },
   BCN: { skyId: "BCNA", entityId: "27548283" },
-  SYD: { skyId: "SYDA", entityId: "27546111" },
+  SYD: { skyId: "SYDA", entityId: "27544850" },
   BER: { skyId: "BER", entityId: "95673383" },
   MUC: { skyId: "MUC", entityId: "95673491" },
   ROM: { skyId: "ROMA", entityId: "27539793" },
@@ -34,19 +33,15 @@ export const KNOWN_AIRPORTS: Record<string, AirportRef> = {
   SEL: { skyId: "SELA", entityId: "27542089" },
 };
 
-function configured() {
-  return Boolean(process.env.RAPIDAPI_KEY?.trim());
-}
-
-function headers() {
-  return {
-    "X-RapidAPI-Host": HOST,
-    "X-RapidAPI-Key": process.env.RAPIDAPI_KEY!,
-  };
+for (const item of POPULAR_AIRPORTS) {
+  const code = item.iata?.toUpperCase();
+  if (code && item.skyId && item.entityId && !KNOWN_AIRPORTS[code]) {
+    KNOWN_AIRPORTS[code] = { skyId: item.skyId, entityId: item.entityId };
+  }
 }
 
 export function skyScrapperAirportConfigured() {
-  return configured();
+  return rapidApiConfigured();
 }
 
 export function parseAirportSearchResult(item: unknown): AirportRef | null {
@@ -109,17 +104,17 @@ export async function suggestSkyScrapperAirports(
   limit = 8,
   locale = "en-US",
 ): Promise<SearchSuggestion[]> {
-  if (!configured()) return [];
+  if (!rapidApiConfigured()) return [];
 
   const trimmed = query.trim();
   if (!trimmed) return [];
 
-  const url = new URL(`https://${HOST}/api/v1/flights/searchAirport`);
+  const url = new URL(`https://${rapidApiHost()}/api/v1/flights/searchAirport`);
   url.searchParams.set("query", trimmed);
   url.searchParams.set("locale", locale);
 
   try {
-    const res = await fetch(url, { headers: headers() });
+    const res = await rapidApiFetch(url.toString(), { timeoutMs: 8000, retries: 1 });
     if (!res.ok) return [];
     const json = (await res.json()) as { data?: unknown[] };
     const items = json.data || [];
@@ -134,11 +129,14 @@ export async function suggestSkyScrapperAirports(
 
 export async function resolveAirport(keyword: string, iataCode: string): Promise<AirportRef | null> {
   const cacheKey = (iataCode || keyword).trim().toUpperCase();
-  if (airportCache.has(cacheKey)) return airportCache.get(cacheKey)!;
+  if (!cacheKey) return null;
+
+  const cached = getCachedAirport(cacheKey);
+  if (cached) return cached;
 
   const known = KNOWN_AIRPORTS[cacheKey] || KNOWN_AIRPORTS[iataCode?.toUpperCase()];
   if (known) {
-    airportCache.set(cacheKey, known);
+    setCachedAirport(cacheKey, known);
     return known;
   }
 
@@ -152,6 +150,6 @@ export async function resolveAirport(keyword: string, iataCode: string): Promise
       : null;
   if (!ref) return null;
 
-  airportCache.set(cacheKey, ref);
+  setCachedAirport(cacheKey, ref);
   return ref;
 }

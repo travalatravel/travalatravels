@@ -3,25 +3,27 @@ import { getFlightPricing } from "./flight-pricing";
 import { encodeFlightToken } from "./flight-token";
 import type { FlightLeg, LiveFlightOffer, LiveFlightSegment } from "./live-flight-types";
 import type { CabinClass, TripType } from "./flight-types";
+import { rapidApiConfigured, rapidApiFetch, rapidApiHost } from "./rapidapi-fetch";
+import {
+  dedupeSearch,
+  getCachedSearch,
+  getStaleSearch,
+  setCachedSearch,
+} from "./sky-scrapper-cache";
 import {
   resolveAirport,
   skyScrapperAirportConfigured,
   type AirportRef,
 } from "./sky-scrapper-airports";
 
-const HOST = process.env.RAPIDAPI_FLIGHT_HOST || "sky-scrapper.p.rapidapi.com";
-
 type SkyRecord = Record<string, unknown>;
+
+const MARKET = process.env.RAPIDAPI_FLIGHT_MARKET || "de-DE";
+const COUNTRY = process.env.RAPIDAPI_FLIGHT_COUNTRY || "DE";
+const CURRENCY = process.env.RAPIDAPI_FLIGHT_CURRENCY || "EUR";
 
 function configured() {
   return skyScrapperAirportConfigured();
-}
-
-function headers() {
-  return {
-    "X-RapidAPI-Host": HOST,
-    "X-RapidAPI-Key": process.env.RAPIDAPI_KEY!,
-  };
 }
 
 function parseDuration(raw: string | number | undefined): string {
@@ -144,6 +146,224 @@ export function skyScrapperConfigured() {
   return configured();
 }
 
+function buildSearchUrl(
+  origin: AirportRef,
+  dest: AirportRef,
+  input: {
+    depart: string;
+    returnDate?: string;
+    trip: TripType;
+    cabin: CabinClass;
+    adults: number;
+    children: number;
+    infants: number;
+  },
+  path: "v2" | "v1complete",
+) {
+  const endpoint =
+    path === "v2"
+      ? `/api/v2/flights/searchFlights`
+      : `/api/v1/flights/searchFlightsComplete`;
+  const url = new URL(`https://${rapidApiHost()}${endpoint}`);
+  url.searchParams.set("originSkyId", origin.skyId);
+  url.searchParams.set("destinationSkyId", dest.skyId);
+  url.searchParams.set("originEntityId", origin.entityId);
+  url.searchParams.set("destinationEntityId", dest.entityId);
+  url.searchParams.set("date", input.depart);
+  url.searchParams.set("cabinClass", CABIN_PARAM[input.cabin] || "economy");
+  url.searchParams.set("adults", String(input.adults));
+  url.searchParams.set("sortBy", "best");
+  url.searchParams.set("currency", CURRENCY);
+  url.searchParams.set("market", MARKET);
+  url.searchParams.set("countryCode", COUNTRY);
+  if (input.children > 0) url.searchParams.set("childrens", String(input.children));
+  if (input.infants > 0) url.searchParams.set("infants", String(input.infants));
+  if (input.trip === "roundtrip" && input.returnDate) {
+    url.searchParams.set("returnDate", input.returnDate);
+  }
+  return url.toString();
+}
+
+function searchCacheKey(
+  origin: AirportRef,
+  dest: AirportRef,
+  input: {
+    depart: string;
+    returnDate?: string;
+    trip: TripType;
+    cabin: CabinClass;
+    adults: number;
+    children: number;
+    infants: number;
+  },
+) {
+  return [
+    origin.skyId,
+    origin.entityId,
+    dest.skyId,
+    dest.entityId,
+    input.depart,
+    input.returnDate || "",
+    input.trip,
+    input.cabin,
+    input.adults,
+    input.children,
+    input.infants,
+    MARKET,
+  ].join("|");
+}
+
+async function fetchItineraries(url: string): Promise<Record<string, unknown>[]> {
+  const res = await rapidApiFetch(url, { timeoutMs: 25000, retries: 2 });
+  if (!res.ok) return [];
+  const json = (await res.json()) as { data?: { itineraries?: Record<string, unknown>[] } };
+  return json.data?.itineraries || [];
+}
+
+function mapItineraries(
+  itineraries: Record<string, unknown>[],
+  input: {
+    fromLabel: string;
+    toLabel: string;
+    fromCode: string;
+    toCode: string;
+    depart: string;
+    returnDate?: string;
+    trip: TripType;
+    cabin: CabinClass;
+    adults: number;
+    children: number;
+    infants: number;
+  },
+): LiveFlightOffer[] {
+  const pax = { adults: input.adults, children: input.children, infants: input.infants };
+
+  return itineraries
+    .slice(0, 30)
+    .map((it, index) => {
+      const priceObj = it.price as Record<string, unknown> | undefined;
+      const raw = parseFloat(String(priceObj?.raw ?? priceObj?.amount ?? 0));
+      if (!raw || raw <= 0) return null;
+
+      const legs = (it.legs as Record<string, unknown>[]) || [];
+      const outboundData = parseSkyLeg(legs[0] as SkyRecord, {
+        fromLabel: input.fromLabel,
+        toLabel: input.toLabel,
+        fromCode: input.fromCode,
+        toCode: input.toCode,
+        departDate: input.depart,
+      });
+      if (!outboundData) return null;
+
+      let returnLeg: FlightLeg | undefined;
+      const segments: LiveFlightSegment[] = [...outboundData.segments];
+
+      if (input.trip === "roundtrip" && input.returnDate && legs[1]) {
+        const returnData = parseSkyLeg(legs[1] as SkyRecord, {
+          fromLabel: input.toLabel,
+          toLabel: input.fromLabel,
+          fromCode: input.toCode,
+          toCode: input.fromCode,
+          departDate: input.returnDate,
+        });
+        if (returnData) {
+          returnLeg = returnData.summary;
+          segments.push(...returnData.segments);
+        }
+      }
+
+      const outbound = outboundData.summary;
+      const first = segments[0];
+      if (!first) return null;
+
+      const carrier = outbound.airlineCode;
+      const pricing = getFlightPricing(raw);
+
+      const offer: LiveFlightOffer = {
+        id: String(it.id || `sky-${index}`),
+        airline: outbound.airline,
+        airlineCode: carrier,
+        from: input.fromLabel,
+        to: input.toLabel,
+        fromCode: outbound.fromCode,
+        toCode: outbound.toCode,
+        departAt: outbound.departAt,
+        arriveAt: returnLeg?.arriveAt ?? outbound.arriveAt,
+        duration: outbound.duration,
+        stops: outbound.stops,
+        outbound,
+        returnLeg,
+        sourcePrice: pricing.originalPrice,
+        salePrice: pricing.salePrice,
+        currency: CURRENCY,
+        cabin: input.cabin,
+        trip: input.trip,
+        segments,
+        offerToken: "",
+      };
+
+      offer.offerToken = encodeFlightToken({
+        id: offer.id,
+        airline: offer.airline,
+        airlineCode: offer.airlineCode,
+        from: offer.from,
+        to: offer.to,
+        fromCode: offer.fromCode,
+        toCode: offer.toCode,
+        departAt: offer.departAt,
+        arriveAt: offer.arriveAt,
+        duration: offer.duration,
+        stops: offer.stops,
+        outbound: offer.outbound,
+        returnLeg: offer.returnLeg,
+        sourcePrice: offer.sourcePrice,
+        salePrice: offer.salePrice,
+        currency: offer.currency,
+        cabin: offer.cabin,
+        trip: offer.trip,
+        ...pax,
+        segments: offer.segments,
+      });
+
+      return offer;
+    })
+    .filter((o): o is LiveFlightOffer => o !== null)
+    .sort((a, b) => a.salePrice - b.salePrice);
+}
+
+async function runSearch(
+  origin: AirportRef,
+  dest: AirportRef,
+  input: Parameters<typeof searchSkyScrapperFlights>[0],
+): Promise<LiveFlightOffer[] | null> {
+  const key = searchCacheKey(origin, dest, input);
+  const cached = getCachedSearch<LiveFlightOffer[] | null>(key);
+  if (cached) return cached;
+
+  return dedupeSearch(key, async () => {
+    let itineraries = await fetchItineraries(
+      buildSearchUrl(origin, dest, input, "v2"),
+    );
+
+    if (!itineraries.length) {
+      itineraries = await fetchItineraries(
+        buildSearchUrl(origin, dest, input, "v1complete"),
+      );
+    }
+
+    if (!itineraries.length) {
+      const stale = getStaleSearch<LiveFlightOffer[] | null>(key);
+      if (stale?.length) return stale;
+      return null;
+    }
+
+    const offers = mapItineraries(itineraries, input);
+    if (!offers.length) return null;
+    setCachedSearch(key, offers);
+    return offers;
+  });
+}
+
 export async function searchSkyScrapperFlights(input: {
   fromCode: string;
   toCode: string;
@@ -165,126 +385,11 @@ export async function searchSkyScrapperFlights(input: {
   const dest = input.toSky ?? (await resolveAirport(input.toLabel, input.toCode));
   if (!origin || !dest) return null;
 
-  const url = new URL(`https://${HOST}/api/v2/flights/searchFlights`);
-  url.searchParams.set("originSkyId", origin.skyId);
-  url.searchParams.set("destinationSkyId", dest.skyId);
-  url.searchParams.set("originEntityId", origin.entityId);
-  url.searchParams.set("destinationEntityId", dest.entityId);
-  url.searchParams.set("date", input.depart);
-  url.searchParams.set("cabinClass", CABIN_PARAM[input.cabin] || "economy");
-  url.searchParams.set("adults", String(input.adults));
-  url.searchParams.set("sortBy", "best");
-  url.searchParams.set("currency", "USD");
-  url.searchParams.set("market", "en-US");
-  url.searchParams.set("countryCode", "US");
-  if (input.trip === "roundtrip" && input.returnDate) {
-    url.searchParams.set("returnDate", input.returnDate);
-  }
-
   try {
-    const res = await fetch(url, { headers: headers() });
-    if (!res.ok) return null;
-    const json = (await res.json()) as { data?: { itineraries?: Record<string, unknown>[] } };
-    const itineraries = json.data?.itineraries || [];
-    const pax = { adults: input.adults, children: input.children, infants: input.infants };
-
-    const offers = itineraries
-      .slice(0, 30)
-      .map((it, index) => {
-        const priceObj = it.price as Record<string, unknown> | undefined;
-        const raw = parseFloat(String(priceObj?.raw ?? priceObj?.amount ?? 0));
-        if (!raw || raw <= 0) return null;
-
-        const legs = (it.legs as Record<string, unknown>[]) || [];
-        const outboundData = parseSkyLeg(legs[0] as SkyRecord, {
-          fromLabel: input.fromLabel,
-          toLabel: input.toLabel,
-          fromCode: input.fromCode,
-          toCode: input.toCode,
-          departDate: input.depart,
-        });
-        if (!outboundData) return null;
-
-        let returnLeg: FlightLeg | undefined;
-        const segments: LiveFlightSegment[] = [...outboundData.segments];
-
-        if (input.trip === "roundtrip" && input.returnDate && legs[1]) {
-          const returnData = parseSkyLeg(legs[1] as SkyRecord, {
-            fromLabel: input.toLabel,
-            toLabel: input.fromLabel,
-            fromCode: input.toCode,
-            toCode: input.fromCode,
-            departDate: input.returnDate,
-          });
-          if (returnData) {
-            returnLeg = returnData.summary;
-            segments.push(...returnData.segments);
-          }
-        }
-
-        const outbound = outboundData.summary;
-        const first = segments[0];
-        if (!first) return null;
-
-        const carrier = outbound.airlineCode;
-        const pricing = getFlightPricing(raw);
-        const duration = outbound.duration;
-        const stops = outbound.stops;
-        const arriveAt = returnLeg?.arriveAt ?? outbound.arriveAt;
-
-        const offer: LiveFlightOffer = {
-          id: String(it.id || `sky-${index}`),
-          airline: outbound.airline,
-          airlineCode: carrier,
-          from: input.fromLabel,
-          to: input.toLabel,
-          fromCode: outbound.fromCode,
-          toCode: outbound.toCode,
-          departAt: outbound.departAt,
-          arriveAt,
-          duration,
-          stops,
-          outbound,
-          returnLeg,
-          sourcePrice: pricing.originalPrice,
-          salePrice: pricing.salePrice,
-          currency: "USD",
-          cabin: input.cabin,
-          trip: input.trip,
-          segments,
-          offerToken: "",
-        };
-
-        offer.offerToken = encodeFlightToken({
-          id: offer.id,
-          airline: offer.airline,
-          airlineCode: offer.airlineCode,
-          from: offer.from,
-          to: offer.to,
-          fromCode: offer.fromCode,
-          toCode: offer.toCode,
-          departAt: offer.departAt,
-          arriveAt: offer.arriveAt,
-          duration: offer.duration,
-          stops: offer.stops,
-          outbound: offer.outbound,
-          returnLeg: offer.returnLeg,
-          sourcePrice: offer.sourcePrice,
-          salePrice: offer.salePrice,
-          currency: offer.currency,
-          cabin: offer.cabin,
-          trip: offer.trip,
-          ...pax,
-          segments: offer.segments,
-        });
-
-        return offer;
-      })
-      .filter((o): o is LiveFlightOffer => o !== null)
-      .sort((a, b) => a.salePrice - b.salePrice);
-
-    return offers.length ? offers : null;
+    return await runSearch(origin, dest, input);
   } catch {
-    return null;
+    const key = searchCacheKey(origin, dest, input);
+    const stale = getStaleSearch<LiveFlightOffer[] | null>(key);
+    return stale?.length ? stale : null;
   }
 }
