@@ -1,4 +1,5 @@
 import { travalaApiHeaders } from "./travala-headers";
+import { canonicalToSuggestion, matchCanonicalDestination, normalizeDestinationKey } from "./city-destinations";
 import { normalizeSearchQuery } from "./search-query";
 
 export type SuggestionKind =
@@ -22,6 +23,12 @@ export type SearchSuggestion = {
   searchQuery: string;
   slug?: string;
   iata?: string;
+  country?: string;
+  city?: string;
+  countrySlug?: string;
+  regionSlug?: string;
+  citySlug?: string;
+  liveUrl?: string;
   /** Sky Scrapper flight place IDs — set when autocomplete uses searchAirport */
   skyId?: string;
   entityId?: string;
@@ -36,6 +43,7 @@ type TravalaCityItem = {
   slug?: string | null;
   city_slug?: string | null;
   country_slug?: string | null;
+  region_slug?: string | null;
   iata_airport_metro_code?: string | null;
 };
 
@@ -90,14 +98,37 @@ function searchQueryForLocation(name: string, kind: SuggestionKind): string {
   return normalizeSearchQuery(clean);
 }
 
-function cityToSuggestion(item: TravalaCityItem): SearchSuggestion | null {
+function partsAfterCity(name: string): string | undefined {
+  const parts = name.split(",").map((p) => p.trim()).filter(Boolean);
+  if (parts.length <= 1) return undefined;
+  return parts.slice(1).join(", ");
+}
+
+function countryFromName(name: string): string | undefined {
+  const parts = name.split(",").map((p) => p.trim()).filter(Boolean);
+  return parts.length >= 2 ? parts[parts.length - 1] : undefined;
+}
+
+function liveUrlFromSlugs(item: TravalaCityItem): string | undefined {
+  if (!item.country_slug || !item.city_slug) return undefined;
+  const region = item.region_slug || "region";
+  return `https://www.travala.com/hotels/${item.country_slug}/${region}/${item.city_slug}`;
+}
+
+function cityToSuggestion(item: TravalaCityItem, searchType?: string): SearchSuggestion | null {
   if (!item.name || !item.id) return null;
   const type = primaryType(item);
-  const kind = kindFromType(type);
-  const label = stripHtml(item.accent_name || item.name);
+  let kind = kindFromType(type);
   const query = stripHtml(item.name);
+  const primary = normalizeSearchQuery(query);
+  if (searchType === "stays" && REGION_TYPES.has(type) && primary && !/\b(south|north|east|west)\b/i.test(primary)) {
+    kind = "city";
+  }
+  const label = stripHtml(item.accent_name || item.name);
   const searchQuery = searchQueryForLocation(query, kind);
   const iata = item.iata_airport_metro_code || undefined;
+  const country = countryFromName(query);
+  const liveUrl = liveUrlFromSlugs(item);
 
   let subtitle: string | undefined;
   if (AIRPORT_TYPES.has(type) && iata) {
@@ -115,13 +146,13 @@ function cityToSuggestion(item: TravalaCityItem): SearchSuggestion | null {
     searchQuery,
     slug: item.city_slug || item.slug || undefined,
     iata,
+    country,
+    city: kind === "city" ? searchQuery : undefined,
+    countrySlug: item.country_slug || undefined,
+    regionSlug: item.region_slug || undefined,
+    citySlug: item.city_slug || undefined,
+    liveUrl,
   };
-}
-
-function partsAfterCity(name: string): string | undefined {
-  const parts = name.split(",").map((p) => p.trim()).filter(Boolean);
-  if (parts.length <= 1) return undefined;
-  return parts.slice(1).join(", ");
 }
 
 function propertyToSuggestion(item: TravalaPropertyItem): SearchSuggestion | null {
@@ -226,6 +257,45 @@ function dedupeSuggestions(items: SearchSuggestion[], searchType: string): Searc
   return [...seen.values()];
 }
 
+function mentionsSpain(item: SearchSuggestion): boolean {
+  const hay = `${item.query} ${item.subtitle || ""} ${item.country || ""}`.toLowerCase();
+  return hay.includes("spain") || hay.includes("canary");
+}
+
+function refineStaysSuggestions(query: string, items: SearchSuggestion[]): SearchSuggestion[] {
+  const canonical = matchCanonicalDestination(query);
+  if (canonical) {
+    const primary = canonicalToSuggestion(canonical);
+    const hotels = items.filter((item) => item.kind === "hotel").slice(0, 2);
+    return [primary, ...hotels];
+  }
+
+  const qNorm = normalizeDestinationKey(query);
+  const hasSpainMatch = items.some((item) => item.kind === "city" && mentionsSpain(item));
+
+  const filtered = items.filter((item) => {
+    if (item.kind === "airport" && items.some((other) => other.kind === "city" && other.searchQuery.toLowerCase().includes(qNorm))) {
+      return false;
+    }
+    if (item.kind === "city" && hasSpainMatch && /tenerife/i.test(qNorm) && !mentionsSpain(item)) {
+      return false;
+    }
+    if (item.kind === "region") return false;
+    return true;
+  });
+
+  const deduped = new Map<string, SearchSuggestion>();
+  for (const item of filtered) {
+    const key =
+      item.kind === "hotel"
+        ? item.id
+        : `${item.kind}:${normalizeDestinationKey(item.searchQuery)}:${mentionsSpain(item) ? "es" : item.subtitle || ""}`;
+    if (!deduped.has(key)) deduped.set(key, item);
+  }
+
+  return [...deduped.values()].slice(0, 6);
+}
+
 export async function fetchTravalaSuggestions(
   q: string,
   searchType: string,
@@ -265,7 +335,7 @@ export async function fetchTravalaSuggestions(
   const maxResults = searchType === "stays" ? Math.min(limit, 8) : limit;
 
   const locations = (json.data.cities || [])
-    .map(cityToSuggestion)
+    .map((item) => cityToSuggestion(item, searchType))
     .filter((item): item is SearchSuggestion => Boolean(item))
     .filter((item) => !allowed || allowed.has(item.kind));
 
@@ -275,14 +345,17 @@ export async function fetchTravalaSuggestions(
         .filter((item): item is SearchSuggestion => Boolean(item))
     : [];
 
-  const merged = dedupeSuggestions([...locations, ...hotels], searchType)
+  let merged = dedupeSuggestions([...locations, ...hotels], searchType)
     .sort(
       (a, b) =>
         exactMatchBoost(a, trimmed) - exactMatchBoost(b, trimmed) ||
         priority[a.kind] - priority[b.kind] ||
         a.label.localeCompare(b.label),
-    )
-    .slice(0, maxResults);
+    );
 
-  return merged;
+  if (searchType === "stays") {
+    merged = refineStaysSuggestions(trimmed, merged);
+  }
+
+  return merged.slice(0, maxResults);
 }

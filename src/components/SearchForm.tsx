@@ -149,7 +149,7 @@ export default function SearchForm({
     };
   }, []);
 
-  const navigateToSearch = (searchQuery: string) => {
+  const navigateToSearch = (searchQuery: string, item?: SearchSuggestion) => {
     const term = searchQuery.trim();
     if (type === "stays" && !term) return;
 
@@ -169,6 +169,18 @@ export default function SearchForm({
       return;
     }
 
+    if (item?.country && item?.city) {
+      const params = new URLSearchParams({
+        type: "stays",
+        q: term,
+        country: item.country,
+        city: item.city,
+      });
+      dateParams.forEach((value, key) => params.set(key, value));
+      router.push(`/search?${params.toString()}`);
+      return;
+    }
+
     const base = searchStaysPath(term);
     const qs = dateParams.toString();
     router.push(qs ? `${base}${base.includes("?") ? "&" : "?"}${qs}` : base);
@@ -176,8 +188,8 @@ export default function SearchForm({
 
   const selectSuggestion = (item: SearchSuggestion) => {
     const term = item.searchQuery || item.query || item.label;
-    setQuery(term);
-    navigateToSearch(term);
+    setQuery(item.query || term);
+    navigateToSearch(term, item);
   };
 
   const handleSearch = (e?: React.FormEvent) => {

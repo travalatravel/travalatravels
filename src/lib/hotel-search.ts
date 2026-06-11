@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { searchTermsForQuery, normalizeSearchQuery } from "@/lib/search-query";
+import { expandCanonicalSearchTerms } from "@/lib/city-destinations";
 import { fetchLiveHotelsForQuery, upsertLiveHotels, type LiveHotel } from "@/lib/travala-live-search";
 import type { Offer, OfferType } from "@/lib/types";
 
@@ -75,6 +76,7 @@ function countryNamesForQuery(raw: string): string[] | null {
 
 function expandSearchTerms(raw: string): string[] {
   const terms = new Set(searchTermsForQuery(raw).filter((t) => t.length >= 3));
+  expandCanonicalSearchTerms(raw).forEach((term) => terms.add(term));
   const key = raw.trim().toLowerCase().replace(/\s+/g, "-");
   const slugKey = key.replace(/-/g, "");
   for (const [aliasKey, aliases] of Object.entries(COUNTRY_ALIASES)) {
@@ -243,7 +245,10 @@ export async function searchHotelOffers(params: HotelSearchParams): Promise<{
     const primary = primaryTerm;
     try {
       const live = await Promise.race([
-        fetchLiveHotelsForQuery(primary),
+        fetchLiveHotelsForQuery(primary, {
+          country: params.country,
+          city: params.city,
+        }),
         new Promise<LiveHotel[]>((_, reject) =>
           setTimeout(() => reject(new Error("live timeout")), 9000),
         ),

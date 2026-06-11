@@ -1,4 +1,5 @@
 import type { SearchSuggestion } from "@/lib/travala-suggest";
+import { canonicalToSuggestion, matchCanonicalDestination } from "@/lib/city-destinations";
 
 /** Instant city suggestions for hotel/stays search */
 export const POPULAR_CITIES: SearchSuggestion[] = [
@@ -16,6 +17,17 @@ export const POPULAR_CITIES: SearchSuggestion[] = [
   { id: "city-prg", label: "Prague", subtitle: "Czech Republic", kind: "city", query: "Prague", searchQuery: "Prague" },
   { id: "city-lis", label: "Lisbon", subtitle: "Portugal", kind: "city", query: "Lisbon", searchQuery: "Lisbon" },
   { id: "city-mad", label: "Madrid", subtitle: "Spain", kind: "city", query: "Madrid", searchQuery: "Madrid" },
+  {
+    id: "city-tci",
+    label: "Tenerife",
+    subtitle: "Spain",
+    kind: "city",
+    query: "Tenerife, Spain",
+    searchQuery: "Tenerife",
+    country: "Spain",
+    city: "Santa Cruz de Tenerife",
+    liveUrl: "https://www.travala.com/hotels/spain/canary-islands/santa-cruz-de-tenerife",
+  },
   { id: "city-zrh", label: "Zurich", subtitle: "Switzerland", kind: "city", query: "Zurich", searchQuery: "Zurich" },
   { id: "city-ist", label: "Istanbul", subtitle: "Turkey", kind: "city", query: "Istanbul", searchQuery: "Istanbul" },
 ];
@@ -23,6 +35,12 @@ export const POPULAR_CITIES: SearchSuggestion[] = [
 export function filterPopularCities(query: string, limit = 12): SearchSuggestion[] {
   const q = query.trim().toLowerCase();
   if (!q) return POPULAR_CITIES.slice(0, limit);
+
+  const canonical = matchCanonicalDestination(q);
+  if (canonical) {
+    return [canonicalToSuggestion(canonical)];
+  }
+
   return POPULAR_CITIES.filter((item) => {
     const hay = `${item.label} ${item.subtitle || ""} ${item.searchQuery}`.toLowerCase();
     return hay.includes(q);
