@@ -34,10 +34,20 @@ export async function GET(request: Request) {
     const infants = Math.max(0, parseInt(searchParams.get("infants") || "0", 10));
     const sort = searchParams.get("sort") || "price-asc";
     const leg = searchParams.get("leg") || "";
-    const fromCode = resolveIataCode(from, fromCodeHint);
-    const toCode = resolveIataCode(to, toCodeHint);
+    const fromCode = resolveIataCode(from, fromCodeHint) || "";
+    const toCode = resolveIataCode(to, toCodeHint) || "";
 
-    if (!fromCode || !toCode) {
+    const fromSky =
+      fromSkyId && fromEntityId
+        ? { skyId: fromSkyId, entityId: fromEntityId }
+        : findKnownAirport(from, fromCode) ?? undefined;
+    const toSky =
+      toSkyId && toEntityId
+        ? { skyId: toSkyId, entityId: toEntityId }
+        : findKnownAirport(to, toCode) ?? undefined;
+
+    // Sky IDs (from a clicked suggestion) are enough — IATA is only a fallback.
+    if ((!fromCode && !fromSky) || (!toCode && !toSky)) {
       return NextResponse.json(
         {
           error: "Could not resolve airport codes. Pick a city or airport from the suggestions.",
@@ -48,15 +58,6 @@ export async function GET(request: Request) {
         { status: 400 },
       );
     }
-
-    const fromSky =
-      fromSkyId && fromEntityId
-        ? { skyId: fromSkyId, entityId: fromEntityId }
-        : findKnownAirport(from, fromCode) ?? undefined;
-    const toSky =
-      toSkyId && toEntityId
-        ? { skyId: toSkyId, entityId: toEntityId }
-        : findKnownAirport(to, toCode) ?? undefined;
 
     let searchInput = {
       fromCode,

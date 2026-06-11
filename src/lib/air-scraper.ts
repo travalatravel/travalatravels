@@ -82,24 +82,72 @@ export function buildSearchFlightsUrl(input: AirScraperSearchInput): string {
   return url.toString();
 }
 
+type SearchFlightsResponse = {
+  status?: boolean;
+  data?: {
+    context?: { status?: string; sessionId?: string };
+    itineraries?: Record<string, unknown>[];
+  };
+};
+
+async function fetchSearchFlightsOnce(
+  url: string,
+): Promise<{ itineraries: Record<string, unknown>[]; complete: boolean; ok: boolean }> {
+  const res = await rapidApiFetch(url, { timeoutMs: 28000, retries: 0 });
+  if (!res.ok) return { itineraries: [], complete: false, ok: false };
+
+  let json: SearchFlightsResponse;
+  try {
+    json = (await res.json()) as SearchFlightsResponse;
+  } catch {
+    return { itineraries: [], complete: false, ok: false };
+  }
+
+  // The API intermittently answers HTTP 200 with status:false
+  // ("Something went wrong...") or a malformed body — treat as retryable.
+  if (json.status !== true || !json.data) {
+    return { itineraries: [], complete: false, ok: false };
+  }
+
+  const itineraries = json.data.itineraries || [];
+  const complete = json.data.context?.status === "complete";
+  return { itineraries, complete, ok: true };
+}
+
+/**
+ * v1 searchFlights with retries on flaky responses.
+ *
+ * Notes on this provider (sky-scrapper.p.rapidapi.com):
+ * - There is NO working searchIncomplete/poll endpoint; the documented
+ *   sessionId cannot be used to fetch more results.
+ * - Each search returns at most ~8 itineraries regardless of sortBy —
+ *   that is the full result set this API exposes.
+ * - HTTP 200 responses randomly come back with status:false or garbage,
+ *   so we retry the identical request a couple of times.
+ */
 export async function airScraperSearchFlights(
   input: AirScraperSearchInput,
 ): Promise<{ itineraries: Record<string, unknown>[]; complete: boolean }> {
   const url = buildSearchFlightsUrl(input);
-  const res = await rapidApiFetch(url, { timeoutMs: 28000, retries: 1 });
-  if (!res.ok) return { itineraries: [], complete: false };
+  const maxAttempts = 3;
 
-  const json = (await res.json()) as {
-    status?: boolean;
-    data?: {
-      context?: { status?: string };
-      itineraries?: Record<string, unknown>[];
-    };
-  };
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    try {
+      const result = await fetchSearchFlightsOnce(url);
+      if (result.ok && result.itineraries.length) {
+        return { itineraries: result.itineraries, complete: result.complete };
+      }
+      // ok but empty + complete → genuinely no inventory on this route/date
+      if (result.ok && result.complete) {
+        return { itineraries: [], complete: true };
+      }
+    } catch {
+      // network/timeout — fall through to retry
+    }
+    if (attempt < maxAttempts - 1) {
+      await new Promise((r) => setTimeout(r, 1000 + attempt * 500));
+    }
+  }
 
-  if (json.status === false) return { itineraries: [], complete: false };
-
-  const itineraries = json.data?.itineraries || [];
-  const complete = json.data?.context?.status === "complete";
-  return { itineraries, complete };
+  return { itineraries: [], complete: false };
 }

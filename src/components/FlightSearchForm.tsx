@@ -221,7 +221,9 @@ export default function FlightSearchForm({
 
   const selectSuggestion = (item: SearchSuggestion) => {
     if (!activeField) return;
-    const code = item.iata || item.searchQuery?.slice(0, 3).toUpperCase();
+    // Only use a real IATA code — fabricating one from the label (e.g. "MAL"
+    // for Mallorca) breaks the backend airport resolution.
+    const code = item.iata || resolveIataCode(item.label) || undefined;
     setFieldValue(activeField, item.label, code, {
       skyId: item.skyId,
       entityId: item.entityId,
@@ -266,12 +268,17 @@ export default function FlightSearchForm({
 
     const resolvedFromCode = (fromCode || resolveIataCode(labelFrom) || "").toUpperCase();
     const resolvedToCode = (toCode || resolveIataCode(labelTo) || "").toUpperCase();
-    if (!resolvedFromCode || !resolvedToCode) {
-      return;
-    }
 
     const knownFrom = findKnownAirport(labelFrom, resolvedFromCode);
     const knownTo = findKnownAirport(labelTo, resolvedToCode);
+
+    // Search works with either an IATA code or Sky IDs (from a clicked
+    // suggestion). Only bail out when we have neither for one side.
+    const fromResolvable = Boolean(resolvedFromCode || fromSkyId || knownFrom);
+    const toResolvable = Boolean(resolvedToCode || toSkyId || knownTo);
+    if (!fromResolvable || !toResolvable) {
+      return;
+    }
 
     const params = buildFlightSearchQuery({
       trip,
