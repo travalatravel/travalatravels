@@ -1,9 +1,8 @@
 import type { CabinClass, FlightMetadata, FlightSearchParams, TripType } from "./flight-types";
-import { KNOWN_AIRPORTS } from "./sky-scrapper-airports";
+import { findKnownAirport } from "./sky-scrapper-airports";
 
-function knownSkyIds(code?: string) {
-  if (!code) return undefined;
-  return KNOWN_AIRPORTS[code.trim().toUpperCase()];
+function knownSkyIds(label: string, code?: string) {
+  return findKnownAirport(label, code);
 }
 
 const CABIN_MULTIPLIER: Record<CabinClass, number> = {
@@ -82,8 +81,8 @@ export function matchesFlightRoute(
 }
 
 export function buildFlightSearchQuery(params: FlightSearchParams): URLSearchParams {
-  const fromKnown = knownSkyIds(params.fromCode);
-  const toKnown = knownSkyIds(params.toCode);
+  const fromKnown = knownSkyIds(params.from, params.fromCode);
+  const toKnown = knownSkyIds(params.to, params.toCode);
   const fromSkyId = params.fromSkyId || fromKnown?.skyId;
   const fromEntityId = params.fromEntityId || fromKnown?.entityId;
   const toSkyId = params.toSkyId || toKnown?.skyId;

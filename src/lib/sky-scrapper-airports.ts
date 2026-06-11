@@ -1,8 +1,9 @@
+import { airScraperSearchAirport } from "./air-scraper";
 import { POPULAR_AIRPORTS } from "@/data/popular-airports";
 import { resolveIataCode } from "./iata-codes";
 import { canUseAirportSuggestApi } from "./rapidapi-plan";
 import type { SearchSuggestion } from "./travala-suggest";
-import { rapidApiConfigured, rapidApiFetch, rapidApiHost } from "./rapidapi-fetch";
+import { rapidApiConfigured } from "./rapidapi-fetch";
 import { getCachedAirport, setCachedAirport } from "./sky-scrapper-cache";
 
 export type AirportRef = { skyId: string; entityId: string };
@@ -160,15 +161,8 @@ export async function suggestSkyScrapperAirports(
   const trimmed = query.trim();
   if (!trimmed) return [];
 
-  const url = new URL(`https://${rapidApiHost()}/api/v1/flights/searchAirport`);
-  url.searchParams.set("query", trimmed);
-  url.searchParams.set("locale", locale);
-
   try {
-    const res = await rapidApiFetch(url.toString(), { timeoutMs: 8000, retries: 0 });
-    if (!res.ok) return [];
-    const json = (await res.json()) as { data?: unknown[] };
-    const items = json.data || [];
+    const items = await airScraperSearchAirport(trimmed, locale);
     return items
       .slice(0, limit)
       .map((item, index) => airportItemToSuggestion(item, index))

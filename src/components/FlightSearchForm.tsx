@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowLeftRight, Building2 } from "lucide-react";
 import SearchSuggestions from "./SearchSuggestions";
@@ -9,6 +9,8 @@ import MobileSearchOverlay from "./MobileSearchOverlay";
 import type { SearchSuggestion } from "@/lib/travala-suggest";
 import { ASSETS } from "@/data/site-data";
 import { buildFlightSearchQuery } from "@/lib/flight-display";
+import { resolveIataCode } from "@/lib/iata-codes";
+import { findKnownAirport } from "@/lib/sky-scrapper-airports";
 import { clearOutboundToken, clearOfferToken } from "@/lib/flight-selection-storage";
 import { filterPopularAirports } from "@/data/popular-airports";
 import type { CabinClass, TripType } from "@/lib/flight-types";
@@ -49,7 +51,6 @@ export default function FlightSearchForm({
   activeTab?: string;
   onTabChange?: (tab: string) => void;
 }) {
-  const router = useRouter();
   const urlParams = useSearchParams();
   const { locale, messages: m, fmt } = useTranslations();
   const dateLocale = LOCALE_BCP47[locale];
@@ -256,20 +257,32 @@ export default function FlightSearchForm({
 
   const handleSearch = (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (!from.trim() || !to.trim()) {
-      router.push("/search?type=flights");
+    const labelFrom = from.trim();
+    const labelTo = to.trim();
+    if (!labelFrom || !labelTo) {
+      window.location.assign("/search?type=flights");
       return;
     }
+
+    const resolvedFromCode = (fromCode || resolveIataCode(labelFrom) || "").toUpperCase();
+    const resolvedToCode = (toCode || resolveIataCode(labelTo) || "").toUpperCase();
+    if (!resolvedFromCode || !resolvedToCode) {
+      return;
+    }
+
+    const knownFrom = findKnownAirport(labelFrom, resolvedFromCode);
+    const knownTo = findKnownAirport(labelTo, resolvedToCode);
+
     const params = buildFlightSearchQuery({
       trip,
-      from: from.trim(),
-      to: to.trim(),
-      fromCode,
-      toCode,
-      fromSkyId: fromSkyId || undefined,
-      fromEntityId: fromEntityId || undefined,
-      toSkyId: toSkyId || undefined,
-      toEntityId: toEntityId || undefined,
+      from: labelFrom,
+      to: labelTo,
+      fromCode: resolvedFromCode,
+      toCode: resolvedToCode,
+      fromSkyId: fromSkyId || knownFrom?.skyId,
+      fromEntityId: fromEntityId || knownFrom?.entityId,
+      toSkyId: toSkyId || knownTo?.skyId,
+      toEntityId: toEntityId || knownTo?.entityId,
       depart,
       return: trip === "roundtrip" ? returnDate : undefined,
       adults,
@@ -282,9 +295,7 @@ export default function FlightSearchForm({
     setActiveField(null);
     clearOutboundToken();
     clearOfferToken();
-    const target = `/search?${params.toString()}`;
-    // Full navigation avoids intermittent Next.js RSC 500 on client-side flight search.
-    window.location.assign(target);
+    window.location.assign(`/search?${params.toString()}`);
   };
 
   const selectDateLabel = m.common.selectDate;

@@ -1,9 +1,9 @@
 import { airlineName } from "./airline-names";
+import { airScraperConfigured, airScraperSearchFlights, airScraperMarket } from "./air-scraper";
 import { getFlightPricing } from "./flight-pricing";
 import { encodeFlightToken } from "./flight-token";
 import type { FlightLeg, LiveFlightOffer, LiveFlightSegment } from "./live-flight-types";
 import type { CabinClass, TripType } from "./flight-types";
-import { rapidApiConfigured, rapidApiFetch, rapidApiHost } from "./rapidapi-fetch";
 import {
   dedupeSearch,
   getCachedSearch,
@@ -11,22 +11,14 @@ import {
   setCachedSearch,
 } from "./sky-scrapper-cache";
 import {
-  findKnownAirport,
   resolveAirport,
   skyScrapperAirportConfigured,
   type AirportRef,
 } from "./sky-scrapper-airports";
-import { canUseV2FlightSearch, rapidApiSearchRetries } from "./rapidapi-plan";
 
 type SkyRecord = Record<string, unknown>;
 
-const MARKET = process.env.RAPIDAPI_FLIGHT_MARKET || "de-DE";
-const COUNTRY = process.env.RAPIDAPI_FLIGHT_COUNTRY || "DE";
-const CURRENCY = process.env.RAPIDAPI_FLIGHT_CURRENCY || "EUR";
-
-function configured() {
-  return skyScrapperAirportConfigured();
-}
+const { currency: CURRENCY } = airScraperMarket();
 
 function parseDuration(raw: string | number | undefined): string {
   if (typeof raw === "number") {
@@ -81,7 +73,27 @@ function parseSkyLeg(
 ): { segments: LiveFlightSegment[]; summary: FlightLeg } | null {
   const legOrigin = leg.origin as SkyRecord | undefined;
   const legDestination = leg.destination as SkyRecord | undefined;
-  const segmentsRaw = (leg.segments as SkyRecord[]) || [];
+  let segmentsRaw = (leg.segments as SkyRecord[]) || [];
+
+  if (!segmentsRaw.length && legOrigin && legDestination) {
+    const carriers = leg.carriers as SkyRecord | undefined;
+    const marketing = Array.isArray(carriers?.marketing)
+      ? (carriers.marketing as SkyRecord[])[0]
+      : undefined;
+    segmentsRaw = [
+      {
+        origin: legOrigin,
+        destination: legDestination,
+        departure: leg.departure,
+        arrival: leg.arrival,
+        durationInMinutes: leg.durationInMinutes,
+        flightNumber: leg.flightNumber,
+        marketingCarrier: marketing,
+        operatingCarrier: marketing,
+      },
+    ];
+  }
+
   const segments: LiveFlightSegment[] = segmentsRaw.map((seg) => {
     const mkt = seg.marketingCarrier as SkyRecord | undefined;
     const op = seg.operatingCarrier as SkyRecord | undefined;
@@ -145,47 +157,7 @@ const CABIN_PARAM: Record<CabinClass, string> = {
 };
 
 export function skyScrapperConfigured() {
-  return configured();
-}
-
-function buildSearchUrl(
-  origin: AirportRef,
-  dest: AirportRef,
-  input: {
-    depart: string;
-    returnDate?: string;
-    trip: TripType;
-    cabin: CabinClass;
-    adults: number;
-    children: number;
-    infants: number;
-  },
-  path: "v1" | "v1complete" | "v2",
-) {
-  const endpoint =
-    path === "v1"
-      ? `/api/v1/flights/searchFlights`
-      : path === "v2"
-        ? `/api/v2/flights/searchFlights`
-        : `/api/v1/flights/searchFlightsComplete`;
-  const url = new URL(`https://${rapidApiHost()}${endpoint}`);
-  url.searchParams.set("originSkyId", origin.skyId);
-  url.searchParams.set("destinationSkyId", dest.skyId);
-  url.searchParams.set("originEntityId", origin.entityId);
-  url.searchParams.set("destinationEntityId", dest.entityId);
-  url.searchParams.set("date", input.depart);
-  url.searchParams.set("cabinClass", CABIN_PARAM[input.cabin] || "economy");
-  url.searchParams.set("adults", String(input.adults));
-  url.searchParams.set("sortBy", "best");
-  url.searchParams.set("currency", CURRENCY);
-  url.searchParams.set("market", MARKET);
-  url.searchParams.set("countryCode", COUNTRY);
-  if (input.children > 0) url.searchParams.set("childrens", String(input.children));
-  if (input.infants > 0) url.searchParams.set("infants", String(input.infants));
-  if (input.trip === "roundtrip" && input.returnDate) {
-    url.searchParams.set("returnDate", input.returnDate);
-  }
-  return url.toString();
+  return airScraperConfigured() && skyScrapperAirportConfigured();
 }
 
 function searchCacheKey(
@@ -201,6 +173,7 @@ function searchCacheKey(
     infants: number;
   },
 ) {
+  const { market } = airScraperMarket();
   return [
     origin.skyId,
     origin.entityId,
@@ -213,18 +186,34 @@ function searchCacheKey(
     input.adults,
     input.children,
     input.infants,
-    MARKET,
+    market,
   ].join("|");
 }
 
-async function fetchItineraries(url: string): Promise<Record<string, unknown>[]> {
-  const res = await rapidApiFetch(url, {
-    timeoutMs: 25000,
-    retries: rapidApiSearchRetries(),
+async function fetchItineraries(
+  origin: AirportRef,
+  dest: AirportRef,
+  input: {
+    depart: string;
+    returnDate?: string;
+    trip: TripType;
+    cabin: CabinClass;
+    adults: number;
+    children: number;
+    infants: number;
+  },
+): Promise<Record<string, unknown>[]> {
+  const result = await airScraperSearchFlights({
+    origin,
+    destination: dest,
+    date: input.depart,
+    returnDate: input.trip === "roundtrip" ? input.returnDate : undefined,
+    adults: input.adults,
+    children: input.children,
+    infants: input.infants,
+    cabinClass: CABIN_PARAM[input.cabin] || "economy",
   });
-  if (!res.ok) return [];
-  const json = (await res.json()) as { data?: { itineraries?: Record<string, unknown>[] } };
-  return json.data?.itineraries || [];
+  return result.itineraries;
 }
 
 function mapItineraries(
@@ -348,22 +337,7 @@ async function runSearch(
   if (cached) return cached;
 
   return dedupeSearch(key, async () => {
-    // Basic plan ($9.99): exactly one v1 call — v2/v1complete return 403.
-    let itineraries = await fetchItineraries(
-      buildSearchUrl(origin, dest, input, "v1"),
-    );
-
-    if (!itineraries.length && canUseV2FlightSearch()) {
-      itineraries = await fetchItineraries(
-        buildSearchUrl(origin, dest, input, "v1complete"),
-      );
-    }
-
-    if (!itineraries.length && canUseV2FlightSearch()) {
-      itineraries = await fetchItineraries(
-        buildSearchUrl(origin, dest, input, "v2"),
-      );
-    }
+    const itineraries = await fetchItineraries(origin, dest, input);
 
     if (!itineraries.length) {
       const stale = getStaleSearch<LiveFlightOffer[] | null>(key);
@@ -393,7 +367,7 @@ export async function searchSkyScrapperFlights(input: {
   children: number;
   infants: number;
 }): Promise<LiveFlightOffer[] | null> {
-  if (!configured()) return null;
+  if (!skyScrapperConfigured()) return null;
 
   const origin = input.fromSky ?? (await resolveAirport(input.fromLabel, input.fromCode));
   const dest = input.toSky ?? (await resolveAirport(input.toLabel, input.toCode));
