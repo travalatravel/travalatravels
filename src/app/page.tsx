@@ -1,4 +1,5 @@
 import Header from "@/components/Header";
+import CryptoHelpPopup from "@/components/CryptoHelpPopup";
 import HomeTabHero from "@/components/HomeTabHero";
 import FeatureBar from "@/components/FeatureBar";
 import Destinations from "@/components/Destinations";
@@ -28,6 +29,7 @@ export default function Home() {
       <CustomerReviews />
       <FAQ />
       <Footer />
+      <CryptoHelpPopup />
     </>
   );
 }

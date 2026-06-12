@@ -5,6 +5,7 @@ import { MessageCircle, Send, X, Minimize2, Headphones } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useTranslations } from "@/i18n/useTranslations";
 import { LOCALE_BCP47 } from "@/i18n/config";
+import { OPEN_LIVE_CHAT_EVENT } from "@/lib/open-live-chat";
 
 type ChatMessage = {
   id: string;
@@ -88,6 +89,15 @@ export default function LiveChatWidget() {
   useEffect(() => {
     void loadConversation();
   }, [loadConversation]);
+
+  useEffect(() => {
+    const onOpen = () => {
+      setOpen(true);
+      setUnread(0);
+    };
+    window.addEventListener(OPEN_LIVE_CHAT_EVENT, onOpen);
+    return () => window.removeEventListener(OPEN_LIVE_CHAT_EVENT, onOpen);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
