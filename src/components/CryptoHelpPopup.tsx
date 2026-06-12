@@ -1,26 +1,33 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
-  Bitcoin,
-  Coins,
-  Headphones,
+  ArrowRight,
+  Building2,
+  Check,
+  CircleHelp,
   MessageCircle,
-  Sparkles,
+  Smartphone,
   Wallet,
   X,
-  Zap,
 } from "lucide-react";
 import { openLiveChat } from "@/lib/open-live-chat";
+import { type Locale } from "@/i18n/config";
 import { useTranslations } from "@/i18n/useTranslations";
 
 const STORAGE_KEY = "travala_crypto_help_popup_dismissed";
+const POPUP_LOCALES: Locale[] = ["en", "de"];
+
+const BUY_ICONS = [Smartphone, Building2, Wallet] as const;
 
 export default function CryptoHelpPopup() {
-  const { messages: m } = useTranslations();
+  const router = useRouter();
+  const { messages: m, locale } = useTranslations();
   const p = m.cryptoHelpPopup;
   const [visible, setVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [switchingLocale, setSwitchingLocale] = useState(false);
 
   useEffect(() => {
     if (sessionStorage.getItem(STORAGE_KEY) === "1") return;
@@ -42,13 +49,25 @@ export default function CryptoHelpPopup() {
     window.setTimeout(() => openLiveChat(), 250);
   };
 
+  const switchLocale = async (next: Locale) => {
+    if (next === locale || switchingLocale) return;
+    setSwitchingLocale(true);
+    try {
+      await fetch("/api/locale", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ locale: next }),
+      });
+      router.refresh();
+    } finally {
+      setSwitchingLocale(false);
+    }
+  };
+
   if (!visible) return null;
 
-  const perks = [
-    { icon: Wallet, text: p.perk1 },
-    { icon: Coins, text: p.perk2 },
-    { icon: Zap, text: p.perk3 },
-  ];
+  const buyOptions = p.buyOptions ?? [];
+  const helpPoints = p.helpPoints ?? [];
 
   return (
     <div
@@ -61,98 +80,140 @@ export default function CryptoHelpPopup() {
     >
       <button
         type="button"
-        className="absolute inset-0 bg-[#0a1628]/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-slate-900/50 backdrop-blur-[2px]"
         onClick={dismiss}
         aria-label={p.close}
       />
 
       <div
-        className={`relative w-full max-w-lg overflow-hidden rounded-t-3xl border border-white/10 bg-white shadow-2xl shadow-[#1a5f94]/20 sm:rounded-3xl transition-all duration-300 ease-out ${
-          mounted ? "translate-y-0 scale-100" : "translate-y-8 scale-[0.97] sm:translate-y-4"
+        className={`relative flex max-h-[92vh] w-full max-w-xl flex-col overflow-hidden rounded-t-2xl border border-slate-200 bg-white shadow-xl sm:max-h-[88vh] sm:rounded-2xl transition-all duration-300 ease-out ${
+          mounted ? "translate-y-0" : "translate-y-6 sm:translate-y-3"
         }`}
       >
-        <div className="relative overflow-hidden bg-gradient-to-br from-[#1a5f94] via-[#2D83C2] to-[#220a32] px-5 pb-8 pt-6 text-white sm:px-7 sm:pb-10 sm:pt-8">
-          <div
-            className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10 blur-2xl"
-            aria-hidden
-          />
-          <div
-            className="pointer-events-none absolute -bottom-6 left-1/4 h-24 w-24 rounded-full bg-[#e1ffde]/10 blur-2xl"
-            aria-hidden
-          />
-
-          <button
-            type="button"
-            onClick={dismiss}
-            className="absolute right-3 top-3 rounded-full p-2 text-white/80 transition hover:bg-white/15 sm:right-4 sm:top-4"
-            aria-label={p.close}
-          >
-            <X size={20} />
-          </button>
-
-          <div className="relative flex items-start gap-4">
-            <div className="flex shrink-0 flex-col gap-2">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/15 shadow-lg backdrop-blur-sm">
-                <Bitcoin size={28} strokeWidth={1.75} />
+        <div className="shrink-0 border-b border-slate-100 bg-slate-50/80 px-5 py-4 sm:px-6">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex min-w-0 items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-[#1a5f94]">
+                <CircleHelp size={20} strokeWidth={1.75} />
               </div>
-              <div className="flex gap-1.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10">
-                  <MessageCircle size={18} />
-                </div>
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10">
-                  <Sparkles size={18} />
-                </div>
+              <div className="min-w-0">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-slate-500">{p.badge}</p>
+                <h2 id="crypto-help-title" className="mt-0.5 text-lg font-semibold leading-snug text-slate-900 sm:text-xl">
+                  {p.title}
+                </h2>
               </div>
             </div>
-            <div className="min-w-0 pt-1">
-              <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#e1ffde]/90">
-                <Headphones size={14} />
-                {p.badge}
-              </p>
-              <h2 id="crypto-help-title" className="mt-1 text-xl font-black leading-tight sm:text-2xl">
-                {p.title}
-              </h2>
-              <p className="mt-2 text-sm leading-relaxed text-white/85">{p.subtitle}</p>
+
+            <div className="flex shrink-0 items-center gap-1">
+              <div
+                className="flex rounded-lg border border-slate-200 bg-white p-0.5"
+                role="group"
+                aria-label={p.languageLabel}
+              >
+                {POPUP_LOCALES.map((code) => {
+                  const active = locale === code;
+                  return (
+                    <button
+                      key={code}
+                      type="button"
+                      disabled={switchingLocale}
+                      onClick={() => switchLocale(code)}
+                      className={`rounded-md px-2.5 py-1 text-[11px] font-semibold uppercase transition ${
+                        active
+                          ? "bg-[#1a5f94] text-white"
+                          : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+                      }`}
+                      aria-pressed={active}
+                    >
+                      {code}
+                    </button>
+                  );
+                })}
+              </div>
+              <button
+                type="button"
+                onClick={dismiss}
+                className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+                aria-label={p.close}
+              >
+                <X size={18} />
+              </button>
             </div>
           </div>
+          <p className="mt-3 text-sm leading-relaxed text-slate-600">{p.subtitle}</p>
         </div>
 
-        <div className="px-5 py-5 sm:px-7 sm:py-6">
-          <p className="text-sm leading-relaxed text-gray-600">{p.body}</p>
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-6">
+          <section aria-labelledby="crypto-buy-heading">
+            <h3 id="crypto-buy-heading" className="text-sm font-semibold text-slate-900">
+              {p.buySectionTitle}
+            </h3>
+            <p className="mt-2 text-sm leading-relaxed text-slate-600">{p.buySectionBody}</p>
 
-          <ul className="mt-5 space-y-3">
-            {perks.map(({ icon: Icon, text }) => (
-              <li
-                key={text}
-                className="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50/80 px-3.5 py-2.5"
-              >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#2D83C2]/10 text-[#2D83C2]">
-                  <Icon size={18} strokeWidth={2} />
-                </div>
-                <span className="text-sm font-medium text-[#1a1a1a]">{text}</span>
-              </li>
-            ))}
-          </ul>
+            <ul className="mt-4 space-y-2.5">
+              {buyOptions.map((option, i) => {
+                const Icon = BUY_ICONS[i] ?? Wallet;
+                return (
+                  <li
+                    key={option.title}
+                    className="rounded-xl border border-slate-200 bg-white px-3.5 py-3"
+                  >
+                    <div className="flex gap-3">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+                        <Icon size={16} strokeWidth={1.75} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-slate-900">{option.title}</p>
+                        <p className="mt-0.5 text-xs leading-relaxed text-slate-600">{option.description}</p>
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
 
-          <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:gap-3">
+            <p className="mt-3 text-xs leading-relaxed text-slate-500">{p.buyDisclaimer}</p>
+          </section>
+
+          <div className="my-5 border-t border-slate-100" />
+
+          <section aria-labelledby="crypto-pay-heading">
+            <h3 id="crypto-pay-heading" className="text-sm font-semibold text-slate-900">
+              {p.paySectionTitle}
+            </h3>
+            <p className="mt-2 text-sm leading-relaxed text-slate-600">{p.paySectionBody}</p>
+
+            <ul className="mt-3 space-y-2">
+              {helpPoints.map((point) => (
+                <li key={point} className="flex gap-2 text-sm text-slate-700">
+                  <Check size={15} className="mt-0.5 shrink-0 text-emerald-600" strokeWidth={2.5} />
+                  <span>{point}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </div>
+
+        <div className="shrink-0 border-t border-slate-100 bg-white px-5 py-4 sm:px-6">
+          <div className="flex flex-col gap-2 sm:flex-row">
             <button
               type="button"
               onClick={startChat}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#1a5f94] to-[#2D83C2] px-4 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#2D83C2]/25 transition hover:brightness-110 active:scale-[0.98]"
+              className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-[#1a5f94] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#164d7a] active:scale-[0.99]"
             >
-              <MessageCircle size={18} />
+              <MessageCircle size={17} />
               {p.ctaChat}
+              <ArrowRight size={15} className="opacity-80" />
             </button>
             <button
               type="button"
               onClick={dismiss}
-              className="rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-sm font-semibold text-gray-600 transition hover:border-slate-300 hover:bg-slate-50 sm:flex-1"
+              className="rounded-lg border border-slate-200 px-4 py-3 text-sm font-medium text-slate-600 transition hover:border-slate-300 hover:bg-slate-50 sm:flex-1"
             >
               {p.ctaDismiss}
             </button>
           </div>
-
-          <p className="mt-4 text-center text-[11px] text-gray-400">{p.footer}</p>
+          <p className="mt-3 text-center text-[11px] text-slate-400">{p.footer}</p>
         </div>
       </div>
     </div>

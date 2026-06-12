@@ -332,17 +332,45 @@ const en = {
   },
   travelGuides: { title: "Travel Guides" },
   cryptoHelpPopup: {
-    badge: "Free live support",
-    title: "Having trouble paying with crypto?",
-    subtitle: "You're not alone — we guide you through every step.",
-    body: "Choosing a coin, sending from your wallet, or confirming your booking can feel confusing the first time. Chat with us and we'll help you complete your trip payment in real time — no jargon, no waiting on hold.",
-    perk1: "Step-by-step help with BTC, ETH, USDC & more",
-    perk2: "We explain wallets, networks & exact amounts",
-    perk3: "Typical reply within a few minutes",
-    ctaChat: "Open live chat — we'll help you",
-    ctaDismiss: "Continue on my own",
+    badge: "Crypto travel guide",
+    title: "New to crypto payments?",
+    subtitle:
+      "Most travellers have never paid with Bitcoin or stablecoins before. Here is a clear overview — and our team can walk you through it live.",
+    languageLabel: "Language",
+    buySectionTitle: "Don't have crypto yet?",
+    buySectionBody:
+      "You do not need to be a crypto expert. Many people buy a small amount once — just enough to cover their trip — using apps they already trust.",
+    buyOptions: [
+      {
+        title: "Banking apps (e.g. Revolut, N26)",
+        description:
+          "Open the app, buy Bitcoin or Ethereum in a few taps, then send it at checkout. No separate exchange account required for many users.",
+      },
+      {
+        title: "Regulated exchanges (Coinbase, Kraken, Bitpanda)",
+        description:
+          "Sign up, verify your identity, buy BTC, ETH, or USDC, and transfer to your wallet. Well suited if you want a dedicated crypto account.",
+      },
+      {
+        title: "Stablecoins for a fixed amount",
+        description:
+          "USDC or USDT stay close to $1 — useful when you want a predictable trip total without Bitcoin price swings.",
+      },
+    ],
+    buyDisclaimer:
+      "We do not sell crypto ourselves. Always use licensed providers in your country and only invest what you are comfortable spending on travel.",
+    paySectionTitle: "Ready to pay for your booking?",
+    paySectionBody:
+      "At checkout, choose your coin, copy the payment address and exact amount, then send from your app or wallet. If anything is unclear, our support team is here.",
+    helpPoints: [
+      "Step-by-step help with BTC, ETH, USDC, USDT and 100+ coins",
+      "We explain wallets, networks, fees and the exact amount to send",
+      "Typical reply within a few minutes via live chat",
+    ],
+    ctaChat: "Chat with support",
+    ctaDismiss: "Close",
     close: "Close",
-    footer: "Available 24/7 on every page via the chat button.",
+    footer: "Live chat is available on every page — bottom right corner.",
   },
   liveChat: {
     title: "Live Support",

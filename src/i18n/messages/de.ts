@@ -194,17 +194,45 @@ const de: DeepPartial<Messages> = {
   },
   travelGuides: { title: "Reiseführer" },
   cryptoHelpPopup: {
-    badge: "Kostenloser Live-Support",
-    title: "Probleme bei der Zahlung mit Krypto?",
-    subtitle: "Kein Problem — wir führen Sie Schritt für Schritt durch.",
-    body: "Coin wählen, aus der Wallet senden oder die Buchung bestätigen — beim ersten Mal wirkt das oft kompliziert. Schreiben Sie uns im Live-Chat und wir helfen Ihnen live bei der Zahlung Ihrer Reise, verständlich und ohne Wartezeit in der Hotline.",
-    perk1: "Hilfe bei BTC, ETH, USDC & über 100 Coins",
-    perk2: "Wir erklären Wallet, Netzwerk & exakten Betrag",
-    perk3: "Antwort meist innerhalb weniger Minuten",
-    ctaChat: "Live-Chat öffnen — wir helfen Ihnen",
-    ctaDismiss: "Allein weitermachen",
+    badge: "Krypto-Reisehilfe",
+    title: "Neu bei Krypto-Zahlungen?",
+    subtitle:
+      "Die meisten Reisenden haben noch nie mit Bitcoin oder Stablecoins bezahlt. Hier eine klare Übersicht — und unser Team begleitet Sie bei Bedarf live.",
+    languageLabel: "Sprache",
+    buySectionTitle: "Noch kein Krypto?",
+    buySectionBody:
+      "Sie müssen kein Krypto-Experte sein. Viele kaufen einmal einen kleinen Betrag — gerade genug für die Reise — über Apps, die sie bereits nutzen.",
+    buyOptions: [
+      {
+        title: "Bank-Apps (z. B. Revolut, N26)",
+        description:
+          "In der App Bitcoin oder Ethereum in wenigen Schritten kaufen und beim Checkout senden. Für viele Nutzer ohne separates Börsen-Konto.",
+      },
+      {
+        title: "Regulierte Börsen (Coinbase, Kraken, Bitpanda)",
+        description:
+          "Anmelden, Identität bestätigen, BTC, ETH oder USDC kaufen und in die Wallet übertragen. Gut geeignet für ein eigenes Krypto-Konto.",
+      },
+      {
+        title: "Stablecoins für einen festen Betrag",
+        description:
+          "USDC oder USDT bleiben nahe 1 $ — praktisch, wenn Sie einen planbaren Reisepreis ohne Bitcoin-Kursschwankungen wünschen.",
+      },
+    ],
+    buyDisclaimer:
+      "Wir verkaufen selbst kein Krypto. Nutzen Sie lizenzierte Anbieter in Ihrem Land und investieren Sie nur, was Sie für die Reise einplanen.",
+    paySectionTitle: "Bereit, Ihre Buchung zu bezahlen?",
+    paySectionBody:
+      "Beim Checkout Coin wählen, Zahlungsadresse und exakten Betrag kopieren und aus App oder Wallet senden. Wenn etwas unklar ist, hilft unser Support.",
+    helpPoints: [
+      "Schritt-für-Schritt-Hilfe bei BTC, ETH, USDC, USDT und über 100 Coins",
+      "Wir erklären Wallet, Netzwerk, Gebühren und den exakten Sendebetrag",
+      "Antwort meist innerhalb weniger Minuten im Live-Chat",
+    ],
+    ctaChat: "Support im Chat",
+    ctaDismiss: "Schließen",
     close: "Schließen",
-    footer: "24/7 erreichbar — über den Chat-Button auf jeder Seite.",
+    footer: "Live-Chat auf jeder Seite — unten rechts.",
   },
   liveChat: {
     title: "Live-Support",
