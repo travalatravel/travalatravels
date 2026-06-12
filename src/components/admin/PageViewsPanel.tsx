@@ -96,11 +96,8 @@ export default function PageViewsPanel({
       )}
 
       {showSummary && summary && (
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <SummaryCard label="Total views" value={summary.total} />
-          <SummaryCard label="Views today" value={summary.todayViews} />
+        <div className="mt-6">
           <SummaryCard label="Unique visitors today" value={summary.uniqueSessionsToday} />
-          <SummaryCard label="Top page hits" value={summary.topPages[0]?.count ?? 0} sub={summary.topPages[0]?.path} />
         </div>
       )}
 

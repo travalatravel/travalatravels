@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { Inter, Satisfy } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
 import ViewTracker from "@/components/ViewTracker";
+import LiveChatMount from "@/components/LiveChatMount";
 import ServerPageViewTracker from "@/components/ServerPageViewTracker";
 import SiteAnalytics from "@/components/SiteAnalytics";
 import { LocaleProvider } from "@/i18n/LocaleProvider";
@@ -77,6 +78,9 @@ export default async function RootLayout({
           <AuthProvider>
             <Suspense fallback={null}>
               <ViewTracker />
+            </Suspense>
+            <Suspense fallback={null}>
+              <LiveChatMount />
             </Suspense>
             {children}
           </AuthProvider>

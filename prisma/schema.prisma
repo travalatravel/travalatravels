@@ -122,3 +122,33 @@ model Booking {
   @@index([userId])
   @@index([paymentStatus])
 }
+
+model ChatConversation {
+  id             String        @id @default(cuid())
+  visitorToken   String        @unique
+  guestFirstName String
+  guestLastName  String
+  email          String
+  userId         String?
+  status         String        @default("OPEN")
+  lastMessageAt  DateTime      @default(now())
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  messages       ChatMessage[]
+
+  @@index([status])
+  @@index([lastMessageAt])
+  @@index([email])
+}
+
+model ChatMessage {
+  id             String           @id @default(cuid())
+  conversationId String
+  sender         String
+  body           String
+  createdAt      DateTime         @default(now())
+  conversation   ChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@index([createdAt])
+}

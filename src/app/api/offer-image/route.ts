@@ -7,8 +7,16 @@ const CACHE_TTL = 1000 * 60 * 60 * 24;
 
 const VALID_TYPES = new Set<OfferType>(["HOTEL", "FLIGHT", "CAR_RENTAL", "ACTIVITY"]);
 
-function cacheKey(type: string, slug: string | null, url: string | null, city: string | null, country: string | null) {
-  return [type, slug || "", url || "", city || "", country || ""].join("|");
+function cacheKey(
+  type: string,
+  slug: string | null,
+  url: string | null,
+  city: string | null,
+  country: string | null,
+  checkIn: string | null,
+  checkOut: string | null,
+) {
+  return [type, slug || "", url || "", city || "", country || "", checkIn || "", checkOut || ""].join("|");
 }
 
 export async function GET(request: Request) {
@@ -18,6 +26,10 @@ export async function GET(request: Request) {
   const url = params.get("url");
   const city = params.get("city");
   const country = params.get("country");
+  const checkIn = params.get("checkIn");
+  const checkOut = params.get("checkOut");
+  const guests = Math.max(1, parseInt(params.get("guests") || "2", 10));
+  const rooms = Math.max(1, parseInt(params.get("rooms") || "1", 10));
 
   if (!VALID_TYPES.has(type)) {
     return NextResponse.json({ error: "Invalid offer type" }, { status: 400 });
@@ -35,7 +47,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "City is required" }, { status: 400 });
   }
 
-  const key = cacheKey(type, slug, url, city, country);
+  const key = cacheKey(type, slug, url, city, country, checkIn, checkOut);
   const cached = cache.get(key);
   if (cached && Date.now() - cached.at < CACHE_TTL) {
     return NextResponse.json(
@@ -45,7 +57,16 @@ export async function GET(request: Request) {
   }
 
   try {
-    const photos = await fetchOfferPhotos(type, { slug, url, city, country });
+    const photos = await fetchOfferPhotos(type, {
+      slug,
+      url,
+      city,
+      country,
+      checkIn,
+      checkOut,
+      guests,
+      rooms,
+    });
     if (!photos.length) {
       return NextResponse.json({ error: "Image not found" }, { status: 404 });
     }

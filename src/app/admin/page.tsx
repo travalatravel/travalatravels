@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Users, CalendarCheck, Wallet, DollarSign, Clock, Eye } from "lucide-react";
+import { Users, CalendarCheck, Wallet, DollarSign, Clock, Eye, MessageSquare } from "lucide-react";
 import type { Booking } from "@/lib/types";
 import { PAYMENT_STATUS_COLORS, PAYMENT_STATUS_LABELS } from "@/lib/types";
 import PageViewsPanel from "@/components/admin/PageViewsPanel";
@@ -13,8 +13,8 @@ type Stats = {
   pendingPayments: number;
   paidBookings: number;
   totalRevenue: number;
-  totalViews: number;
-  viewsToday: number;
+  uniqueVisitorsToday: number;
+  openChats: number;
 };
 
 export default function AdminDashboard() {
@@ -38,8 +38,8 @@ export default function AdminDashboard() {
         { label: "Paid Bookings", value: stats.paidBookings, icon: DollarSign, color: "bg-green-500" },
         { label: "Crypto Wallets", value: stats.wallets, icon: Wallet, color: "bg-teal-500" },
         { label: "Total Revenue", value: `$${stats.totalRevenue.toFixed(0)}`, icon: DollarSign, color: "bg-[#2D83C2]" },
-        { label: "Page Views Today", value: stats.viewsToday, icon: Eye, color: "bg-indigo-500" },
-        { label: "Total Page Views", value: stats.totalViews, icon: Eye, color: "bg-slate-600" },
+        { label: "Unique Visitors Today", value: stats.uniqueVisitorsToday, icon: Eye, color: "bg-indigo-500" },
+        { label: "Open Chats", value: stats.openChats, icon: MessageSquare, color: "bg-orange-500" },
       ]
     : [];
 

@@ -58,6 +58,8 @@ export default function BookingCheckoutForm({
   bundleHotelCheckOut,
   bundleHotelRooms,
   bundleTotal,
+  bundleFlightToken,
+  bundleFlightTotal,
 }: {
   offer: Offer;
   checkIn: string;
@@ -77,6 +79,8 @@ export default function BookingCheckoutForm({
   bundleHotelCheckOut?: string;
   bundleHotelRooms?: number;
   bundleTotal?: number;
+  bundleFlightToken?: string;
+  bundleFlightTotal?: number;
 }) {
   const router = useRouter();
   const { user } = useAuth();
@@ -200,6 +204,8 @@ export default function BookingCheckoutForm({
         bundleHotelCheckIn,
         bundleHotelCheckOut,
         bundleHotelRooms,
+        bundleFlightToken,
+        bundleFlightTotal,
       }),
     });
 

@@ -209,9 +209,61 @@ const en = {
   crypto: {
     subtitle: "Crypto-friendly Bookings",
     title: "Your money's good here.",
+    headline: "Why book your holiday with crypto?",
+    intro:
+      "Your next trip shouldn't depend on bank hours, card limits, or foreign-exchange surprises. Pay with Bitcoin, Ethereum, USDC and 100+ coins — and turn digital assets into real travel.",
     body: "We pride ourselves on being the leading crypto-native travel platform. Pay for your travel anywhere in the world seamlessly using 100+ cryptocurrencies.",
     cta: "See all payment options",
+    ctaBook: "Book with crypto",
+    ctaFlights: "Search flights",
     footerPay: "Pay with 100+ cryptocurrencies — Bitcoin, Ethereum, AVA and more.",
+    reasonsTitle: "Six reasons travelers choose crypto",
+    reasons: [
+      {
+        title: "Pay anywhere, from anywhere",
+        description:
+          "Book a hotel in Bali, a flight to New York, or a car in Lisbon — without worrying whether your bank card works abroad or blocks travel merchants.",
+      },
+      {
+        title: "No bank in the middle",
+        description:
+          "You send payment directly from your wallet. No waiting for international wires, no weekend holds, no \"pending authorization\" while your room disappears.",
+      },
+      {
+        title: "Stablecoins = a fixed bill",
+        description:
+          "Pay with USDC or USDT and know the exact amount due in dollars — ideal if you don't want Bitcoin price swings between booking and checkout.",
+      },
+      {
+        title: "Put your crypto to work",
+        description:
+          "Holdings sitting on an exchange? Use them for something meaningful instead of selling → waiting for bank transfer → booking later.",
+      },
+      {
+        title: "Skip double conversion fees",
+        description:
+          "Large trip costs often mean card FX markup plus local currency conversion. One crypto payment can avoid layers of bank and card spreads.",
+      },
+      {
+        title: "You stay in control",
+        description:
+          "You choose the coin, approve the amount, and send when ready — without handing card details to every hotel, airline, and booking partner.",
+      },
+    ],
+    buyCryptoTitle: "Don't have crypto yet? Many travelers buy some just for the trip.",
+    buyCryptoBody:
+      "Buy BTC, ETH, or a stablecoin once on your preferred exchange, send it to your wallet, and pay your booking in minutes. For a €2,000+ holiday, that can be simpler and faster than international bank transfers — and you only convert what you need.",
+    buyCryptoPoints: [
+      "Plan months ahead: save in stablecoins, pay when you're ready to book",
+      "One purchase covers flights, hotels, and extras in a single checkout flow",
+      "No need for a travel-specific credit card or foreign bank account",
+    ],
+    stepsTitle: "How paying with crypto works",
+    steps: [
+      { title: "Choose your trip", description: "Pick hotel, flight, or bundle — same search as always." },
+      { title: "Select your coin", description: "BTC, ETH, USDC, USDT and more at checkout." },
+      { title: "Send & travel", description: "Pay from your wallet; we confirm and your booking is secured." },
+    ],
   },
   features: [
     { title: "24/7 Customer Support", description: "Contact our support team anytime via live chat or email" },
@@ -247,6 +299,15 @@ const en = {
   partners: { title: "Our trusted partners" },
   bundle: {
     addHotelIn: "Add a hotel in {destination}",
+    addFlightTo: "Add a flight to {destination}",
+    addFlightOptional: "Optional — book flight and hotel together and pay in one step at checkout.",
+    addFlightToTrip: "Add flight",
+    flyingFrom: "Flying from",
+    flyingFromPlaceholder: "e.g. Berlin, Munich, Frankfurt",
+    flightOriginHint: "Enter a departure city to search flights.",
+    flightDestinationUnknown: "Could not resolve airport for {city}. Try another hotel city.",
+    noFlightsFound: "No flights found for these dates. You can still book the hotel only.",
+    hotelPlusFlight: "Hotel + Flight",
     savingsHint: "Save an extra {pct}% on hotels when you complete your flight booking",
     viewAllHotels: "View all hotels",
     addToTrip: "Add to trip",
@@ -270,6 +331,27 @@ const en = {
     inspiration: "Inspiration",
   },
   travelGuides: { title: "Travel Guides" },
+  liveChat: {
+    title: "Live Support",
+    subtitle: "We typically reply within a few minutes",
+    introTitle: "Before we start",
+    introBody: "Please enter your name and email so we can get back to you if you leave the chat.",
+    firstName: "First name",
+    lastName: "Last name",
+    email: "Email address",
+    startChat: "Start chat",
+    starting: "Starting…",
+    registerFailed: "Could not start chat. Please check your details.",
+    sendFailed: "Message could not be sent.",
+    emptyState: "Ask us anything about bookings, payments, or destinations.",
+    supportTeam: "Support",
+    inputPlaceholder: "Write your message…",
+    send: "Send message",
+    open: "Open live chat",
+    close: "Close chat",
+    minimize: "Minimize",
+    conversationClosed: "This conversation has been closed. Start a new message to reopen.",
+  },
   faq: {
     title: "FAQs",
     items: [

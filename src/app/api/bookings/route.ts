@@ -34,6 +34,8 @@ const bookingSchema = z
     bundleHotelCheckIn: z.string().optional(),
     bundleHotelCheckOut: z.string().optional(),
     bundleHotelRooms: z.number().min(1).max(10).optional(),
+    bundleFlightToken: z.string().optional(),
+    bundleFlightTotal: z.number().positive().optional(),
   })
   .merge(guestDetailsSchema);
 
@@ -153,6 +155,10 @@ export async function POST(request: Request) {
       additionalGuests:
         data.additionalGuests.length > 0 ? JSON.stringify(data.additionalGuests) : null,
     };
+
+    const liveFlightFromHotel = data.bundleFlightToken
+      ? decodeFlightToken(data.bundleFlightToken)
+      : null;
 
     const hasBundle =
       liveFlight &&
@@ -278,6 +284,127 @@ export async function POST(request: Request) {
         booking: flightBooking,
         bundleBookingId: hotelBooking.id,
         bundleTotal: flightTotal + hotelTotal,
+        accessToken,
+      });
+    }
+
+    const hasHotelFlightBundle =
+      offer.type === "HOTEL" &&
+      liveFlightFromHotel &&
+      data.bundleFlightToken &&
+      data.bundleFlightTotal;
+
+    if (hasHotelFlightBundle) {
+      const flightOffer = await prisma.offer.findFirst({ where: { type: "FLIGHT" } });
+      if (!flightOffer) {
+        return NextResponse.json({ error: "Flight checkout unavailable" }, { status: 400 });
+      }
+
+      const bundleGroupId = `bundle-${Date.now()}`;
+      const extra = 1 - BUNDLE_HOTEL_EXTRA_DISCOUNT_PCT / 100;
+      let hotelTotal = totalPrice;
+      if (data.roomTotalPrice) {
+        hotelTotal = data.roomTotalPrice;
+      }
+      hotelTotal = Math.round(hotelTotal * extra * 100) / 100;
+      const flightTotal = data.bundleFlightTotal!;
+
+      const [hotelBooking, flightBooking] = await prisma.$transaction([
+        prisma.booking.create({
+          data: {
+            userId,
+            offerId: offer.id,
+            walletId: wallet.id,
+            checkIn: data.checkIn ? new Date(data.checkIn) : null,
+            checkOut: data.checkOut ? new Date(data.checkOut) : null,
+            guests: data.guests,
+            rooms: data.rooms,
+            totalPrice: hotelTotal,
+            paymentMethod: data.paymentMethod,
+            paymentStatus: "PENDING",
+            status: "PENDING",
+            paidAt: null,
+            roomPackageName: data.roomPackageName || null,
+            roomMealType: data.roomMealType || null,
+            specialRequests: JSON.stringify({
+              type: "hotel_bundle",
+              bundleGroupId,
+              bundleRole: "hotel",
+              pairedBookingId: "pending",
+              flightRoute: `${liveFlightFromHotel!.from} → ${liveFlightFromHotel!.to}`,
+              flightAirline: liveFlightFromHotel!.airline,
+            }),
+            ...guestData,
+          },
+          include: { offer: true, wallet: true },
+        }),
+        prisma.booking.create({
+          data: {
+            userId,
+            offerId: flightOffer.id,
+            walletId: wallet.id,
+            checkIn: data.checkIn ? new Date(data.checkIn) : null,
+            checkOut: data.checkOut ? new Date(data.checkOut) : null,
+            guests: data.guests,
+            rooms: data.rooms,
+            totalPrice: flightTotal,
+            paymentMethod: data.paymentMethod,
+            paymentStatus: "PENDING",
+            status: "PENDING",
+            paidAt: null,
+            specialRequests: JSON.stringify({
+              type: "live_flight_bundle",
+              bundleGroupId,
+              bundleRole: "flight",
+              pairedBookingId: "pending",
+              airline: liveFlightFromHotel!.airline,
+              route: `${liveFlightFromHotel!.from} → ${liveFlightFromHotel!.to}`,
+              fromCode: liveFlightFromHotel!.fromCode,
+              toCode: liveFlightFromHotel!.toCode,
+              departAt: liveFlightFromHotel!.departAt,
+              arriveAt: liveFlightFromHotel!.arriveAt,
+              cabin: liveFlightFromHotel!.cabin,
+              trip: liveFlightFromHotel!.trip,
+              hotelOfferId: offer.id,
+              hotelTitle: offer.title,
+              token: data.bundleFlightToken,
+            }),
+            ...guestData,
+          },
+          include: { offer: true, wallet: true },
+        }),
+      ]);
+
+      await prisma.$transaction([
+        prisma.booking.update({
+          where: { id: hotelBooking.id },
+          data: {
+            specialRequests: JSON.stringify({
+              ...JSON.parse(hotelBooking.specialRequests || "{}"),
+              pairedBookingId: flightBooking.id,
+            }),
+          },
+        }),
+        prisma.booking.update({
+          where: { id: flightBooking.id },
+          data: {
+            specialRequests: JSON.stringify({
+              ...JSON.parse(flightBooking.specialRequests || "{}"),
+              pairedBookingId: hotelBooking.id,
+            }),
+          },
+        }),
+      ]);
+
+      const accessToken = await createBookingAccessToken([
+        hotelBooking.id,
+        flightBooking.id,
+      ]);
+
+      return NextResponse.json({
+        booking: hotelBooking,
+        bundleBookingId: flightBooking.id,
+        bundleTotal: hotelTotal + flightTotal,
         accessToken,
       });
     }

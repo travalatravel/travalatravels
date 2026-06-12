@@ -15,32 +15,24 @@ const NAV_HREFS = [
 ];
 
 function Logo() {
-  const [mobileError, setMobileError] = useState(false);
-  const [desktopError, setDesktopError] = useState(false);
-
-  const mobileSrc = mobileError ? ASSETS.logoMint : ASSETS.logoWhite;
-  const desktopSrc = desktopError ? ASSETS.logoMint : ASSETS.logoBlack;
-
   return (
     <>
       <Image
-        src={mobileSrc}
+        src={ASSETS.logoWhite}
         alt="Travala"
         width={120}
         height={28}
-        className="h-5 w-auto lg:hidden"
+        className="h-5 w-auto md:hidden"
         priority
-        onError={() => setMobileError(true)}
         unoptimized
       />
       <Image
-        src={desktopSrc}
+        src={ASSETS.logoBlack}
         alt="Travala"
         width={186}
         height={40}
-        className="hidden h-7 w-auto lg:block"
+        className="hidden h-7 w-auto md:block"
         priority
-        onError={() => setDesktopError(true)}
         unoptimized
       />
     </>
@@ -72,19 +64,19 @@ export default function Header({ variant = "default" }: { variant?: "home" | "de
   if (searchOverlayOpen) return null;
 
   const shellCls = isHome
-    ? "sticky top-0 z-50 w-full bg-[#250834] shadow-sm lg:mx-8 lg:rounded-b-xl lg:bg-white"
-    : "sticky top-0 z-50 w-full bg-[#250834] shadow-lg lg:bg-white lg:shadow-sm";
+    ? "sticky top-0 z-50 w-full bg-[#250834] shadow-sm md:bg-white lg:mx-8 lg:rounded-b-xl"
+    : "sticky top-0 z-50 w-full bg-[#250834] shadow-lg md:bg-white md:shadow-sm";
 
   const navLinkCls = isHome
     ? "rounded-full border border-gray-300 px-2.5 py-1 text-[13px] font-semibold text-[#220a32] transition hover:border-[#2D83C2]"
-    : "rounded-md px-2.5 py-1 text-xs font-medium text-white transition hover:bg-white/15 lg:rounded-full lg:border lg:border-gray-300 lg:text-[13px] lg:font-semibold lg:text-[#220a32] lg:hover:border-[#2D83C2] lg:hover:bg-transparent";
+    : "rounded-md px-2.5 py-1 text-xs font-medium text-white transition hover:bg-white/15 md:rounded-full md:border md:border-gray-300 md:text-[13px] md:font-semibold md:text-[#220a32] md:hover:border-[#2D83C2] md:hover:bg-transparent";
 
   const utilBtnCls =
-    "rounded-md px-1.5 py-0.5 text-[10px] font-semibold text-white hover:bg-white/15 sm:px-2 sm:py-1 sm:text-xs lg:text-[#220a32] lg:hover:bg-gray-100";
+    "rounded-md px-1.5 py-0.5 text-[10px] font-semibold text-white hover:bg-white/15 sm:px-2 sm:py-1 sm:text-xs md:text-[#220a32] md:hover:bg-gray-100";
 
   const registerCls = isHome
     ? "rounded-md border border-[#2D83C2] bg-[#2D83C2] px-1.5 py-0.5 text-[10px] font-semibold text-white hover:bg-[#1a5f94] sm:px-2.5 sm:py-1 sm:text-xs"
-    : "rounded-md border border-white/30 bg-white px-1.5 py-0.5 text-[10px] font-semibold text-[#2D83C2] hover:bg-white/90 sm:px-2.5 sm:py-1 sm:text-xs lg:border-[#2D83C2] lg:bg-[#2D83C2] lg:text-white lg:hover:bg-[#1a5f94]";
+    : "rounded-md border border-white/30 bg-white px-1.5 py-0.5 text-[10px] font-semibold text-[#2D83C2] hover:bg-white/90 sm:px-2.5 sm:py-1 sm:text-xs md:border-[#2D83C2] md:bg-[#2D83C2] md:text-white md:hover:bg-[#1a5f94]";
 
   return (
     <header className={shellCls}>
@@ -117,7 +109,7 @@ export default function Header({ variant = "default" }: { variant?: "home" | "de
           </div>
 
           {loading ? (
-            <div className="h-6 w-14 animate-pulse rounded-md bg-white/20 sm:h-7 sm:w-16 lg:bg-gray-200" />
+            <div className="h-6 w-14 animate-pulse rounded-md bg-white/20 sm:h-7 sm:w-16 md:bg-gray-200" />
           ) : user ? (
             <div className="hidden items-center gap-1 sm:flex">
               <Link href="/my-trips" className={`flex items-center gap-1 ${utilBtnCls}`}>

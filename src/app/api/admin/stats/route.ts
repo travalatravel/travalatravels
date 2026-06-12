@@ -7,7 +7,7 @@ export async function GET(request: Request) {
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
 
-    const [users, bookings, wallets, pendingPayments, paidBookings, revenue, totalViews, viewsToday] =
+    const [users, bookings, wallets, pendingPayments, paidBookings, revenue, uniqueVisitorsToday, openChats] =
       await Promise.all([
       prisma.user.count(),
       prisma.booking.count(),
@@ -18,8 +18,12 @@ export async function GET(request: Request) {
         where: { paymentStatus: "PAID" },
         _sum: { totalPrice: true },
       }),
-      prisma.pageView.count(),
-      prisma.pageView.count({ where: { createdAt: { gte: startOfDay } } }),
+      prisma.pageView.findMany({
+        where: { createdAt: { gte: startOfDay } },
+        distinct: ["sessionId"],
+        select: { sessionId: true },
+      }),
+      prisma.chatConversation.count({ where: { status: "OPEN" } }),
     ]);
 
     const recentBookings = await prisma.booking.findMany({
@@ -36,8 +40,8 @@ export async function GET(request: Request) {
         pendingPayments,
         paidBookings,
         totalRevenue: revenue._sum.totalPrice || 0,
-        totalViews,
-        viewsToday,
+        uniqueVisitorsToday: uniqueVisitorsToday.length,
+        openChats,
       },
       recentBookings,
     });

@@ -46,7 +46,7 @@ export default function LanguageSwitcher({
   };
 
   const btnCls =
-    "rounded-md px-1.5 py-0.5 text-[10px] font-semibold text-white hover:bg-white/15 sm:px-2 sm:py-1 sm:text-xs lg:text-[#220a32] lg:hover:bg-gray-100";
+    "rounded-md px-1.5 py-0.5 text-[10px] font-semibold text-white hover:bg-white/15 sm:px-2 sm:py-1 sm:text-xs md:text-[#220a32] md:hover:bg-gray-100";
 
   return (
     <div ref={ref} className="relative">

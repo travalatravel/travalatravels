@@ -14,11 +14,13 @@ import {
   Eye,
   Menu,
   X,
+  MessageSquare,
 } from "lucide-react";
 
 const NAV = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/views", label: "Page Views", icon: Eye },
+  { href: "/admin/chat", label: "Live Chat", icon: MessageSquare },
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/bookings", label: "Bookings", icon: CalendarCheck },
   { href: "/admin/wallets", label: "Crypto Wallets", icon: Wallet },

@@ -7,6 +7,7 @@ import Link from "next/link";
 import OfferGallery from "@/components/OfferGallery";
 import OfferDetails from "@/components/OfferDetails";
 import OfferRoomPicker from "@/components/OfferRoomPicker";
+import HotelFlightBundle from "@/components/HotelFlightBundle";
 import { Star, MapPin, ArrowLeft, Plane } from "lucide-react";
 import FlightOfferDetails from "@/components/FlightOfferDetails";
 import { parseFlightMetadata, priceForFlight } from "@/lib/flight-display";
@@ -19,6 +20,11 @@ import { offerTypeLabel } from "@/i18n/display-labels";
 import type { LivePriceResult } from "@/lib/travala-price";
 import { defaultStayDates } from "@/lib/travala-price";
 import { applySalePrice, getOfferPricing, formatUsd } from "@/lib/pricing";
+import {
+  appendBundleFlightParams,
+  BUNDLE_HOTEL_EXTRA_DISCOUNT_PCT,
+  type BundleFlightSelection,
+} from "@/lib/flight-hotel-bundle";
 import { Tag } from "lucide-react";
 import { useTranslations } from "@/i18n/useTranslations";
 
@@ -36,6 +42,7 @@ function OfferDetailContent() {
   const [livePrice, setLivePrice] = useState<LivePriceResult | null>(null);
   const [priceLoading, setPriceLoading] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState<OfferRoomOption | null>(null);
+  const [selectedFlight, setSelectedFlight] = useState<BundleFlightSelection | null>(null);
   const [error, setError] = useState("");
 
   const trip = (searchParams.get("trip") || "roundtrip") as TripType;
@@ -124,6 +131,12 @@ function OfferDetailContent() {
       : offer?.price ?? 0);
   const pricing = offer ? getOfferPricing(displayPricePerNight, offer.id, offer.stars) : null;
   const totalPricing = offer ? getOfferPricing(calcBaseTotal()) : null;
+  const bundleHotelTotal = selectedFlight
+    ? Math.round(calcTotal() * (1 - BUNDLE_HOTEL_EXTRA_DISCOUNT_PCT / 100) * 100) / 100
+    : calcTotal();
+  const bundleTotal = selectedFlight
+    ? bundleHotelTotal + selectedFlight.flightTotal
+    : calcTotal();
 
   const handleContinue = () => {
     if (!offer) return;
@@ -156,6 +169,9 @@ function OfferDetailContent() {
       params.set("roomTotal", String(selectedRoom.totalPrice));
       params.set("roomPricePerNight", String(selectedRoom.pricePerNight));
       if (selectedRoom.mealType) params.set("roomMealType", selectedRoom.mealType);
+    }
+    if (selectedFlight) {
+      appendBundleFlightParams(params, selectedFlight);
     }
     router.push(`/offers/${id}/checkout?${params}`);
   };
@@ -198,6 +214,10 @@ function OfferDetailContent() {
               offerType={offer.type}
               city={offer.city}
               country={offer.country}
+              checkIn={checkIn}
+              checkOut={checkOut}
+              guests={guests}
+              rooms={rooms}
             />
             <div className="mt-4 min-w-0 sm:mt-6">
               <span className="rounded-full bg-[#2D83C2]/10 px-3 py-1 text-xs font-semibold text-[#2D83C2]">
@@ -248,6 +268,15 @@ function OfferDetailContent() {
                     rooms={rooms}
                     fallbackDescription={offer.description}
                     hideRooms
+                  />
+                  <HotelFlightBundle
+                    destinationCity={offer.city}
+                    destinationCountry={offer.country}
+                    checkIn={checkIn}
+                    checkOut={checkOut}
+                    guests={guests}
+                    selectedFlightToken={selectedFlight?.token ?? null}
+                    onSelectFlight={setSelectedFlight}
                   />
                 </>
               )}
@@ -368,7 +397,7 @@ function OfferDetailContent() {
               <div className="mt-4 min-w-0 rounded-xl border border-[#2D83C2]/15 bg-[#2D83C2]/5 p-3 sm:mt-5">
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                   <span className="text-sm font-semibold text-[#1a1a1a] sm:text-base">
-                    {m.offerPage.yourPrice}
+                    {selectedFlight ? m.bundle.hotelPlusFlight : m.offerPage.yourPrice}
                     {livePrice?.nights || isFlight
                       ? fmt(m.offerPage.nightsAndPax, {
                           nights: livePrice?.nights ?? 0,
@@ -377,9 +406,12 @@ function OfferDetailContent() {
                       : ""}
                   </span>
                   <span className={`text-xl font-bold text-[#1a1a1a] sm:text-2xl ${priceLoading ? "opacity-50" : ""}`}>
-                    {priceLoading ? "…" : formatUsd(calcTotal())}
+                    {priceLoading ? "…" : formatUsd(selectedFlight ? bundleTotal : calcTotal())}
                   </span>
                 </div>
+                {selectedFlight && (
+                  <p className="mt-1 text-xs text-emerald-700">{m.bundle.bundleSavings}</p>
+                )}
                 {totalPricing && totalPricing.savings > 0 && (
                   <p className="mt-1 break-words text-xs text-[#2D83C2]">
                     {fmt(m.offerPage.wasSaving, {
@@ -413,7 +445,7 @@ function OfferDetailContent() {
           <div className="min-w-0 flex-1">
             <p className="truncate text-xs text-gray-500">{m.offerPage.yourPrice}</p>
             <p className="text-lg font-bold text-[#1a1a1a]">
-              {priceLoading ? "…" : formatUsd(calcTotal())}
+              {priceLoading ? "…" : formatUsd(selectedFlight ? bundleTotal : calcTotal())}
             </p>
           </div>
           <button

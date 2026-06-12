@@ -1,4 +1,5 @@
 import type { OfferType } from "@/lib/types";
+import { fetchTravalaHotelPhotosFromApi } from "./travala-api";
 import { travalaHtmlHeaders } from "./travala-headers";
 
 const TRAVALA_BASE = "https://www.travala.com";
@@ -60,11 +61,59 @@ export async function fetchTravalaHotelPage(slug: string): Promise<Record<string
   return fetchTravalaPage(`/hotel/${slug}`);
 }
 
-export async function fetchTravalaHotelPhotos(slug: string): Promise<string[]> {
+type HotelImageV2 = {
+  large_url?: string;
+  medium_url?: string;
+  thumbnail_url?: string;
+};
+
+function extractPhotosFromHotelProps(hotel: Record<string, unknown>): string[] {
+  const urls: string[] = [];
+
+  const photos = hotel.photos as string[] | undefined;
+  if (photos?.length) urls.push(...photos.filter(Boolean));
+
+  const imagesV2 = hotel.images_v2 as HotelImageV2[] | undefined;
+  if (Array.isArray(imagesV2)) {
+    for (const img of imagesV2) {
+      if (img.large_url) urls.push(img.large_url);
+      else if (img.medium_url) urls.push(img.medium_url);
+      else if (img.thumbnail_url) urls.push(img.thumbnail_url);
+    }
+  }
+
+  if (typeof hotel.featured_image === "string" && hotel.featured_image) {
+    urls.push(hotel.featured_image);
+  }
+
+  return [...new Set(urls)];
+}
+
+export async function fetchTravalaHotelPhotosFromPage(slug: string): Promise<string[]> {
   const props = await fetchTravalaHotelPage(slug);
-  const hotel = props?.hotelInformationProps as { photos?: string[] } | undefined;
-  const photos = (hotel?.photos || []).filter(Boolean);
-  return [...new Set(photos)];
+  const hotel = props?.hotelInformationProps as Record<string, unknown> | undefined;
+  if (!hotel) return [];
+  return extractPhotosFromHotelProps(hotel);
+}
+
+export async function fetchTravalaHotelPhotos(
+  slug: string,
+  opts?: { checkIn?: string; checkOut?: string; guests?: number; rooms?: number },
+): Promise<string[]> {
+  const pagePhotos = await fetchTravalaHotelPhotosFromPage(slug);
+
+  let apiPhotos: string[] = [];
+  if (opts?.checkIn && opts?.checkOut) {
+    apiPhotos = await fetchTravalaHotelPhotosFromApi({
+      slug,
+      checkIn: opts.checkIn,
+      checkOut: opts.checkOut,
+      guests: opts.guests,
+      rooms: opts.rooms,
+    });
+  }
+
+  return [...new Set([...apiPhotos, ...pagePhotos])];
 }
 
 export async function fetchTravalaHotelImage(slug: string): Promise<string | null> {
@@ -147,11 +196,27 @@ export async function fetchTravalaCityPhotos(city?: string | null, country?: str
 
 export async function fetchOfferPhotos(
   type: OfferType,
-  opts: { slug?: string | null; url?: string | null; city?: string | null; country?: string | null },
+  opts: {
+    slug?: string | null;
+    url?: string | null;
+    city?: string | null;
+    country?: string | null;
+    checkIn?: string | null;
+    checkOut?: string | null;
+    guests?: number;
+    rooms?: number;
+  },
 ): Promise<string[]> {
   switch (type) {
     case "HOTEL":
-      return opts.slug ? fetchTravalaHotelPhotos(opts.slug) : [];
+      return opts.slug
+        ? fetchTravalaHotelPhotos(opts.slug, {
+            checkIn: opts.checkIn || undefined,
+            checkOut: opts.checkOut || undefined,
+            guests: opts.guests,
+            rooms: opts.rooms,
+          })
+        : [];
     case "FLIGHT":
       return opts.url ? fetchTravalaFlightPhotos(opts.url) : [];
     case "CAR_RENTAL":
@@ -179,9 +244,9 @@ export function shouldResolveOfferImage(
   metadata: string | null,
   city?: string | null,
 ): boolean {
+  if (type === "HOTEL") return Boolean(travalaSlugFromOffer(metadata));
   if (!isGenericTravalaImage(url)) return false;
 
-  if (type === "HOTEL") return Boolean(travalaSlugFromOffer(metadata));
   if (type === "FLIGHT") return Boolean(travalaRouteUrlFromOffer(metadata));
   if (type === "CAR_RENTAL" || type === "ACTIVITY") return Boolean(city?.trim());
   return false;

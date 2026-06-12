@@ -16,6 +16,10 @@ type Props = {
   offerType?: OfferType;
   city?: string | null;
   country?: string | null;
+  checkIn?: string;
+  checkOut?: string;
+  guests?: number;
+  rooms?: number;
   fill?: boolean;
   width?: number;
   height?: number;
@@ -28,6 +32,10 @@ function buildImageRequest(
   metadata: string | null,
   city?: string | null,
   country?: string | null,
+  checkIn?: string,
+  checkOut?: string,
+  guests?: number,
+  rooms?: number,
 ): string | null {
   const params = new URLSearchParams({ type: offerType });
 
@@ -35,6 +43,10 @@ function buildImageRequest(
     const slug = travalaSlugFromOffer(metadata);
     if (!slug) return null;
     params.set("slug", slug);
+    if (checkIn) params.set("checkIn", checkIn);
+    if (checkOut) params.set("checkOut", checkOut);
+    if (guests) params.set("guests", String(guests));
+    if (rooms) params.set("rooms", String(rooms));
   } else if (offerType === "FLIGHT") {
     const url = travalaRouteUrlFromOffer(metadata);
     if (!url) return null;
@@ -55,6 +67,10 @@ export default function OfferImage({
   offerType = "HOTEL",
   city,
   country,
+  checkIn,
+  checkOut,
+  guests,
+  rooms,
   fill,
   width,
   height,
@@ -68,7 +84,16 @@ export default function OfferImage({
 
     if (!shouldResolveOfferImage(src, offerType, metadata ?? null, city)) return;
 
-    const endpoint = buildImageRequest(offerType, metadata ?? null, city, country);
+    const endpoint = buildImageRequest(
+      offerType,
+      metadata ?? null,
+      city,
+      country,
+      checkIn,
+      checkOut,
+      guests,
+      rooms,
+    );
     if (!endpoint) return;
 
     let cancelled = false;
@@ -82,7 +107,7 @@ export default function OfferImage({
     return () => {
       cancelled = true;
     };
-  }, [src, metadata, offerType, city, country]);
+  }, [src, metadata, offerType, city, country, checkIn, checkOut, guests, rooms]);
 
   const imgProps = {
     src: resolved,

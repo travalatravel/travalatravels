@@ -87,9 +87,63 @@ const de: DeepPartial<Messages> = {
     },
   },
   crypto: {
-    subtitle: "Krypto-freundliche Buchungen", title: "Ihr Geld ist hier willkommen.",
+    subtitle: "Krypto-freundliche Buchungen",
+    title: "Ihr Geld ist hier willkommen.",
+    headline: "Warum Ihren Urlaub mit Krypto buchen?",
+    intro:
+      "Ihre nächste Reise sollte nicht von Banköffnungszeiten, Kartenlimits oder Überraschungen beim Wechselkurs abhängen. Bezahlen Sie mit Bitcoin, Ethereum, USDC und über 100 Coins — und verwandeln Sie digitale Assets in echte Erlebnisse.",
     body: "Wir sind die führende Krypto-Reiseplattform. Bezahlen Sie Ihre Reise weltweit nahtlos mit über 100 Kryptowährungen.",
-    cta: "Alle Zahlungsoptionen anzeigen", footerPay: "Mit 100+ Kryptowährungen bezahlen — Bitcoin, Ethereum, AVA und mehr.",
+    cta: "Alle Zahlungsoptionen anzeigen",
+    ctaBook: "Mit Krypto buchen",
+    ctaFlights: "Flüge suchen",
+    footerPay: "Mit 100+ Kryptowährungen bezahlen — Bitcoin, Ethereum, AVA und mehr.",
+    reasonsTitle: "Sechs Gründe, warum Reisende mit Krypto zahlen",
+    reasons: [
+      {
+        title: "Weltweit bezahlen — von überall",
+        description:
+          "Hotel auf Bali, Flug nach New York oder Mietwagen in Lissabon — ohne Sorge, ob die Bankkarte im Ausland funktioniert oder Reisehändler blockiert werden.",
+      },
+      {
+        title: "Keine Bank dazwischen",
+        description:
+          "Sie zahlen direkt aus Ihrer Wallet. Kein Warten auf Auslandsüberweisungen, keine Wochenend-Sperren, kein „Autorisierung ausstehend“, während das Zimmer weg ist.",
+      },
+      {
+        title: "Stablecoins = fester Betrag",
+        description:
+          "Mit USDC oder USDT zahlen Sie einen klar festgelegten Dollarbetrag — ideal, wenn Sie keine Bitcoin-Kursschwankungen zwischen Suche und Checkout wollen.",
+      },
+      {
+        title: "Crypto sinnvoll nutzen",
+        description:
+          "Bestand auf der Börse liegen lassen? Nutzen Sie ihn für etwas Echtes — statt verkaufen → aufs Bankkonto warten → später erst buchen.",
+      },
+      {
+        title: "Weniger Doppel-Wechselgebühren",
+        description:
+          "Große Reisekosten bedeuten oft Karten-FX-Aufschlag plus lokale Währung. Eine Krypto-Zahlung kann mehrere Bank- und Kartenspreads vermeiden.",
+      },
+      {
+        title: "Sie behalten die Kontrolle",
+        description:
+          "Sie wählen die Coin, bestätigen den Betrag und senden, wenn Sie bereit sind — ohne Kartennummer an jedes Hotel, jede Airline und jeden Partner weiterzugeben.",
+      },
+    ],
+    buyCryptoTitle: "Noch kein Crypto? Viele kaufen welches — extra für die Reise.",
+    buyCryptoBody:
+      "Einmal BTC, ETH oder einen Stablecoin auf Ihrer Börse kaufen, in die Wallet senden und in Minuten bezahlen. Bei Urlaubskosten ab 2.000 € ist das oft einfacher und schneller als internationale Überweisungen — und Sie tauschen nur um, was Sie wirklich brauchen.",
+    buyCryptoPoints: [
+      "Monate im Voraus planen: in Stablecoins ansparen, buchen wenn es passt",
+      "Ein Kauf deckt Flug, Hotel und Extras in einem Checkout ab",
+      "Keine Reise-Kreditkarte oder Auslandskonto nötig",
+    ],
+    stepsTitle: "So funktioniert Krypto-Zahlung",
+    steps: [
+      { title: "Reise wählen", description: "Hotel, Flug oder Paket — wie gewohnt suchen." },
+      { title: "Coin auswählen", description: "BTC, ETH, USDC, USDT und mehr beim Checkout." },
+      { title: "Senden & reisen", description: "Aus der Wallet zahlen — wir bestätigen, Ihre Buchung steht." },
+    ],
   },
   features: [
     { title: "24/7 Kundensupport", description: "Support jederzeit per Live-Chat oder E-Mail" },
@@ -107,6 +161,15 @@ const de: DeepPartial<Messages> = {
   partners: { title: "Unsere vertrauenswürdigen Partner" },
   bundle: {
     addHotelIn: "Hotel in {destination} hinzufügen",
+    addFlightTo: "Flug nach {destination} hinzufügen",
+    addFlightOptional: "Optional — Flug und Hotel zusammen buchen und am Ende gemeinsam bezahlen.",
+    addFlightToTrip: "Flug hinzufügen",
+    flyingFrom: "Abflug von",
+    flyingFromPlaceholder: "z. B. Berlin, München, Frankfurt",
+    flightOriginHint: "Abflugstadt eingeben, um Flüge zu suchen.",
+    flightDestinationUnknown: "Kein Flughafen für {city} gefunden.",
+    noFlightsFound: "Keine Flüge für diese Daten. Sie können trotzdem nur das Hotel buchen.",
+    hotelPlusFlight: "Hotel + Flug",
     savingsHint: "Sparen Sie zusätzlich {pct} % auf Hotels bei Abschluss Ihrer Flugbuchung",
     viewAllHotels: "Alle Hotels anzeigen",
     addToTrip: "Zur Reise hinzufügen",
@@ -130,6 +193,27 @@ const de: DeepPartial<Messages> = {
     inspiration: "Inspiration",
   },
   travelGuides: { title: "Reiseführer" },
+  liveChat: {
+    title: "Live-Support",
+    subtitle: "Wir antworten in der Regel innerhalb weniger Minuten",
+    introTitle: "Bevor es losgeht",
+    introBody: "Bitte Vorname, Nachname und E-Mail angeben — damit wir antworten können, falls Sie den Chat verlassen.",
+    firstName: "Vorname",
+    lastName: "Nachname",
+    email: "E-Mail-Adresse",
+    startChat: "Chat starten",
+    starting: "Wird gestartet…",
+    registerFailed: "Chat konnte nicht gestartet werden. Bitte Angaben prüfen.",
+    sendFailed: "Nachricht konnte nicht gesendet werden.",
+    emptyState: "Fragen Sie uns zu Buchungen, Zahlungen oder Reisezielen.",
+    supportTeam: "Support",
+    inputPlaceholder: "Nachricht schreiben…",
+    send: "Nachricht senden",
+    open: "Live-Chat öffnen",
+    close: "Chat schließen",
+    minimize: "Minimieren",
+    conversationClosed: "Dieser Chat wurde geschlossen. Schreiben Sie erneut, um fortzufahren.",
+  },
   faq: {
     title: "FAQ",
     items: [

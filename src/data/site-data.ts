@@ -1,8 +1,8 @@
 import { DESTINATION_EXTRA } from "./destination-extra";
 
 export const ASSETS = {
-  logoWhite: "https://static.travala.com/frontend/logos-v2/logo-white.svg",
-  logoBlack: "https://static.travala.com/frontend/logos-v2/logo-black.svg",
+  logoWhite: "/logo-white.svg",
+  logoBlack: "/logo-black.svg",
   logoDark: "https://static.travala.com/frontend/logos-v2/logo-dark-purple.svg",
   logoMint: "https://static.travala.com/frontend/logos-v2/logo-mint.svg",
   heroBg: "https://static.travala.com/resources/images-pc/rebranding/rebrand-background-v2.webp?v1",

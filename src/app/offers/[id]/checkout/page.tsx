@@ -6,8 +6,13 @@ import Link from "next/link";
 import SiteChrome from "@/components/SiteChrome";
 import BookingCheckoutForm from "@/components/BookingCheckoutForm";
 import BookingOrderSummary from "@/components/BookingOrderSummary";
+import HotelBundleSummary from "@/components/HotelBundleSummary";
 import type { Offer } from "@/lib/types";
 import { applySalePrice } from "@/lib/pricing";
+import {
+  BUNDLE_HOTEL_EXTRA_DISCOUNT_PCT,
+  parseBundleFlightFromParams,
+} from "@/lib/flight-hotel-bundle";
 import { priceForFlight } from "@/lib/flight-display";
 import type { CabinClass, TripType } from "@/lib/flight-types";
 import { ArrowLeft } from "lucide-react";
@@ -38,6 +43,7 @@ function CheckoutContent() {
   const roomTotalPrice = searchParams.get("roomTotal")
     ? parseFloat(searchParams.get("roomTotal")!)
     : undefined;
+  const bundleFlight = parseBundleFlightFromParams(searchParams);
 
   useEffect(() => {
     fetch(`/api/offers/${id}`)
@@ -85,6 +91,11 @@ function CheckoutContent() {
             ? priceForFlight(offer.price, cabin, flightPax, trip)
             : offer.price * guests;
   const totalPrice = applySalePrice(baseTotal, offer.id, offer.stars);
+  const bundleHotelTotal =
+    offer.type === "HOTEL" && bundleFlight
+      ? Math.round(totalPrice * (1 - BUNDLE_HOTEL_EXTRA_DISCOUNT_PCT / 100) * 100) / 100
+      : totalPrice;
+  const bundleTotal = bundleFlight ? bundleHotelTotal + bundleFlight.flightTotal : totalPrice;
 
   return (
     <main className="mx-auto max-w-6xl px-3 py-6 sm:px-4 sm:py-8 lg:px-6">
@@ -116,23 +127,37 @@ function CheckoutContent() {
             roomTotalPrice={roomTotalPrice}
             cabin={isFlight ? cabin : undefined}
             trip={isFlight ? trip : undefined}
+            bundleFlightToken={bundleFlight?.token}
+            bundleFlightTotal={bundleFlight?.flightTotal}
+            bundleTotal={bundleFlight ? bundleTotal : undefined}
           />
         </div>
         <div className="order-1 lg:order-2 lg:col-span-1">
           <div className="lg:sticky lg:top-20">
-            <BookingOrderSummary
-              offer={offer}
-              checkIn={checkIn}
-              checkOut={checkOut}
-              guests={isFlight ? flightPax : guests}
-              rooms={rooms}
-              totalPrice={totalPrice}
-              nights={isFlight ? undefined : nights}
-              roomPackageName={roomPackageName}
-              roomMealType={roomMealType}
-              cabin={isFlight ? cabin : undefined}
-              trip={isFlight ? trip : undefined}
-            />
+            {offer.type === "HOTEL" && bundleFlight ? (
+              <HotelBundleSummary
+                offer={offer}
+                hotelTotal={bundleHotelTotal}
+                checkIn={checkIn}
+                checkOut={checkOut}
+                nights={nights}
+                flight={bundleFlight}
+              />
+            ) : (
+              <BookingOrderSummary
+                offer={offer}
+                checkIn={checkIn}
+                checkOut={checkOut}
+                guests={isFlight ? flightPax : guests}
+                rooms={rooms}
+                totalPrice={totalPrice}
+                nights={isFlight ? undefined : nights}
+                roomPackageName={roomPackageName}
+                roomMealType={roomMealType}
+                cabin={isFlight ? cabin : undefined}
+                trip={isFlight ? trip : undefined}
+              />
+            )}
           </div>
         </div>
       </div>

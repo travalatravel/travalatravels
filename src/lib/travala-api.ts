@@ -77,6 +77,48 @@ export async function travalaPackages(
   });
 }
 
+/** Extract all room/property image URLs from Travala get_package API response. */
+export function extractPackagePhotos(pkgData: unknown): string[] {
+  if (!Array.isArray(pkgData)) return [];
+
+  const urls: string[] = [];
+  for (const pkg of pkgData) {
+    const results = (pkg as { results?: Record<string, unknown>[] }).results || [];
+    for (const result of results) {
+      const bedGroups = (result.bed_groups as { images?: string[] }[] | undefined) || [];
+      for (const group of bedGroups) {
+        if (Array.isArray(group.images)) {
+          urls.push(...group.images.filter((url): url is string => Boolean(url)));
+        }
+      }
+    }
+  }
+  return [...new Set(urls)];
+}
+
+export async function fetchTravalaHotelPhotosFromApi(input: {
+  slug: string;
+  checkIn: string;
+  checkOut: string;
+  guests?: number;
+  rooms?: number;
+}): Promise<string[]> {
+  const guests = input.guests ?? 2;
+  const rooms = input.rooms ?? 1;
+  const sessionId = await travalaSessionId(
+    input.slug,
+    input.checkIn,
+    input.checkOut,
+    guests,
+    rooms,
+  );
+  if (!sessionId) return [];
+
+  const pkgRes = await travalaPackages(input.slug, sessionId);
+  if (!pkgRes?.success) return [];
+  return extractPackagePhotos(pkgRes.data);
+}
+
 export function usdPerNight(item: Record<string, unknown> | undefined): number | null {
   if (!item) return null;
   const perNight = item.prices_per_night_room_units as { USD?: number } | undefined;
