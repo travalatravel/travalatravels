@@ -192,8 +192,22 @@ export default function SearchForm({
     navigateToSearch(term, item);
   };
 
-  const handleSearch = (e?: React.FormEvent) => {
+  const handleSearch = async (e?: React.FormEvent) => {
     e?.preventDefault();
+    if (type === "stays" && query.trim()) {
+      try {
+        const params = new URLSearchParams({ q: query.trim(), type: "stays", limit: "1" });
+        const res = await fetch(`/api/search/suggest?${params}`);
+        const data = (await res.json()) as { suggestions?: SearchSuggestion[] };
+        const first = data.suggestions?.[0];
+        if (first?.kind === "city" && first.country && first.city) {
+          navigateToSearch(first.searchQuery, first);
+          return;
+        }
+      } catch {
+        /* fall through to plain search */
+      }
+    }
     navigateToSearch(query);
   };
 

@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { searchTermsForQuery, normalizeSearchQuery } from "@/lib/search-query";
-import { expandCanonicalSearchTerms } from "@/lib/city-destinations";
+import { expandCanonicalSearchTerms, resolveDestination, type CanonicalDestination } from "@/lib/city-destinations";
 import { fetchLiveHotelsForQuery, upsertLiveHotels, type LiveHotel } from "@/lib/travala-live-search";
 import type { Offer, OfferType } from "@/lib/types";
 
@@ -74,9 +74,16 @@ function countryNamesForQuery(raw: string): string[] | null {
   return null;
 }
 
-function expandSearchTerms(raw: string): string[] {
+function expandSearchTerms(raw: string, resolved?: CanonicalDestination | null): string[] {
   const terms = new Set(searchTermsForQuery(raw).filter((t) => t.length >= 3));
   expandCanonicalSearchTerms(raw).forEach((term) => terms.add(term));
+  if (resolved) {
+    terms.add(resolved.searchQuery);
+    terms.add(resolved.city);
+    resolved.searchTerms.forEach((term) => {
+      if (term.length >= 3) terms.add(term);
+    });
+  }
   const key = raw.trim().toLowerCase().replace(/\s+/g, "-");
   const slugKey = key.replace(/-/g, "");
   for (const [aliasKey, aliases] of Object.entries(COUNTRY_ALIASES)) {
@@ -87,7 +94,7 @@ function expandSearchTerms(raw: string): string[] {
   return [...terms];
 }
 
-function buildHotelWhereClause(params: HotelSearchParams): string | null {
+function buildHotelWhereClause(params: HotelSearchParams, resolved?: CanonicalDestination | null): string | null {
   const countryNames = new Set<string>();
   for (const raw of [params.country, params.q].filter(Boolean) as string[]) {
     const names = countryNamesForQuery(raw);
@@ -106,7 +113,7 @@ function buildHotelWhereClause(params: HotelSearchParams): string | null {
     if (cityTerm) {
       parts.push(`LOWER(city) LIKE '%${escapeLike(cityTerm)}%'`);
     } else if (params.q && !qIsCountry) {
-      const qTerms = expandSearchTerms(params.q);
+      const qTerms = expandSearchTerms(params.q, resolved);
       if (qTerms.length) {
         const qClause = qTerms
           .map(
@@ -121,8 +128,8 @@ function buildHotelWhereClause(params: HotelSearchParams): string | null {
   }
 
   const terms = new Set<string>();
-  if (params.q) expandSearchTerms(params.q).forEach((t) => terms.add(t));
-  if (params.city) expandSearchTerms(params.city).forEach((t) => terms.add(t));
+  if (params.q) expandSearchTerms(params.q, resolved).forEach((t) => terms.add(t));
+  if (params.city) expandSearchTerms(params.city, resolved).forEach((t) => terms.add(t));
   const termList = [...terms].filter(Boolean);
   if (!termList.length) return null;
 
@@ -177,12 +184,22 @@ export async function searchHotelOffers(params: HotelSearchParams): Promise<{
   const skip = (page - 1) * limit;
   const sort = params.sort || "recommended";
 
-  const whereClause = buildHotelWhereClause(params);
+  const rawQuery = (params.city || params.q || "").trim();
+  const resolved = rawQuery ? await resolveDestination(rawQuery) : null;
+  const effectiveParams: HotelSearchParams = {
+    ...params,
+    q: params.q || resolved?.searchQuery,
+    city: params.city || resolved?.city,
+    country: params.country || resolved?.country,
+  };
+
+  const whereClause = buildHotelWhereClause(effectiveParams, resolved);
+
   const primaryTerm =
-    normalizeSearchQuery(params.city || params.country || params.q || "") ||
-    params.city ||
-    params.country ||
-    params.q ||
+    normalizeSearchQuery(effectiveParams.city || effectiveParams.country || effectiveParams.q || "") ||
+    effectiveParams.city ||
+    effectiveParams.country ||
+    effectiveParams.q ||
     "";
 
   let dbOffers: Offer[] = [];
@@ -241,21 +258,22 @@ export async function searchHotelOffers(params: HotelSearchParams): Promise<{
   let offers = dbOffers;
   let source: "db" | "live" | "mixed" = "db";
 
-  if (dbTotal < 12 && primaryTerm) {
+  if (primaryTerm && dbTotal < limit) {
     const primary = primaryTerm;
     try {
       const live = await Promise.race([
         fetchLiveHotelsForQuery(primary, {
-          country: params.country,
-          city: params.city,
+          country: effectiveParams.country,
+          city: effectiveParams.city,
+          liveUrl: resolved?.liveUrl,
         }),
         new Promise<LiveHotel[]>((_, reject) =>
-          setTimeout(() => reject(new Error("live timeout")), 9000),
+          setTimeout(() => reject(new Error("live timeout")), 15000),
         ),
       ]);
 
       if (live.length > 0) {
-        void upsertLiveHotels(live.slice(0, 80)).catch(() => {});
+        void upsertLiveHotels(live.slice(0, 200)).catch(() => {});
         const liveOffers = live.map((h, i) => liveToOffer(h, i));
         const seen = new Set<string>();
         offers = [...liveOffers, ...dbOffers].filter((o) => {

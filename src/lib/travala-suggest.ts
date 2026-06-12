@@ -226,11 +226,17 @@ function allowedKinds(searchType: string): Set<SuggestionKind> | null {
 }
 
 function exactMatchBoost(item: SearchSuggestion, q: string): number {
-  const needle = q.trim().toLowerCase();
+  const needle = normalizeDestinationKey(q);
   if (!needle) return 0;
-  if (item.searchQuery.toLowerCase() === needle) return -10;
-  if (item.searchQuery.toLowerCase().startsWith(needle)) return -5;
-  if (item.label.toLowerCase().includes(needle)) return -2;
+  const local = matchCanonicalDestination(q);
+  const searchKey = normalizeDestinationKey(item.searchQuery);
+  const labelKey = normalizeDestinationKey(item.label);
+
+  if (local && normalizeDestinationKey(local.searchQuery) === searchKey) return -20;
+  if (searchKey === needle) return -10;
+  if (searchKey.startsWith(needle) || needle.startsWith(searchKey)) return -5;
+  if (labelKey.includes(needle)) return -2;
+  if (local?.keys.some((key) => labelKey.includes(normalizeDestinationKey(key)))) return -8;
   return 0;
 }
 
@@ -257,11 +263,6 @@ function dedupeSuggestions(items: SearchSuggestion[], searchType: string): Searc
   return [...seen.values()];
 }
 
-function mentionsSpain(item: SearchSuggestion): boolean {
-  const hay = `${item.query} ${item.subtitle || ""} ${item.country || ""}`.toLowerCase();
-  return hay.includes("spain") || hay.includes("canary");
-}
-
 function refineStaysSuggestions(query: string, items: SearchSuggestion[]): SearchSuggestion[] {
   const canonical = matchCanonicalDestination(query);
   if (canonical) {
@@ -270,17 +271,18 @@ function refineStaysSuggestions(query: string, items: SearchSuggestion[]): Searc
     return [primary, ...hotels];
   }
 
-  const qNorm = normalizeDestinationKey(query);
-  const hasSpainMatch = items.some((item) => item.kind === "city" && mentionsSpain(item));
+  const sluggedCity = items.find((item) => item.kind === "city" && item.liveUrl);
 
   const filtered = items.filter((item) => {
-    if (item.kind === "airport" && items.some((other) => other.kind === "city" && other.searchQuery.toLowerCase().includes(qNorm))) {
-      return false;
-    }
-    if (item.kind === "city" && hasSpainMatch && /tenerife/i.test(qNorm) && !mentionsSpain(item)) {
-      return false;
-    }
+    if (item.kind === "airport" && sluggedCity) return false;
+    if (item.kind === "city" && !item.liveUrl && sluggedCity) return false;
     if (item.kind === "region") return false;
+    if (item.kind === "city" && sluggedCity && item.id !== sluggedCity.id) {
+      const sameCountry =
+        (item.country || item.subtitle || "").toLowerCase() ===
+        (sluggedCity.country || sluggedCity.subtitle || "").toLowerCase();
+      if (!sameCountry && !item.liveUrl) return false;
+    }
     return true;
   });
 
@@ -289,11 +291,13 @@ function refineStaysSuggestions(query: string, items: SearchSuggestion[]): Searc
     const key =
       item.kind === "hotel"
         ? item.id
-        : `${item.kind}:${normalizeDestinationKey(item.searchQuery)}:${mentionsSpain(item) ? "es" : item.subtitle || ""}`;
+        : `${item.kind}:${normalizeDestinationKey(item.searchQuery)}:${item.liveUrl || item.subtitle || ""}`;
     if (!deduped.has(key)) deduped.set(key, item);
   }
 
-  return [...deduped.values()].slice(0, 6);
+  return [...deduped.values()]
+    .sort((a, b) => Number(Boolean(b.liveUrl)) - Number(Boolean(a.liveUrl)))
+    .slice(0, 6);
 }
 
 export async function fetchTravalaSuggestions(
@@ -304,8 +308,11 @@ export async function fetchTravalaSuggestions(
   const trimmed = q.trim();
   if (trimmed.length < 1) return [];
 
+  const local = matchCanonicalDestination(trimmed);
+  const apiQuery = local?.searchQuery || trimmed;
+
   const params = new URLSearchParams({
-    q: trimmed,
+    q: apiQuery,
     limit: String(Math.min(limit * 3, 24)),
     enable_rth_search: "true",
     enable_typeahead: "true",
@@ -354,7 +361,14 @@ export async function fetchTravalaSuggestions(
     );
 
   if (searchType === "stays") {
-    merged = refineStaysSuggestions(trimmed, merged);
+    const local = matchCanonicalDestination(trimmed);
+    if (local) {
+      const primary = canonicalToSuggestion(local);
+      const hotels = merged.filter((item) => item.kind === "hotel").slice(0, 2);
+      merged = [primary, ...hotels.filter((item) => item.id !== primary.id)];
+    } else {
+      merged = refineStaysSuggestions(trimmed, merged);
+    }
   }
 
   return merged.slice(0, maxResults);
